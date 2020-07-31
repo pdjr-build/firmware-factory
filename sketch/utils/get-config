@@ -21,6 +21,7 @@ else
       					if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
       					OLINE="${OLINE}${VALUE}"
       					if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
+
       					OUTPUT+=("${OLINE}")
       					if [[ "${rname}" == *"_SERIAL_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
      					if [[ "${rname}" == *"_UNIQUE_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi

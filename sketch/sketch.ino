@@ -47,7 +47,7 @@ const byte GPIO_RELAY_DOWN = 23;
 unsigned short 	        PRODUCT_CODE = 1;		        // Something or other
 char         	        PRODUCT_TYPE[] = "MODINT";              // Hardware type
 char         	        PRODUCT_VERSION[] = "1.0";              // Hardware version
-char           	        PRODUCT_SERIAL_CODE[] = "93";       // Hardware serial number
+char           	        PRODUCT_SERIAL_CODE[] = "101";       // Hardware serial number
 char           	        PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 unsigned char  	        PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
 unsigned short 	        PRODUCT_N2K_VERSION = 2101;             // God knows what this means
@@ -66,7 +66,7 @@ unsigned char  	        PRODUCT_CERTIFICATION_LEVEL = 1;	// Or, indeed, this
 // value on any N2K bus and an easy way to achieve this is just to bump the device
 // number for every software build (this is done automatically in the Makefile).
 // 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 121;              // Magically changed on each build.
+const unsigned long     DEVICE_UNIQUE_NUMBER = 133;              // Magically changed on each build.
 const unsigned char     DEVICE_FUNCTION = 130;                  // 130 says PC gateway
 const unsigned char     DEVICE_CLASS = 25;                      // 25 says network device
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;        // 2046 is currently unassigned.
