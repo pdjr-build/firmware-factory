@@ -236,7 +236,7 @@ Wire Wire Line
 Wire Wire Line
 	8700 1700 8700 2250
 Wire Wire Line
-	8700 2250 7600 2250
+	8700 2250 7400 2250
 $Comp
 L Isolator:4N25 U1
 U 1 1 5F7FBC77
@@ -351,7 +351,7 @@ Wire Wire Line
 Wire Wire Line
 	9800 950  9800 1900
 Wire Wire Line
-	7700 1700 7900 1700
+	7050 1700 7600 1700
 NoConn ~ 9600 4950
 NoConn ~ 7500 4550
 NoConn ~ 7500 3650
@@ -495,19 +495,17 @@ Wire Wire Line
 	2600 2950 2600 2850
 Connection ~ 3150 750 
 Wire Wire Line
-	7700 1150 7700 1700
+	7050 1150 7050 1700
 Wire Wire Line
 	9800 1900 10150 1900
 Wire Wire Line
-	7700 1150 6300 1150
+	7050 1150 6300 1150
 Wire Wire Line
 	2850 6200 5150 6200
 Wire Wire Line
 	7200 3450 7200 750 
 Connection ~ 7200 3450
 Connection ~ 7200 750 
-Wire Wire Line
-	7200 750  8600 750 
 Wire Wire Line
 	7500 4750 5350 4750
 Wire Wire Line
@@ -670,9 +668,9 @@ F 3 "~" H 5850 1900 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	6300 1700 7600 1700
+	6300 1700 6950 1700
 Wire Wire Line
-	7600 1700 7600 2250
+	6950 1700 6950 2250
 Wire Wire Line
 	5700 1900 5550 1900
 Wire Wire Line
@@ -805,4 +803,70 @@ Wire Wire Line
 	1650 2350 650  2350
 Wire Wire Line
 	650  2350 650  5350
+$Comp
+L Device:LED D6
+U 1 1 5F251E49
+P 7600 1400
+F 0 "D6" V 7639 1283 50  0000 R CNN
+F 1 "LED" V 7548 1283 50  0000 R CNN
+F 2 "" H 7600 1400 50  0001 C CNN
+F 3 "~" H 7600 1400 50  0001 C CNN
+	1    7600 1400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:LED D5
+U 1 1 5F252943
+P 7400 1400
+F 0 "D5" V 7439 1283 50  0000 R CNN
+F 1 "LED" V 7348 1283 50  0000 R CNN
+F 2 "" H 7400 1400 50  0001 C CNN
+F 3 "~" H 7400 1400 50  0001 C CNN
+	1    7400 1400
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R12
+U 1 1 5F28093B
+P 7600 1100
+F 0 "R12" V 7500 1100 50  0000 C CNN
+F 1 "1K" V 7600 1100 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 7530 1100 50  0001 C CNN
+F 3 "~" H 7600 1100 50  0001 C CNN
+	1    7600 1100
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:R R11
+U 1 1 5F285FEA
+P 7400 1100
+F 0 "R11" V 7300 1100 50  0000 C CNN
+F 1 "1K" V 7400 1100 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 7330 1100 50  0001 C CNN
+F 3 "~" H 7400 1100 50  0001 C CNN
+	1    7400 1100
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7600 1550 7600 1700
+Connection ~ 7600 1700
+Wire Wire Line
+	7600 1700 7900 1700
+Wire Wire Line
+	7400 1550 7400 2250
+Connection ~ 7400 2250
+Wire Wire Line
+	7400 2250 6950 2250
+Wire Wire Line
+	7200 750  7400 750 
+Wire Wire Line
+	7400 950  7400 750 
+Connection ~ 7400 750 
+Wire Wire Line
+	7400 750  7600 750 
+Wire Wire Line
+	7600 950  7600 750 
+Connection ~ 7600 750 
+Wire Wire Line
+	7600 750  8600 750 
 $EndSCHEMATC
