@@ -70,4 +70,5 @@ spudpole/
     │   └── SPUDPOLE_SPOOL_WIDTH_NUMBER
     └── README.md
 ```
-
+The placement of value definition files in this structure is critical for
+the sensible operation of the build system.
