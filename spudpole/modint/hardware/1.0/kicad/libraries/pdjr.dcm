@@ -1,0 +1,69 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP AB_1_WIRE_ZERO
+D expansion header for Raspberry Pi 2 & 3
+K raspberrypi gpio
+F https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf
+$ENDCMP
+#
+$CMP DIN-5
+D 5-pin DIN connector
+K circular DIN connector
+F http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf
+$ENDCMP
+#
+$CMP M12-5PIN
+D 5-pin DIN connector
+K circular DIN connector
+F http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf
+$ENDCMP
+#
+$CMP Raspberry_Pi
+D expansion header for Raspberry Pi 2 & 3
+K raspberrypi gpio
+F https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf
+$ENDCMP
+#
+$CMP Seeed_CAN_FD_Shield
+D expansion header for Raspberry Pi 2 & 3
+K raspberrypi gpio
+F https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf
+$ENDCMP
+#
+$CMP TPL7407L
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+$CMP ULN2002
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+$CMP ULN2002A
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+$CMP ULN2003A
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+$CMP ULN2004
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+$CMP ULN2004A
+D High Voltage, High Current Darlington Transistor Arrays, SOIC16/SOIC16W/DIP16/TSSOP16
+K darlington transistor array
+F http://www.ti.com/lit/ds/symlink/uln2003a.pdf
+$ENDCMP
+#
+#End Doc Library

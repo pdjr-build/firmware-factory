@@ -1,0 +1,37 @@
+Source,/home/preeve/Projects/ankreo-modint/hardware/v1.0/kicad/modint-v1.0.sch
+Kicad Rev,Eeschema 5.1.5-1.fc31
+Generated Date,Fri 24 Jul 2020 16:39:07 BST
+
+Title,MODINT - spudpole interface module
+Company,PDJR <preeve@pdjr.eu>
+Revision,V0.1
+Date Issue,2020-07-24
+
+Reference,Value,Library,Library Ref
+U3,TEN20-2421WIN,Converter_DCDC,TEN20-2421WIN
+U1,Teensy3.2,Teensy,Teensy3.2
+J1,M12-5PIN,Pdjr,M12-5PIN
+U4,MCP2551-I-P,Interface_CAN_LIN,MCP2551-I-P
+R1,10K,Device,R
+R9,100R,Device,R
+R5,100R,Device,R
+C2,560pF,Device,C
+C1,560pF,Device,C
+SW1,INSTANCE ADDR,Switch,SW_DIP_x08
+U2,TPL7407L,Pdjr,TPL7407L
+K1,UP,Relay,SANYOU_SRD_Form_C
+K2,DOWN,Relay,SANYOU_SRD_Form_C
+J2,RELAY_CONN,Connector,Screw_Terminal_01x04
+U5,4N25,Isolator,4N25
+U6,4N25,Isolator,4N25
+U7,4N25,Isolator,4N25
+J3,SENSOR_CONN,Connector,Screw_Terminal_01x04
+D2,D,Device,D
+D1,D,Device,D
+D3,D,Device,D
+R2,4K7,Device,R
+R3,4K7,Device,R
+R4,4K7,Device,R
+R6,4K7,Device,R
+R7,4K7,Device,R
+R8,4K7,Device,R

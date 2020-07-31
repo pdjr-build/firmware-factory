@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# usage: get-config-values name [dirname...]
+
+NAME="${1}"
+STARTDIR="$(pwd)"
+
+declare -a OUTPUT
+OUTPUT=()
+
+if [ "${1}" != "" ] ; then
+	if [ "${2}" == "" ] ; then
+   		${0} "${1}" "."
+	else
+        	NAME="${1}"
+		shift;
+		while [ "${1}" != "" ] ; do
+			cd "${STARTDIR}"
+  			cd "${1}"
+  			while :; do
+    				for rname in ${NAME}* ; do
+      					if [ -f "${rname}" ] ; then
+      						VALUE=$(cat "${rname}");
+						OLINE="${rname%_NUMBER} "
+      						if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
+      						OLINE="${OLINE}${VALUE}"
+      						if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
+      						OUTPUT+=("${OLINE}")
+      						if [[ "${rname}" == *"_SERIAL_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
+     						if [[ "${rname}" == *"_UNIQUE_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
+      					fi
+    				done
+    				if [ "$(basename `pwd`)" == "ankreo" ] ; then break ; fi
+    				cd ..
+  			done
+			shift
+		done
+		printf '%s\n' "${OUTPUT[@]}" | sort | uniq
+	fi
+fi

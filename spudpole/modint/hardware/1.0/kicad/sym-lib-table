@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name Teensy)(type Legacy)(uri /home/preeve/Projects/ankreo-modint/hardware/v1.0/kicad/libraries/teensy.lib)(options "")(descr ""))
+  (lib (name Pdjr)(type Legacy)(uri /home/preeve/Projects/ankreo-modint/hardware/v1.0/kicad/libraries/pdjr.lib)(options "")(descr ""))
+  (lib (name modint-v1.0-rescue)(type Legacy)(uri ${KIPRJMOD}/modint-v1.0-rescue.lib)(options "")(descr ""))
+)
