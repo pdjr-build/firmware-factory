@@ -1,4 +1,4 @@
-#/ankreo/sketch
+# /ankreo/sketch
 
 This folder is the build environment for all firmware and has the following
 structure:
