@@ -16,7 +16,7 @@ if [ "${1}" != "" ] ; then
 		shift;
 		while [ "${1}" != "" ] ; do
 			cd "${STARTDIR}"
-  			cd "${1}"
+			cd "$(readlink -f ${1})"
   			while :; do
     				for rname in ${NAME}* ; do
       					if [ -f "${rname}" ] ; then
@@ -30,7 +30,7 @@ if [ "${1}" != "" ] ; then
      						if [[ "${rname}" == *"_UNIQUE_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
       					fi
     				done
-    				if [ "$(basename `pwd`)" == "ankreo" ] ; then break ; fi
+    				if [ "$(basename `pwd`)" == "ankreol" ] ; then break ; fi
     				cd ..
   			done
 			shift
