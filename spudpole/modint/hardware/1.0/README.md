@@ -3,21 +3,23 @@
 Prototype hardware design including 
 [schematic](schematic.pdf)
 and
-[pcb alyout](pcb.pdf)
+[pcb](pcb.pdf)
 for the __MODINT__ spudpole interface.
 
 __MODINT__ is built around a Teensy 3.2 MCU. The module is powered directly
-from the NMEA 2000 bus via an isolated TEN20-2421 DC-DC converter.
+from the NMEA 2000 bus via an isolated 2A DC-DC converter.
 
 NMEA data signals are interfaced through a MCP2551 industry standard CAN
-transceiver.
+transceiver.  The module accepts 12/24VDC inputs from DOCKED and DOWN sensors
+interfaced through 4N25 optical isolators. A rotation SENSOR interface is
+powered by the module at 5VDC, diode protected and current limited by a
+resettable fuse.
 
-Physical inputs from spudpole LIMIT switches are 12/24VDC compatible and
-interfaced through 4N25 optical isolator.
+UP and DOWN relay outputs provide isolated control signalling for direct
+connection to a windlass.
 
-A rotation SENSOR interface is powered by the module at 5VDC, diode protected
-and current limited by a resettable fuse.  Input from the sensor is via a
-4N25 optical isolator.
+Status LEDs indicate operation of the relay outputs and a single bi-color
+LED indicates power and NMEA transmit.
 
 ## Inputs
 
