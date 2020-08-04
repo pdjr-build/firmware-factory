@@ -14,17 +14,6 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Converter_DCDC:TEN20-2421WIN U4
-U 1 1 5F1A9EF0
-P 8000 3650
-F 0 "U4" H 8400 3300 50  0000 R CNN
-F 1 "TEN20-2421WIN" H 8300 3550 50  0000 R CNN
-F 2 "Converter_DCDC:Converter_DCDC_TRACO_TEN20-xxxx_THT" H 8000 3300 50  0001 C CIN
-F 3 "http://www.tracopower.com/products/ten20win.pdf" H 8050 3650 50  0001 C CNN
-	1    8000 3650
-	-1   0    0    -1  
-$EndComp
-$Comp
 L modint-v1.0-rescue:M12-5PIN-Pdjr J3
 U 1 1 5F1C814F
 P 10200 4550
@@ -85,7 +74,7 @@ U 1 1 5F233FC6
 P 9100 5900
 F 0 "C2" H 9050 5800 50  0000 R CNN
 F 1 "560pF" H 9050 6000 50  0000 R CNN
-F 2 "Capacitor_THT:CP_Axial_L10.0mm_D4.5mm_P15.00mm_Horizontal" H 9138 5750 50  0001 C CNN
+F 2 "Capacitor_THT:C_Disc_D7.5mm_W4.4mm_P5.00mm" H 9138 5750 50  0001 C CNN
 F 3 "~" H 9100 5900 50  0001 C CNN
 	1    9100 5900
 	-1   0    0    1   
@@ -96,7 +85,7 @@ U 1 1 5F2499AC
 P 8700 5900
 F 0 "C1" H 8650 5800 50  0000 R CNN
 F 1 "560pF" H 8650 6000 50  0000 R CNN
-F 2 "Capacitor_THT:CP_Axial_L10.0mm_D4.5mm_P15.00mm_Horizontal" H 8738 5750 50  0001 C CNN
+F 2 "Capacitor_THT:C_Disc_D7.5mm_W4.4mm_P5.00mm" H 8738 5750 50  0001 C CNN
 F 3 "~" H 8700 5900 50  0001 C CNN
 	1    8700 5900
 	-1   0    0    1   
@@ -189,28 +178,6 @@ Wire Wire Line
 	8000 5050 8000 5150
 Wire Wire Line
 	8000 5150 7200 5150
-$Comp
-L Relay:SANYOU_SRD_Form_C K1
-U 1 1 5F522E8A
-P 8200 1500
-F 0 "K1" V 8767 1500 50  0000 C CNN
-F 1 "SANYOU-SRD" V 8676 1500 50  0000 C CNN
-F 2 "Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C" H 8650 1450 50  0001 L CNN
-F 3 "http://www.sanyourelay.ca/public/products/pdf/SRD.pdf" H 8200 1500 50  0001 C CNN
-	1    8200 1500
-	0    1    -1   0   
-$EndComp
-$Comp
-L Relay:SANYOU_SRD_Form_C K2
-U 1 1 5F525824
-P 9300 1500
-F 0 "K2" V 9867 1500 50  0000 C CNN
-F 1 "SANYOU-SRD" V 9776 1500 50  0000 C CNN
-F 2 "Relay_THT:Relay_SPDT_SANYOU_SRD_Series_Form_C" H 9750 1450 50  0001 L CNN
-F 3 "http://www.sanyourelay.ca/public/products/pdf/SRD.pdf" H 9300 1500 50  0001 C CNN
-	1    9300 1500
-	0    1    -1   0   
-$EndComp
 Wire Wire Line
 	8700 6050 8700 6200
 Connection ~ 8700 6200
@@ -354,7 +321,6 @@ Wire Wire Line
 	7050 1700 7600 1700
 NoConn ~ 9600 4950
 NoConn ~ 7500 4550
-NoConn ~ 7500 3650
 NoConn ~ 8500 3650
 $Comp
 L Pdjr:Teensy_3.2 U3
@@ -532,7 +498,6 @@ NoConn ~ 5050 1950
 NoConn ~ 5050 1850
 NoConn ~ 5050 1750
 NoConn ~ 5050 1650
-NoConn ~ 5050 1550
 NoConn ~ 4300 1000
 NoConn ~ 4400 1000
 NoConn ~ 4500 1000
@@ -643,8 +608,6 @@ F 3 "~" H 5850 1350 50  0001 C CNN
 	1    5850 1350
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	3150 750  7200 750 
 $Comp
 L Transistor_BJT:2N2219 Q2
 U 1 1 5F25123E
@@ -713,22 +676,18 @@ Wire Wire Line
 	8350 2100 8500 2100
 Wire Wire Line
 	8500 2100 8500 1700
-Connection ~ 8500 1700
 Wire Wire Line
 	8050 2100 7900 2100
 Wire Wire Line
 	7900 2100 7900 1700
-Connection ~ 7900 1700
 Wire Wire Line
 	9150 2100 9000 2100
 Wire Wire Line
 	9000 2100 9000 1700
-Connection ~ 9000 1700
 Wire Wire Line
 	9450 2100 9600 2100
 Wire Wire Line
 	9600 2100 9600 1700
-Connection ~ 9600 1700
 Wire Wire Line
 	8900 2250 10100 2250
 Wire Wire Line
@@ -781,7 +740,7 @@ F 1 "INSTANCE/TERM" H 1250 2326 50  0000 C CNN
 F 2 "PDJR:DIP-18_297_ELL" H 1250 1750 50  0001 C CNN
 F 3 "~" H 1250 1750 50  0001 C CNN
 	1    1250 1750
-	1    0    0    -1  
+	1    0    0    1   
 $EndComp
 Wire Wire Line
 	9500 5250 750  5250
@@ -809,7 +768,7 @@ U 1 1 5F251E49
 P 7600 1400
 F 0 "D6" V 7639 1283 50  0000 R CNN
 F 1 "LED" V 7548 1283 50  0000 R CNN
-F 2 "" H 7600 1400 50  0001 C CNN
+F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 7600 1400 50  0001 C CNN
 F 3 "~" H 7600 1400 50  0001 C CNN
 	1    7600 1400
 	0    -1   -1   0   
@@ -820,7 +779,7 @@ U 1 1 5F252943
 P 7400 1400
 F 0 "D5" V 7439 1283 50  0000 R CNN
 F 1 "LED" V 7348 1283 50  0000 R CNN
-F 2 "" H 7400 1400 50  0001 C CNN
+F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 7400 1400 50  0001 C CNN
 F 3 "~" H 7400 1400 50  0001 C CNN
 	1    7400 1400
 	0    -1   -1   0   
@@ -869,4 +828,88 @@ Wire Wire Line
 Connection ~ 7600 750 
 Wire Wire Line
 	7600 750  8600 750 
+$Comp
+L Pdjr:TEC2-2411WI U4
+U 1 1 5F2BEACE
+P 8000 3650
+F 0 "U4" H 8000 4117 50  0000 C CNN
+F 1 "TEC2-2411WI" H 8000 4026 50  0000 C CNN
+F 2 "PDJR:TMR_2-2411WI" H 8000 3300 50  0001 C CNN
+F 3 "https://www.tracopower.com/products/tec2wi.pdf" H 8000 3150 50  0001 C CNN
+	1    8000 3650
+	-1   0    0    -1  
+$EndComp
+$Comp
+L Pdjr:SANYOU_SRD_Form_C K2
+U 1 1 5F2A8B7E
+P 9300 1500
+F 0 "K2" V 9867 1500 50  0000 C CNN
+F 1 "SANYOU_SRD_Form_C" V 9776 1500 50  0000 C CNN
+F 2 "PDJR:RS_RELAY_476-757" H 9750 1450 50  0001 L CNN
+F 3 "http://www.sanyourelay.ca/public/products/pdf/SRD.pdf" H 9300 1500 50  0001 C CNN
+	1    9300 1500
+	0    1    -1   0   
+$EndComp
+Connection ~ 9000 1700
+Connection ~ 9600 1700
+Wire Wire Line
+	9000 1400 9000 1300
+Wire Wire Line
+	9000 1200 9000 1300
+Connection ~ 9000 1300
+$Comp
+L Pdjr:SANYOU_SRD_Form_C K1
+U 1 1 5F2DB8E6
+P 8200 1500
+F 0 "K1" V 8767 1500 50  0000 C CNN
+F 1 "SANYOU_SRD_Form_C" V 8676 1500 50  0000 C CNN
+F 2 "PDJR:RS_RELAY_476-757" H 8650 1450 50  0001 L CNN
+F 3 "http://www.sanyourelay.ca/public/products/pdf/SRD.pdf" H 8200 1500 50  0001 C CNN
+	1    8200 1500
+	0    1    -1   0   
+$EndComp
+Connection ~ 7900 1700
+Connection ~ 8500 1700
+Wire Wire Line
+	7900 1400 7900 1300
+Wire Wire Line
+	7900 1200 7900 1300
+Connection ~ 7900 1300
+$Comp
+L Device:R R13
+U 1 1 5F2B75CF
+P 5850 1050
+F 0 "R13" V 5750 1050 50  0000 C CNN
+F 1 "1K" V 5850 1050 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 5780 1050 50  0001 C CNN
+F 3 "~" H 5850 1050 50  0001 C CNN
+	1    5850 1050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:LED D7
+U 1 1 5F2B7BB0
+P 5550 1050
+F 0 "D7" V 5589 933 50  0000 R CNN
+F 1 "LED" V 5498 933 50  0000 R CNN
+F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 5550 1050 50  0001 C CNN
+F 3 "~" H 5550 1050 50  0001 C CNN
+	1    5550 1050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5050 1550 5150 1550
+Wire Wire Line
+	5150 1550 5150 1050
+Wire Wire Line
+	3150 750  6100 750 
+Wire Wire Line
+	6000 1050 6100 1050
+Wire Wire Line
+	6100 1050 6100 750 
+Connection ~ 6100 750 
+Wire Wire Line
+	6100 750  7200 750 
+Wire Wire Line
+	5150 1050 5400 1050
 $EndSCHEMATC

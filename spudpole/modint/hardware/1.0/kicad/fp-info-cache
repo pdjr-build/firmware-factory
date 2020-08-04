@@ -1,4 +1,4 @@
-16936903459496694
+16943293376547694
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -53165,12 +53165,40 @@ DIL DIP PDIP 2.54mm 7.62mm 300mil
 4
 4
 PDJR
+DIP-10_200_ELL
+
+
+0
+6
+6
+PDJR
 DIP-18_297_ELL
 
 
 0
 18
 18
+PDJR
+RS_RELAY_476-757
+
+
+0
+6
+6
+PDJR
+SIP-9
+
+
+0
+9
+9
+PDJR
+TMR_2-2411WI
+
+
+0
+7
+7
 PDJR
 TPL7407LDR
 
@@ -53211,8 +53239,8 @@ Teensy30_31_32_LC
 
 
 0
-39
-38
+32
+32
 PDJR
 Teensy35_36
 
