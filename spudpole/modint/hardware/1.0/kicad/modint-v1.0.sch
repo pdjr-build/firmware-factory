@@ -19,7 +19,7 @@ U 1 1 5F1C814F
 P 10200 4550
 F 0 "J3" V 10139 4320 50  0000 R CNN
 F 1 "NMEA" V 10230 4320 50  0000 R CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 10200 4550 50  0001 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-4-2.54_1x04_P2.54mm_Horizontal" H 10200 4550 50  0001 C CNN
 F 3 "http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf" H 10200 4550 50  0001 C CNN
 	1    10200 4550
 	0    -1   1    0   
@@ -146,8 +146,6 @@ Wire Wire Line
 Connection ~ 850  2050
 Wire Wire Line
 	850  2050 850  2550
-Wire Wire Line
-	9600 4150 9100 4150
 Wire Wire Line
 	9100 4150 9100 3450
 Wire Wire Line
@@ -304,7 +302,7 @@ U 1 1 5F1C2A8D
 P 1150 2850
 F 0 "J1" H 1250 2950 50  0000 L CNN
 F 1 "SENSOR" H 1000 3050 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 1150 2850 50  0001 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-3-2.54_1x03_P2.54mm_Horizontal" H 1150 2850 50  0001 C CNN
 F 3 "~" H 1150 2850 50  0001 C CNN
 	1    1150 2850
 	-1   0    0    -1  
@@ -351,8 +349,6 @@ Wire Wire Line
 Wire Wire Line
 	1550 1350 3950 1350
 Wire Wire Line
-	1550 1450 3950 1450
-Wire Wire Line
 	1550 1550 3950 1550
 Wire Wire Line
 	1550 1650 3950 1650
@@ -362,8 +358,6 @@ Wire Wire Line
 	1550 1850 3950 1850
 Wire Wire Line
 	1550 1950 3950 1950
-Wire Wire Line
-	1550 2050 3950 2050
 Connection ~ 850  6200
 Wire Wire Line
 	3950 2650 3150 2650
@@ -469,7 +463,7 @@ Wire Wire Line
 Wire Wire Line
 	2850 6200 5150 6200
 Wire Wire Line
-	7200 3450 7200 750 
+	7200 3450 7200 2900
 Connection ~ 7200 3450
 Connection ~ 7200 750 
 Wire Wire Line
@@ -506,7 +500,7 @@ NoConn ~ 4700 1000
 Wire Wire Line
 	5050 2650 5150 2650
 Wire Wire Line
-	5150 2650 5150 6200
+	5150 2650 5150 3000
 Connection ~ 5150 6200
 $Comp
 L Device:Polyfuse_Small F1
@@ -527,7 +521,7 @@ U 1 1 5F2132D0
 P 10350 1700
 F 0 "J4" H 10430 1692 50  0000 L CNN
 F 1 "RELAYS" H 10430 1601 50  0000 L CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical" H 10350 1700 50  0001 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-6-2.54_1x06_P2.54mm_Horizontal" H 10350 1700 50  0001 C CNN
 F 3 "~" H 10350 1700 50  0001 C CNN
 	1    10350 1700
 	1    0    0    -1  
@@ -548,7 +542,7 @@ U 1 1 5F23EA21
 P 1150 4250
 F 0 "J2" H 1300 4350 50  0000 C CNN
 F 1 "LIMIT" H 1150 4450 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 1150 4250 50  0001 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-4-2.54_1x04_P2.54mm_Horizontal" H 1150 4250 50  0001 C CNN
 F 3 "~" H 1150 4250 50  0001 C CNN
 	1    1150 4250
 	-1   0    0    -1  
@@ -571,17 +565,11 @@ Wire Wire Line
 Wire Wire Line
 	2400 4450 1350 4450
 Wire Wire Line
-	9900 1700 10150 1700
-Wire Wire Line
-	9900 1400 9900 1700
-Wire Wire Line
-	10150 1500 10100 1500
-Wire Wire Line
-	10100 1500 10100 1200
+	9900 1400 9900 1500
 Wire Wire Line
 	10100 1200 9600 1200
 Wire Wire Line
-	10150 1800 10000 1800
+	10150 1800 10100 1800
 Wire Wire Line
 	10000 2350 8800 2350
 Wire Wire Line
@@ -691,12 +679,6 @@ Wire Wire Line
 Wire Wire Line
 	8900 2250 10100 2250
 Wire Wire Line
-	10000 1800 10000 2350
-Wire Wire Line
-	10100 2000 10150 2000
-Wire Wire Line
-	10100 2000 10100 2250
-Wire Wire Line
 	8500 1700 8600 1700
 Wire Wire Line
 	8600 1700 8600 750 
@@ -740,7 +722,7 @@ F 1 "INSTANCE/TERM" H 1250 2326 50  0000 C CNN
 F 2 "PDJR:DIP-18_297_ELL" H 1250 1750 50  0001 C CNN
 F 3 "~" H 1250 1750 50  0001 C CNN
 	1    1250 1750
-	1    0    0    1   
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	9500 5250 750  5250
@@ -766,8 +748,8 @@ $Comp
 L Device:LED D6
 U 1 1 5F251E49
 P 7600 1400
-F 0 "D6" V 7639 1283 50  0000 R CNN
-F 1 "LED" V 7548 1283 50  0000 R CNN
+F 0 "D6" V 7500 1500 50  0000 R CNN
+F 1 "UP" V 7700 1400 50  0000 R CNN
 F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 7600 1400 50  0001 C CNN
 F 3 "~" H 7600 1400 50  0001 C CNN
 	1    7600 1400
@@ -777,8 +759,8 @@ $Comp
 L Device:LED D5
 U 1 1 5F252943
 P 7400 1400
-F 0 "D5" V 7439 1283 50  0000 R CNN
-F 1 "LED" V 7348 1283 50  0000 R CNN
+F 0 "D5" V 7300 1500 50  0000 R CNN
+F 1 "DN" V 7500 1400 50  0000 R CNN
 F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 7400 1400 50  0001 C CNN
 F 3 "~" H 7400 1400 50  0001 C CNN
 	1    7400 1400
@@ -834,7 +816,7 @@ U 1 1 5F2BEACE
 P 8000 3650
 F 0 "U4" H 8000 4117 50  0000 C CNN
 F 1 "TEC2-2411WI" H 8000 4026 50  0000 C CNN
-F 2 "PDJR:TMR_2-2411WI" H 8000 3300 50  0001 C CNN
+F 2 "PDJR:TEC_2-2411WI" H 8000 3300 50  0001 C CNN
 F 3 "https://www.tracopower.com/products/tec2wi.pdf" H 8000 3150 50  0001 C CNN
 	1    8000 3650
 	-1   0    0    -1  
@@ -878,38 +860,72 @@ Connection ~ 7900 1300
 $Comp
 L Device:R R13
 U 1 1 5F2B75CF
-P 5850 1050
-F 0 "R13" V 5750 1050 50  0000 C CNN
-F 1 "1K" V 5850 1050 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 5780 1050 50  0001 C CNN
-F 3 "~" H 5850 1050 50  0001 C CNN
-	1    5850 1050
+P 6500 2900
+F 0 "R13" V 6400 2900 50  0000 C CNN
+F 1 "1K" V 6500 2900 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 6430 2900 50  0001 C CNN
+F 3 "~" H 6500 2900 50  0001 C CNN
+	1    6500 2900
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:LED D7
-U 1 1 5F2B7BB0
-P 5550 1050
-F 0 "D7" V 5589 933 50  0000 R CNN
-F 1 "LED" V 5498 933 50  0000 R CNN
-F 2 "LED_THT:LED_Rectangular_W3.0mm_H2.0mm" H 5550 1050 50  0001 C CNN
-F 3 "~" H 5550 1050 50  0001 C CNN
-	1    5550 1050
-	1    0    0    -1  
+L Device:LED_Dual_CAC D7
+U 1 1 5F2A09D4
+P 6050 2900
+F 0 "D7" H 6050 2553 50  0000 C CNN
+F 1 "PWR/TX" H 6050 2644 50  0000 C CNN
+F 2 "LED_THT:LED_Rectangular_W5.0mm_H2.0mm-3Pins" H 6100 2900 50  0001 C CNN
+F 3 "~" H 6100 2900 50  0001 C CNN
+	1    6050 2900
+	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	5050 1550 5150 1550
+	3150 750  7200 750 
 Wire Wire Line
-	5150 1550 5150 1050
+	6650 2900 7200 2900
+Connection ~ 7200 2900
 Wire Wire Line
-	3150 750  6100 750 
+	7200 2900 7200 750 
 Wire Wire Line
-	6000 1050 6100 1050
+	5750 2800 5450 2800
 Wire Wire Line
-	6100 1050 6100 750 
-Connection ~ 6100 750 
+	5450 2800 5450 1550
 Wire Wire Line
-	6100 750  7200 750 
+	5450 1550 5050 1550
 Wire Wire Line
-	5150 1050 5400 1050
+	5750 3000 5150 3000
+Connection ~ 5150 3000
+Wire Wire Line
+	5150 3000 5150 6200
+$Comp
+L Device:Polyfuse F2
+U 1 1 5F2A4B92
+P 9350 4150
+F 0 "F2" V 9250 4150 50  0000 C CNN
+F 1 "1A" V 9450 4150 50  0000 C CNN
+F 2 "Fuse:Fuse_Littelfuse_395Series" H 9400 3950 50  0001 L CNN
+F 3 "~" H 9350 4150 50  0001 C CNN
+	1    9350 4150
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9100 4150 9200 4150
+Wire Wire Line
+	9500 4150 9600 4150
+Wire Wire Line
+	10100 1800 10100 2250
+Wire Wire Line
+	10000 2350 10000 2000
+Wire Wire Line
+	10000 2000 10150 2000
+Wire Wire Line
+	10100 1200 10100 1700
+Wire Wire Line
+	10100 1700 10150 1700
+Wire Wire Line
+	10150 1500 9900 1500
+Wire Wire Line
+	1550 1450 3950 1450
+Wire Wire Line
+	1550 2050 3950 2050
 $EndSCHEMATC

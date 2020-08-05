@@ -30,9 +30,9 @@
 // MCU GPIO pin definitions.
 //
 const byte GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 };                       // GPIO pins connected to the instance address switch.
-const byte GPIO_POLE_UP = 14;                                           // GPIO pin connected to the pole up sensor.
-const byte GPIO_POLE_DOWN = 13;
-const byte GPIO_PROXIMITY_SENSOR = 21;
+const byte GPIO_POLE_UP = 12;                                           // GPIO pin connected to the pole up sensor.
+const byte GPIO_POLE_DOWN = 11;
+const byte GPIO_PROXIMITY_SENSOR = 23;
 const byte GPIO_RELAY_UP = 22;
 const byte GPIO_RELAY_DOWN = 23;
 
