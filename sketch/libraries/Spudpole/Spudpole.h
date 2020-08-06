@@ -35,7 +35,7 @@ enum SpudpoleStates {
 
 typedef struct ElectricWindlassSettings SpudpoleSettings;
   
-class Spudpole : ElectricWindlass {
+class Spudpole : public ElectricWindlass {
   public:
     Spudpole(SpudpoleSettings settings);
     SpudpoleSettings getSettings();

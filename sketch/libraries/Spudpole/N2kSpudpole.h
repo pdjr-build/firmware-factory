@@ -34,14 +34,15 @@ class N2kSpudpole: public Spudpole {
     tN2kMsg *getPGN128776(tN2kMsg &N2kMsg);
     tN2kMsg *getPGN128777(tN2kMsg &N2kMsg);
     tN2kMsg *getPGN128778(tN2kMsg &N2kMsg);
-   private:
+    void deploy();
+    void retrieve();
+    void stop();
+  private:
     N2kSpudpoleSettings settings;
     unsigned char sequenceId;
     tN2kWindlassDirectionControl currentCommand;
     double commandTimeout;
-    void deploy();
-    void retrieve();
-    void stop();    
+       
 };
 
 #endif

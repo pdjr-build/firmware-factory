@@ -31,12 +31,17 @@
 //********************************************************************************
 // MCU GPIO pin definitions.
 //
-const byte GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 };                       // GPIO pins connected to the instance address switch.
-const byte GPIO_POLE_UP = 12;                                           // GPIO pin connected to the pole up sensor.
-const byte GPIO_POLE_DOWN = 11;
-const byte GPIO_PROXIMITY_SENSOR = 23;
-const byte GPIO_RELAY_UP = 22;
-const byte GPIO_RELAY_DOWN = 23;
+const byte GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
+const byte GPIO_POLE_UP = 8;                              // Pin10
+const byte GPIO_POLE_DOWN = 9;                            // Pin 11
+const byte GPIO_PROXIMITY_SENSOR = 21;                    // Pin 23
+const byte GPIO_POLE_DOCKED = 11;                         // Pin 13
+const byte GPIO_POLE_STOPPED = 12;                        // Pin 14
+const byte GPIO_RELAY_UP = 22;                            // Pin 24
+const byte GPIO_RELAY_DOWN = 23;                          // Pin 25
+const byte GPIO_TRANSMIT_LED = 10;                        // Pin 12
+const byte CAN_TX = 3;                                    // Pin 5
+const byte CAN_RX = 4;                                    // Pin 6
 
 //********************************************************************************
 // PRODUCT INFORMATION
@@ -46,8 +51,8 @@ const byte GPIO_RELAY_DOWN = 23;
 // overriden by the Makefile using settings supplied in the file "spudpole.cfg".
 //
 unsigned short 	        PRODUCT_CODE = 1;		        // Something or other
-char         	        PRODUCT_TYPE[] = "MODINT";              // Hardware type
-char         	        PRODUCT_VERSION[] = "1.0";              // Hardware version
+char         	          PRODUCT_TYPE[] = "MODINT";              // Hardware type
+char         	          PRODUCT_VERSION[] = "1.0";              // Hardware version
 char           	        PRODUCT_SERIAL_CODE[] = "107";       // Hardware serial number
 char           	        PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 unsigned char  	        PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
@@ -78,28 +83,28 @@ const unsigned char     DEVICE_INDUSTRY_GROUP = 4;              // 4 says Mariti
 //
 // These settings define the operating characteristics of the spudpole to which
 // the firmware build will relate.  Any or all of these values can be overriden by
-// the Makefile using settings supplied in the file "spudpole.cfg". You will want
-// to check / change these before every real build.
-
+// using build system configuration values and this is usually what will be
+// required.
+//
 double                  SPUDPOLE_SPOOL_DIAMETER = 0.06;
 double                  SPUDPOLE_LINE_DIAMETER = 0.01;
-unsigned int            SPUDPOLE_TURNS_PER_LAYER = 10;
+unsigned char           SPUDPOLE_TURNS_PER_LAYER = 10;
 double                  SPUDPOLE_USABLE_LINE_LENGTH = 60.0;
-double                  SPUDPOLE_CONTROLLER_VOLTAGE = 24.0;
-double                  SPUDPOLE_MOTOR_CURRENT = 80.0;
-double                  DEFAULT_COMMAND_TIMEOUT = 0.4;
+double                  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0;
+double                  SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;
 double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
+
+//********************************************************************************
+// N2K SPECIFIC DEFAULTS
+//
+double                  N2K_COMMAND_TIMEOUT = 0.4;
+const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 500;
+const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5000;
 
 //********************************************************************************
 // N2K PGNs of messages transmitted by this program.
 //
 const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L };
-
-//********************************************************************************
-// Rates of status message transmission expressed in milliseconds.
-//
-const unsigned long N2K_DYNAMIC_UPDATE_INTERVAL = 500;
-const unsigned long N2K_STATIC_UPDATE_INTERVAL = 5000;
 
 //********************************************************************************
 // The windlass motor will only operate as long as up/down control messages are
@@ -147,13 +152,13 @@ N2kSpudpoleSettings settings = {
       readTotalOperatingTime(),
       timer
     },
-  SPUDPOLE_CONTROLLER_VOLTAGE,
-  SPUDPOLE_MOTOR_CURRENT
+  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE,
+  SPUDPOLE_NOMINAL_MOTOR_CURRENT
   },
   getPoleInstance(),
   setRelayOutput,
   0,
-  DEFAULT_COMMAND_TIMEOUT
+  N2K_COMMAND_TIMEOUT
 };
 
 N2kSpudpole spudpole(settings);
@@ -233,11 +238,11 @@ void stopPole() {
     //SetN2kPGN128776(PGN128776Message, sed, spudpole.getInstance(), 
   
     tN2kMsg PGN128777Message;
-    SetN2kPGN128777(PGN128777Message, sed, spudpole.getInstance(), spudpole.getWindlassMotionStatus(), spudpole.getRodeTypeStatus(), spudpole.getRodeCounterValue(), spudpole.getWindlassLineSpeed(), spudpole.getAnchorDockingStatus(), spudpole.getWindlassOperatingEvents());   
+    spudpole.getPGN128777(PGN128777Message);   
     NMEA2000.SendMsg(PGN128777Message);
 
     tN2kMsg PGN128778Message;
-    SetN2kPGN128778(PGN128778Message, sed, spudpole.getInstance(), spudpole.getWindlassMonitoringEvents(), spudpole.getControllerVoltage(), spudpole.getMotorCurrent(), spudpole.getMotorRunTime());
+    spudpole.getPGN128778(PGN128778Message);
     NMEA2000.SendMsg(PGN128778Message);
 
     sed++;
@@ -264,7 +269,7 @@ void PGN128776(const tN2kMsg &N2kMsg) {
   double CommandTimeout;
   tN2kWindlassControlEvents WindlassControlEvents;
   
-  if (ParseN2kPGN128776(N2kMsg, SID, instance, WindlassDirectionControl, AnchorDockingControl, SpeedControlType, SpeedControl, PowerEnable, MechanicalLock, DeckAndAnchorWash, AnchorLight, CommandTimeout, WindlassControlEvents)) {
+  if (ParseN2kPGN128776(N2kMsg, SID, instance, WindlassDirectionControl, SpeedControl, SpeedControlType, AnchorDockingControl, PowerEnable, MechanicalLock, DeckAndAnchorWash, AnchorLight, CommandTimeout, WindlassControlEvents)) {
     if (instance == spudpole.getSettings().instance) {
       switch (WindlassDirectionControl) {
         case N2kDD484_Down:
@@ -296,8 +301,8 @@ void setRelayOutput(int action) {
   }
 }
 
-void bumpCounter() { spudpole.bumpCounter(); }
-void setDocked() { spudpole.setDocked(); }
+void bumpCounter() { spudpole.bumpRotationCount(); }
+void setDocked() { spudpole.setDockedStatus(SpudpoleStates_YES); }
 void setStopped() { spudpole.setStopped(); }
 
 /**

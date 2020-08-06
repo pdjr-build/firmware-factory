@@ -21,7 +21,7 @@ struct ElectricWindlassSettings {
 };
 typedef struct ElectricWindlassSettings ElectricWindlassSettings;
   
-class ElectricWindlass : Windlass {
+class ElectricWindlass : public Windlass {
   public:
     ElectricWindlass(ElectricWindlassSettings settings);
     ElectricWindlassSettings getSettings(); 
