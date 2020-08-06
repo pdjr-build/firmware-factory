@@ -17,7 +17,7 @@ struct WindlassSettings {
   unsigned int turnsPerLayer;
   double usableLineLength;
   double nominalLineSpeed;
-  unsigned long operatingTime;
+  double operatingTime;
   unsigned long (*timerCallback)(int, unsigned long);
 };
 typedef struct WindlassSettings WindlassSettings;

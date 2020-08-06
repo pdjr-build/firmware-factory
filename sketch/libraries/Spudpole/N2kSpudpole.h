@@ -20,7 +20,7 @@ struct N2kSpudpoleSettings {
   unsigned char instance;
   void (*controlCallback)(int);
   void (*controlTimerCallback)(unsigned long);
-  unsigned long defaultControlTimeout;
+  double defaultCommandTimeout;
 };
 typedef struct N2kSpudpoleSettings N2kSpudpoleSettings; 
 
@@ -28,8 +28,8 @@ class N2kSpudpole: public Spudpole {
   public:
     N2kSpudpole(N2kSpudpoleSettings settings);
     N2kSpudpoleSettings getSettings();
-    void setControlTimeout(double seconds);
-    double getControlTimeout();
+    void setCommandTimeout(double seconds);
+    double getCommandTimeout();
     void incrSequenceId();
     tN2kMsg *getPGN128776(tN2kMsg &N2kMsg);
     tN2kMsg *getPGN128777(tN2kMsg &N2kMsg);
@@ -38,7 +38,7 @@ class N2kSpudpole: public Spudpole {
     N2kSpudpoleSettings settings;
     unsigned char sequenceId;
     tN2kWindlassDirectionControl currentCommand;
-    double controlTimeout;
+    double commandTimeout;
     void deploy();
     void retrieve();
     void stop();    

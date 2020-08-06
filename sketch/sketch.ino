@@ -1,3 +1,5 @@
+#include <EEPROM.h>
+
 #include <ActisenseReader.h>
 #include <N2kMsg.h>
 #include <N2kTypes.h>
@@ -24,7 +26,7 @@
 
 #include <EEPROM.h>
 
-#define EEPROM_TotalMotorTime 0       // EEPROM address (needs 5 bytes).
+#define EEPROM_OPERATING_TIME 0       // EEPROM address (needs 5 bytes).
 
 //********************************************************************************
 // MCU GPIO pin definitions.
@@ -81,10 +83,12 @@ const unsigned char     DEVICE_INDUSTRY_GROUP = 4;              // 4 says Mariti
 
 double                  SPUDPOLE_SPOOL_DIAMETER = 0.06;
 double                  SPUDPOLE_LINE_DIAMETER = 0.01;
-unsigned int            SPUDPOLE_SPOOL_WIDTH = 10;
-unsigned int            SPUDPOLE_LINE_TURNS_WHEN_DOCKED = 60;
-double                  SPUDPOLE_CONTROLLER_VOLTAGE = 24;
-double                  SPUDPOLE_MOTOR_CURRENT = 80;
+unsigned int            SPUDPOLE_TURNS_PER_LAYER = 10;
+double                  SPUDPOLE_USABLE_LINE_LENGTH = 60.0;
+double                  SPUDPOLE_CONTROLLER_VOLTAGE = 24.0;
+double                  SPUDPOLE_MOTOR_CURRENT = 80.0;
+double                  DEFAULT_COMMAND_TIMEOUT = 0.4;
+double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
 
 //********************************************************************************
 // N2K PGNs of messages transmitted by this program.
@@ -126,19 +130,42 @@ unsigned char getPoleInstance() {
   return(instance);
 }
 
-N2kSpudpole spudpole(getPoleInstance());
+double readTotalOperatingTime() {
+  double retval = 0.0;
+  EEPROM.get(EEPROM_OPERATING_TIME, retval);
+  return(retval);
+}
+
+N2kSpudpoleSettings settings = {
+  {
+    {
+      SPUDPOLE_SPOOL_DIAMETER,
+      SPUDPOLE_LINE_DIAMETER,
+      SPUDPOLE_TURNS_PER_LAYER,
+      SPUDPOLE_USABLE_LINE_LENGTH,
+      SPUDPOLE_NOMINAL_LINE_SPEED,
+      readTotalOperatingTime(),
+      timer
+    },
+  SPUDPOLE_CONTROLLER_VOLTAGE,
+  SPUDPOLE_MOTOR_CURRENT
+  },
+  getPoleInstance(),
+  setRelayOutput,
+  0,
+  DEFAULT_COMMAND_TIMEOUT
+};
+
+N2kSpudpole spudpole(settings);
 
 void setup() {
+
+  
   pinMode(GPIO_RELAY_UP, OUTPUT);
   pinMode(GPIO_RELAY_DOWN, OUTPUT);
-
-  unsigned long tmt = 0.00L; EEPROM.get(EEPROM_TotalMotorTime, tmt);
-  spudpole.setControlCallback(setRelayOutput);
-  spudpole.configureLineMeasurement(SPUDPOLE_SPOOL_DIAMETER, SPUDPOLE_LINE_DIAMETER, SPUDPOLE_SPOOL_WIDTH, SPUDPOLE_LINE_TURNS_WHEN_DOCKED);
-  spudpole.configureRunTimeAccounting(tmt, motorTimer);
-    
-  if (digitalRead(GPIO_POLE_UP)) spudpole.setDocked();
-  if (digitalRead(GPIO_POLE_DOWN)) spudpole.setStopped();
+  
+  spudpole.setDockedStatus((digitalRead(GPIO_POLE_UP))?SpudpoleStates_YES:SpudpoleStates_NO);
+  spudpole.setFullyDeployedStatus((digitalRead(GPIO_POLE_DOWN))?SpudpoleStates_YES:SpudpoleStates_NO);
   
   attachInterrupt(GPIO_PROXIMITY_SENSOR, bumpCounter, FALLING);
   attachInterrupt(GPIO_POLE_UP, setDocked, FALLING);
@@ -177,7 +204,7 @@ void messageHandler(const tN2kMsg &N2kMsg) {
 
 void stopPole() {
   if ((WINDLASS_COMMAND_TIMESTAMP + WINDLASS_COMMAND_TIMEOUT) < millis()) {
-    spudpole.stop();
+    spudpole.setState(WindlassStates_STOPPED);
   }
 }
   
@@ -238,7 +265,7 @@ void PGN128776(const tN2kMsg &N2kMsg) {
   tN2kWindlassControlEvents WindlassControlEvents;
   
   if (ParseN2kPGN128776(N2kMsg, SID, instance, WindlassDirectionControl, AnchorDockingControl, SpeedControlType, SpeedControl, PowerEnable, MechanicalLock, DeckAndAnchorWash, AnchorLight, CommandTimeout, WindlassControlEvents)) {
-    if (instance == spudpole.getInstance()) {
+    if (instance == spudpole.getSettings().instance) {
       switch (WindlassDirectionControl) {
         case N2kDD484_Down:
           WINDLASS_COMMAND_TIMESTAMP = millis();
@@ -260,11 +287,11 @@ void PGN128776(const tN2kMsg &N2kMsg) {
  * control relays dependent upon the value of <action>: 0 says stop, 1
  * says deploy, 2 says retrieve.
  */
-void setRelayOutput(SpudpoleControl action) {
+void setRelayOutput(int action) {
   switch (action) {
-    case SpudpoleControl_STOP: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
-    case SpudpoleControl_DEPLOY: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, HIGH); break;
-    case SpudpoleControl_RETRIEVE: digitalWrite(GPIO_RELAY_UP, HIGH); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
+    case 0: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
+    case -1: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, HIGH); break;
+    case +1: digitalWrite(GPIO_RELAY_UP, HIGH); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
     default: break;
   }
 }
@@ -277,17 +304,17 @@ void setStopped() { spudpole.setStopped(); }
  * A simple millisecond timer with the option of saving its result to
  * permanent storage.
  */
-unsigned long motorTimer(SpudpoleTimer mode, unsigned long motorRunTime) {
-  static unsigned long motorTimeMillis = 0L;
+unsigned long timer(int mode, unsigned long runTime) {
+  static unsigned long runTimeMillis = 0L;
   unsigned long retval = 0;
   switch (mode) {
-    case SpudpoleTimer_START: // Start timing
-      motorTimeMillis = millis();
-      break;
-    case SpudpoleTimer_STOP: // Stop timing and return elapsed milliseconds
-      retval = motorRunTime = (millis() - motorTimeMillis);
+    case 0: // Stop timing and return elapsed milliseconds
+      retval = runTime + (millis() - runTimeMillis);
       EEPROM.put(EEPROM_TotalMotorTime, retval);
       motorTimeMillis = 0L;
+      break;
+    default:
+      motorTimeMillis = millis();
       break;
   }
   return(retval);

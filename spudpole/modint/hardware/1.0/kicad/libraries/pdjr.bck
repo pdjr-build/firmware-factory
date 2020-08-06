@@ -1,9 +1,51 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP 4N26
+D DC Optocoupler Base Connected, Vce 30V, CTR 20%, Viso 1500V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/83725/4n25.pdf
+$ENDCMP
+#
+$CMP 4N27
+D DC Optocoupler Base Connected, Vce 30V, CTR 10%, Viso 2500V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/83725/4n25.pdf
+$ENDCMP
+#
+$CMP 4N28
+D DC Optocoupler Base Connected, Vce 30V, CTR 10%, Viso 2500V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/83725/4n25.pdf
+$ENDCMP
+#
+$CMP 4N35
+D Optocoupler, Phototransistor Output, with Base Connection, Vce 70V, CTR 100%, Viso 5000V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/81181/4n35.pdf
+$ENDCMP
+#
+$CMP 4N36
+D Optocoupler, Phototransistor Output, with Base Connection, Vce 70V, CTR 100%, Viso 5000V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/81181/4n35.pdf
+$ENDCMP
+#
+$CMP 4N37
+D Optocoupler, Phototransistor Output, with Base Connection, Vce 70V, CTR 100%, Viso 5000V, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.vishay.com/docs/81181/4n35.pdf
+$ENDCMP
+#
 $CMP AB_1_WIRE_ZERO
 D expansion header for Raspberry Pi 2 & 3
 K raspberrypi gpio
 F https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf
+$ENDCMP
+#
+$CMP CNY74-4H
+D DC Optocoupler Base Connected, Vce 30V, CTR 20%, Viso 2500V, DIP6
+K NPN DC Optocoupler Base Connected
+F http://www.farnell.com/datasheets/2046409.pdf
 $ENDCMP
 #
 $CMP DIN-5
@@ -12,10 +54,22 @@ K circular DIN connector
 F http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf
 $ENDCMP
 #
+$CMP DIPxx-1Cxx-51x
+D Standex Meder DIP reed relay, SPDT
+K Single Pole Reed Relay SPDT
+F https://standexelectronics.com/wp-content/uploads/datasheet_reed_relay_DIP.pdf
+$ENDCMP
+#
 $CMP M12-5PIN
 D 5-pin DIN connector
 K circular DIN connector
 F http://www.mouser.com/ds/2/18/40_c091_abd_e-75918.pdf
+$ENDCMP
+#
+$CMP RS-RELAY
+D Omron Subminiature Sensitive SPDT Signal Switching Relay, Single-Side Stable
+K Single Pole Relay SPDT
+F https://www.omron.com/ecb/products/pdf/en-g6e.pdf
 $ENDCMP
 #
 $CMP Raspberry_Pi
@@ -28,6 +82,12 @@ $CMP Seeed_CAN_FD_Shield
 D expansion header for Raspberry Pi 2 & 3
 K raspberrypi gpio
 F https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf
+$ENDCMP
+#
+$CMP TIL111
+D DC Optocoupler, Phototransistor NPN, DIP6
+K NPN DC Optocoupler Base Connected
+F https://www.egr.msu.edu/eceshop/Parts_Inventory/datasheets/til111.pdf
 $ENDCMP
 #
 $CMP TPL7407L
