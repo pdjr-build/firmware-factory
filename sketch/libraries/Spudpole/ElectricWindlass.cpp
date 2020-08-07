@@ -9,12 +9,21 @@
 ElectricWindlass::ElectricWindlass(ElectricWindlassSettings settings) :
   Windlass(settings.windlassSettings) {
   this->settings = settings;
+  this->state = ElectricWindlassStates_UNKNOWN;
   this->controllerVoltage = this->settings.nominalControllerVoltage;
   this->motorCurrent = this->settings.nominalMotorCurrent;
 }
 
-ElectricWindlassSettings ElectricWindlass::getSettings() {
+ElectricWindlassSettings ElectricWindlass::getElectricWindlassSettings() {
   return(this->settings);
+}
+
+void ElectricWindlass::setElectricWindlassState(ElectricWindlassStates state) {
+  this->state = state;
+}
+
+ElectricWindlassStates ElectricWindlass::getElectricWindlassState() {
+  return(this->state);
 }
 
 void ElectricWindlass::setControllerVoltage(double voltage) {

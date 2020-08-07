@@ -19,12 +19,21 @@ struct ElectricWindlassSettings {
   double nominalControllerVoltage;
   double nominalMotorCurrent;
 };
-typedef struct ElectricWindlassSettings ElectricWindlassSettings;
+
+enum ElectricWindlassStates {
+  ElectricWindlassStates_STOPPED = 0,
+  ElectricWindlassStates_RETRIEVING = 1,
+  ElectricWindlassStates_DEPLOYING = 2,
+  ElectricWindlassStates_UNKNOWN
+};
+  
   
 class ElectricWindlass : public Windlass {
   public:
     ElectricWindlass(ElectricWindlassSettings settings);
-    ElectricWindlassSettings getSettings(); 
+    ElectricWindlassSettings getElectricWindlassSettings();
+    void setElectricWindlassState(ElectricWindlassStates state);
+    ElectricWindlassStates getElectricWindlassState(); 
     void setControllerVoltage(double voltage);
     double getControllerVoltage();
     bool isControllerUnderVoltage();
@@ -33,6 +42,7 @@ class ElectricWindlass : public Windlass {
     bool isMotorOverCurrent();
   private:
     ElectricWindlassSettings settings;
+    ElectricWindlassStates state;
     double controllerVoltage;
     double motorCurrent;
 };

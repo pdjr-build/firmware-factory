@@ -12,10 +12,10 @@ Spudpole::Spudpole(SpudpoleSettings settings) :
   ElectricWindlass((ElectricWindlassSettings) settings) {
   this->settings = settings;
   this->dockedStatus = SpudpoleStates_UNKNOWN;
-  this->fullyDeployedStatus = SpudpoleStates_UNKNOWN;
+  this->deployedStatus = SpudpoleStates_UNKNOWN;
 }
 
-SpudpoleSettings Spudpole::getSettings() {
+SpudpoleSettings Spudpole::getSpudpoleSettings() {
   return(this->settings);
 }
 
@@ -27,12 +27,12 @@ SpudpoleStates Spudpole::getDockedStatus() {
   return(this->dockedStatus);
 }
 
-void Spudpole::setFullyDeployedStatus(SpudpoleStates state) {
-  this->fullyDeployedStatus = state;
+void Spudpole::setDeployedStatus(SpudpoleStates state) {
+  this->deployedStatus = state;
 }
 
-SpudpoleStates Spudpole::getFullyDeployedStatus() {
-  return(this->fullyDeployedStatus);
+SpudpoleStates Spudpole::getDeployedStatus() {
+  return(this->deployedStatus);
 }
 
 bool Spudpole::isDocked() {
@@ -40,10 +40,10 @@ bool Spudpole::isDocked() {
 }
 
 bool Spudpole::isWorking() {
-  return((this->dockedStatus == SpudpoleStates_NO) && (this->fullyDeployedStatus == SpudpoleStates_NO));
+  return((this->dockedStatus == SpudpoleStates_NO) && (this->deployedStatus == SpudpoleStates_NO));
 }
 
-bool Spudpole::isFullyDeployed() {
-  return(this->fullyDeployedStatus == SpudpoleStates_YES);
+bool Spudpole::isDeployed() {
+  return(this->deployedStatus == SpudpoleStates_YES);
 }
 

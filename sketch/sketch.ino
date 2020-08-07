@@ -32,13 +32,13 @@
 // MCU GPIO pin definitions.
 //
 const byte GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
-const byte GPIO_POLE_UP = 8;                              // Pin10
-const byte GPIO_POLE_DOWN = 9;                            // Pin 11
-const byte GPIO_PROXIMITY_SENSOR = 21;                    // Pin 23
-const byte GPIO_POLE_DOCKED = 11;                         // Pin 13
-const byte GPIO_POLE_STOPPED = 12;                        // Pin 14
-const byte GPIO_RELAY_UP = 22;                            // Pin 24
-const byte GPIO_RELAY_DOWN = 23;                          // Pin 25
+const byte GPIO_RETRIEVE_RELAY = 8;                              // Pin10
+const byte GPIO_DEPLOY_RELAY = 9;                            // Pin 11
+const byte GPIO_ROTATION_SENSOR = 21;                    // Pin 23
+const byte GPIO_DOCKED_SENSOR = 11;                         // Pin 13
+const byte GPIO_DEPLOYED_SENSOR = 12;                        // Pin 14
+const byte GPIO_DEPLOYING_SENSOR = 22;                            // Pin 24
+const byte GPIO_RETRIEVING_SENSOR = 23;                          // Pin 25
 const byte GPIO_TRANSMIT_LED = 10;                        // Pin 12
 const byte CAN_TX = 3;                                    // Pin 5
 const byte CAN_RX = 4;                                    // Pin 6
@@ -165,17 +165,27 @@ N2kSpudpole spudpole(settings);
 
 void setup() {
 
+  // Set pin modes...
+  pinMode(GPIO_ROTATION_SENSOR, INPUT);
+  pinMode(GPIO_DOCKED_SENSOR, INPUT_PULLUP);
+  pinMode(GPIO_DEPLOYED_SENSOR, INPUT_PULLUP);
+  pinMode(GPIO_DEPLOYING_SENSOR, INPUT_PULLUP);
+  pinMode(GPIO_RETRIEVING_SENSOR, INPUT_PULLUP);
+  pinMode(GPIO_DEPLOY_RELAY, OUTPUT);
+  pinMode(GPIO_RETRIEVE_RELAY, OUTPUT);
   
-  pinMode(GPIO_RELAY_UP, OUTPUT);
-  pinMode(GPIO_RELAY_DOWN, OUTPUT);
-  
-  spudpole.setDockedStatus((digitalRead(GPIO_POLE_UP))?SpudpoleStates_YES:SpudpoleStates_NO);
-  spudpole.setFullyDeployedStatus((digitalRead(GPIO_POLE_DOWN))?SpudpoleStates_YES:SpudpoleStates_NO);
-  
-  attachInterrupt(GPIO_PROXIMITY_SENSOR, bumpCounter, FALLING);
-  attachInterrupt(GPIO_POLE_UP, setDocked, FALLING);
-  attachInterrupt(GPIO_POLE_DOWN, setStopped, FALLING);
-  
+  // Set default pin states...
+  digitalWrite(GPIO_DEPLOY_RELAY, LOW);
+  digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
+
+  // Attach interrupts...
+  attachInterrupt(digitalPinToInterrupt(GPIO_ROTATION_SENSOR), onRotationSensor, FALLING);
+  attachInterrupt(digitalPinToInterrupt(GPIO_DOCKED_SENSOR), onDockedSensor, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(GPIO_DEPLOYED_SENSOR), onDeployedSensor, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(GPIO_DEPLOYING_SENSOR), onDeployingSensor, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(GPIO_RETRIEVING_SENSOR), onRetrievingSensor, CHANGE);
+
+
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
@@ -209,7 +219,7 @@ void messageHandler(const tN2kMsg &N2kMsg) {
 
 void stopPole() {
   if ((WINDLASS_COMMAND_TIMESTAMP + WINDLASS_COMMAND_TIMEOUT) < millis()) {
-    spudpole.setState(WindlassStates_STOPPED);
+    spudpole.stop();
   }
 }
   
@@ -234,15 +244,15 @@ void stopPole() {
   if ((lastUpdate + updateInterval) < millis()) {
     lastUpdate = millis();
 
-    //tN2kMsg PGN128776Message;
-    //SetN2kPGN128776(PGN128776Message, sed, spudpole.getInstance(), 
+    tN2kMsg PGN128776Message;
+    spudpole.populatePGN128776(PGN128776Message); 
   
     tN2kMsg PGN128777Message;
-    spudpole.getPGN128777(PGN128777Message);   
+    spudpole.populatePGN128777(PGN128777Message);   
     NMEA2000.SendMsg(PGN128777Message);
 
     tN2kMsg PGN128778Message;
-    spudpole.getPGN128778(PGN128778Message);
+    spudpole.populatePGN128778(PGN128778Message);
     NMEA2000.SendMsg(PGN128778Message);
 
     sed++;
@@ -270,7 +280,7 @@ void PGN128776(const tN2kMsg &N2kMsg) {
   tN2kWindlassControlEvents WindlassControlEvents;
   
   if (ParseN2kPGN128776(N2kMsg, SID, instance, WindlassDirectionControl, SpeedControl, SpeedControlType, AnchorDockingControl, PowerEnable, MechanicalLock, DeckAndAnchorWash, AnchorLight, CommandTimeout, WindlassControlEvents)) {
-    if (instance == spudpole.getSettings().instance) {
+    if (instance == spudpole.getN2kSpudpoleSettings().instance) {
       switch (WindlassDirectionControl) {
         case N2kDD484_Down:
           WINDLASS_COMMAND_TIMESTAMP = millis();
@@ -294,16 +304,36 @@ void PGN128776(const tN2kMsg &N2kMsg) {
  */
 void setRelayOutput(int action) {
   switch (action) {
-    case 0: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
-    case -1: digitalWrite(GPIO_RELAY_UP, LOW); digitalWrite(GPIO_RELAY_DOWN, HIGH); break;
-    case +1: digitalWrite(GPIO_RELAY_UP, HIGH); digitalWrite(GPIO_RELAY_DOWN, LOW); break;
+    case 0: digitalWrite(GPIO_RETRIEVE_RELAY, LOW); digitalWrite(GPIO_DEPLOY_RELAY, LOW); break;
+    case -1: digitalWrite(GPIO_RETRIEVE_RELAY, HIGH); digitalWrite(GPIO_DEPLOY_RELAY, LOW); break;
+    case +1: digitalWrite(GPIO_RETRIEVE_RELAY, LOW); digitalWrite(GPIO_DEPLOY_RELAY, HIGH); break;
     default: break;
   }
 }
 
-void bumpCounter() { spudpole.bumpRotationCount(); }
-void setDocked() { spudpole.setDockedStatus(SpudpoleStates_YES); }
-void setStopped() { spudpole.setStopped(); }
+//*********************************************************************
+// Interrup service rotines.
+//
+
+void onDockedSensor() {
+  spudpole.setDockedStatus(digitalRead(GPIO_DOCKED_SENSOR)?SpudpoleStates_YES:SpudpoleStates_NO);
+}
+
+void onDeployedSensor() {
+  spudpole.setDeployedStatus(digitalRead(GPIO_DEPLOYED_SENSOR)?SpudpoleStates_YES:SpudpoleStates_NO);
+}
+
+void onDeployingSensor() {
+  spudpole.setElectricWindlassState(digitalRead(GPIO_DEPLOYING_SENSOR)?ElectricWindlassStates_DEPLOYING:ElectricWindlassStates_STOPPED);
+}
+
+void onRetrievingSensor() {
+  spudpole.setElectricWindlassState(digitalRead(GPIO_RETRIEVING_SENSOR)?ElectricWindlassStates_RETRIEVING:ElectricWindlassStates_STOPPED);
+}
+
+void onRotationSensor() {
+  spudpole.bumpRotationCount();
+}
 
 /**
  * A simple millisecond timer with the option of saving its result to
@@ -315,11 +345,11 @@ unsigned long timer(int mode, unsigned long runTime) {
   switch (mode) {
     case 0: // Stop timing and return elapsed milliseconds
       retval = runTime + (millis() - runTimeMillis);
-      EEPROM.put(EEPROM_TotalMotorTime, retval);
-      motorTimeMillis = 0L;
+      EEPROM.put(EEPROM_OPERATING_TIME, retval);
+      runTimeMillis = 0L;
       break;
     default:
-      motorTimeMillis = millis();
+      runTimeMillis = millis();
       break;
   }
   return(retval);

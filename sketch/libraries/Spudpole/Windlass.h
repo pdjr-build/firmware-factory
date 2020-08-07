@@ -14,13 +14,12 @@
 struct WindlassSettings {
   double spoolDiameter;
   double lineDiameter;
-  unsigned int turnsPerLayer;
+  int turnsPerLayer;
   double usableLineLength;
   double nominalLineSpeed;
   double operatingTime;
   unsigned long (*timerCallback)(int, unsigned long);
 };
-typedef struct WindlassSettings WindlassSettings;
 
 enum WindlassStates {
   WindlassStates_STOPPED = 0,
@@ -32,9 +31,9 @@ enum WindlassStates {
 class Windlass {
   public:
     Windlass(WindlassSettings settings);
-    WindlassSettings getSettings();
-    void setState(WindlassStates state);
-    WindlassStates getState();
+    WindlassSettings getWindlassSettings();
+    void setWindlassState(WindlassStates state);
+    WindlassStates getWindlassState();
     void setRotationCount(int rotationCount);
     void incrRotationCount();
     void decrRotationCount();

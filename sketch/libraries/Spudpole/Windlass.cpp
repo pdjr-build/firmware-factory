@@ -13,15 +13,15 @@ Windlass::Windlass(WindlassSettings settings) {
   this->operatingTime = this->settings.operatingTime;
 }
 
-WindlassSettings Windlass::getSettings() {
+WindlassSettings Windlass::getWindlassSettings() {
   return(this->settings);
 }
 
-void Windlass::setState(WindlassStates state) {
+void Windlass::setWindlassState(WindlassStates state) {
   this->state = state;
 }
 
-WindlassStates Windlass::getState() {
+WindlassStates Windlass::getWindlassState() {
   return(this->state);
 }
 
@@ -58,9 +58,10 @@ double Windlass::getDeployedLineLength() {
   double retval = 0.0;
   double rlol;
   int layersUsed = (this->rotationCount / this->settings.turnsPerLayer);
+  int turnsOnLayer = 0;
   for (int layer = 0; layer <= layersUsed; layer++) {
-    int turnsOnLayer = (layer < layersUsed)?this->settings.turnsPerLayer:(this->rotationCount % this->settings.turnsPerLayer); 
-    rlol = this->lineLengthOnLayer(layer, this->settings.turnsPerLayer);
+    turnsOnLayer = (layer < layersUsed)?this->settings.turnsPerLayer:(this->rotationCount % this->settings.turnsPerLayer); 
+    rlol = this->lineLengthOnLayer(layer, turnsOnLayer);
     retval += rlol;
   }
   return(retval);

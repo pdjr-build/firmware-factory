@@ -12,6 +12,7 @@
 #ifndef N2KSPUDPOLE_H
 #define N2KSPUDPOLE_H
 
+#include "N2kMsg.h"
 #include "N2kTypes.h"
 #include "Spudpole.h"
 
@@ -22,18 +23,17 @@ struct N2kSpudpoleSettings {
   void (*controlTimerCallback)(unsigned long);
   double defaultCommandTimeout;
 };
-typedef struct N2kSpudpoleSettings N2kSpudpoleSettings; 
 
 class N2kSpudpole: public Spudpole {
   public:
     N2kSpudpole(N2kSpudpoleSettings settings);
-    N2kSpudpoleSettings getSettings();
+    N2kSpudpoleSettings getN2kSpudpoleSettings();
     void setCommandTimeout(double seconds);
     double getCommandTimeout();
     void incrSequenceId();
-    tN2kMsg *getPGN128776(tN2kMsg &N2kMsg);
-    tN2kMsg *getPGN128777(tN2kMsg &N2kMsg);
-    tN2kMsg *getPGN128778(tN2kMsg &N2kMsg);
+    void populatePGN128776(tN2kMsg &N2kMsg);
+    void populatePGN128777(tN2kMsg &N2kMsg);
+    void populatePGN128778(tN2kMsg &N2kMsg);
     void deploy();
     void retrieve();
     void stop();

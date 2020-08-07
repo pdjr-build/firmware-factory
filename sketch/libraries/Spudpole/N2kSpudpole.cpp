@@ -6,43 +6,44 @@
  
 #include <cstddef>
 #include <string.h>
+#include <N2kMessages.h>
 #include "N2kSpudpole.h"
+
 
 N2kSpudpole::N2kSpudpole(N2kSpudpoleSettings settings):
   Spudpole(settings.spudpoleSettings) {  
     this->settings = settings;
-    this->currentCommand = tN2kWindlassDirectionControl_OFF;
+    this->currentCommand = N2kDD484_Off;
     this->commandTimeout = this->settings.defaultCommandTimeout;
     this->sequenceId = 0;
-    this->executeCommand();
 }
 
-N2kSpudpoleSettings N2kSpudpole::getSettings() {
+N2kSpudpoleSettings N2kSpudpole::getN2kSpudpoleSettings() {
   return(this->settings);
 }
 
 void N2kSpudpole::setCommandTimeout(double seconds) {
-  this->controlTimeout = seconds;
+  this->commandTimeout = seconds;
 }
 
 double N2kSpudpole::getCommandTimeout() {
-  return(this->controlTimeout);
+  return(this->commandTimeout);
 }
 
-void incrSequenceId() {
+void N2kSpudpole::incrSequenceId() {
   this->sequenceId++;
 }
 
-void populatePGN128776(tN2kMsg &N2kMsg) {
-  tN2kDD478 events { false };
+void N2kSpudpole::populatePGN128776(tN2kMsg &N2kMsg) {
+  tN2kDD478 events;
   SetN2kPGN128776(
     N2kMsg,
     this->sequenceId,
     this->settings.instance,
     this->currentCommand,
-    N2kDD002_On,                // Anchor docking control is always enabled
-    N2kDD488_SingleSpeed,       // These spudpoles are always single speed
     100,                        // Always single speed maximum
+    N2kDD488_SingleSpeed,       // These spudpoles are always single speed
+    N2kDD002_On,                // Anchor docking control is always enabled
     N2kDD002_Unavailable,       // Power is always enabled
     N2kDD002_Unavailable,       // Mechanical locking is unavailable
     N2kDD002_Unavailable,       // Deck and anchor wash is unavailable
@@ -50,37 +51,36 @@ void populatePGN128776(tN2kMsg &N2kMsg) {
     this->commandTimeout,
     events
   );
-  return(N2kMsg);
 }
 
-void populatePGN128777(tN2kMsg &N2kMsg) {
-  tN2kDD483 events {
-    false,
-    false,
-    (this->getCounter() == 0),
-    (this->getCounter() < this->settings.settings.settings.settings.turnsPerLayer),
-    (this->getDeployedLineLength() >= this->settings.settings.settings.settings.usableLineLength)
-  };
+void N2kSpudpole::populatePGN128777(tN2kMsg &N2kMsg) {
+  tN2kWindlassOperatingEvents events;
+  events.Event.SystemError = 0;
+  events.Event.SensorError = 0;
+  events.Event.NoWindlassMotionDetected = (this->getRotationCount() == 0)?1:0;
+  events.Event.RetrievalDockingDistanceReached = (this->getRotationCount() < this->getWindlassSettings().turnsPerLayer)?1:0;
+  events.Event.EndOfRodeReached = (this->getDeployedLineLength() >= this->getWindlassSettings().usableLineLength)?1:0;
   SetN2kPGN128777(
     N2kMsg,
     this->sequenceId,
     this->settings.instance,
-    (tN2kWindlassMotionStates) this-getState(),
+    (tN2kWindlassMotionStates) this->getWindlassState(),
     tN2kDD481_RopePresentlyDetected,
     this->getDeployedLineLength(),
     this->getLineSpeed(),
     (this->dockedStatus)?DD482_FullyDocked:DD482_NotDocked,
-    events
+    events.Events
   );
-  return(N2kMsg);
 }
 
-void populatePGN128778(tN2kMsg &N2kMsg) {
+void N2kSpudpole::populatePGN128778(tN2kMsg &N2kMsg) {
   tN2kDD477 events;
   SetN2kPGN128778(
     N2kMsg,
     this->sequenceId,
-    this->settings.instance,
+    this->settings.instance
+  );
+}
     
    
 

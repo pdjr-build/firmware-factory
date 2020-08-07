@@ -38,18 +38,18 @@ typedef struct ElectricWindlassSettings SpudpoleSettings;
 class Spudpole : public ElectricWindlass {
   public:
     Spudpole(SpudpoleSettings settings);
-    SpudpoleSettings getSettings();
+    SpudpoleSettings getSpudpoleSettings();
     void setDockedStatus(SpudpoleStates state);
     SpudpoleStates getDockedStatus();
-    void setFullyDeployedStatus(SpudpoleStates state);
-    SpudpoleStates getFullyDeployedStatus();
+    void setDeployedStatus(SpudpoleStates state);
+    SpudpoleStates getDeployedStatus();
     bool isDocked();
     bool isWorking();
-    bool isFullyDeployed();
+    bool isDeployed();
   private:
     SpudpoleSettings settings;
     SpudpoleStates dockedStatus;
-    SpudpoleStates fullyDeployedStatus;
+    SpudpoleStates deployedStatus;
 };
 
 #endif
