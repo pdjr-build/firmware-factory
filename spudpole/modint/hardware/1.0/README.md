@@ -1,25 +1,23 @@
 # MODINT v1.0
 
-Prototype hardware design including 
-[schematic](schematic.pdf)
-and
-[pcb](pcb.pdf)
-for the __MODINT__ spudpole interface.
+This hardware design includes [schematic](schematic.pdf), [pcb](pcb.pdf) and engineering
+designs for an NMEA 2000 compatible spudpole interface built around the Teensy 3.2 MCU.
 
-__MODINT__ is built around a Teensy 3.2 MCU. The module is powered directly
-from the NMEA 2000 bus via an isolated 2A DC-DC converter.
+The module is powered directly from the NMEA 2000 bus via an isolated DC-DC converter and
+has a nominal LEN of 3. The module's NMEA/CAN data interface is implemented using an MCP2551
+industry standard transceiver.  Physical bus connection is by an industry standard M12
+5-pin industrial connector and the module includes a switchable 120-ohm bus termination
+resistor.
 
-NMEA data signals are interfaced through a MCP2551 industry standard CAN
-transceiver.  The module accepts 12/24VDC inputs from DOCKED and DOWN sensors
-interfaced through 4N25 optical isolators. A rotation SENSOR interface is
-powered by the module at 5VDC, diode protected and current limited by a
-resettable fuse.
+Four otically isolated sensor inputs rated at 12/24VDC allow connection of MOTOR-UP, MOTOR-DOWN,
+DOCKED and DEPLOYED sensors; whilst a 5VDC powered interface supports connection of an inductive
+windlass rotation counter;
 
-UP and DOWN relay outputs provide isolated control signalling for direct
-connection to a windlass.
+The module is able to directly control a windlass motor through UP and DOWN relay outputs
+which respond to control messages received over the host NMEA bus.
 
-Status LEDs indicate operation of the relay outputs and a single bi-color
-LED indicates power and NMEA transmit.
+An installer can quickly assign the module an instance address using a DIP swith and LED
+indicators show relay state, power and data status. 
 
 ## Inputs
 
