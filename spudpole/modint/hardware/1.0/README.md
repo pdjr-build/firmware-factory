@@ -1,23 +1,40 @@
 # MODINT v1.0
 
-This hardware design includes [schematic](schematic.pdf), [pcb](pcb.pdf) and engineering
-designs for an NMEA 2000 compatible spudpole interface built around the Teensy 3.2 MCU.
+This module design includes [circuit schematic](schematic.pdf), [pcb layout](pcb.pdf)
+and [prototype enclosure](enclosure.pdf) proposals for an NMEA 2000 compatible
+spudpole interface built around a Teensy 3.2 MCU. The module is designed to be
+powered directly from the host NMEA 2000 bus.
 
-The module is powered directly from the NMEA 2000 bus via an isolated DC-DC converter and
-has a nominal LEN of 3. The module's NMEA/CAN data interface is implemented using an MCP2551
-industry standard transceiver.  Physical bus connection is by an industry standard M12
-5-pin industrial connector and the module includes a switchable 120-ohm bus termination
-resistor.
+## Packaging proposal
 
-Four otically isolated sensor inputs rated at 12/24VDC allow connection of MOTOR-UP, MOTOR-DOWN,
-DOCKED and DEPLOYED sensors; whilst a 5VDC powered interface supports connection of an inductive
-windlass rotation counter;
+The protoype PCB design is configured for an 80x80x23 flanged ABS
+[enclosure](https://docs.rs-online.com/960c/0900766b814af9a1.pdf)
+with grommeted cable entry for sensor connections and an industry
+standard M12 5-pin industrial connector for NMEA/CAN connection.
+The enclosure is drilled to expose PCB mounted status LEDs.
 
-The module is able to directly control a windlass motor through UP and DOWN relay outputs
-which respond to control messages received over the host NMEA bus.
+## Circuit design
 
-An installer can quickly assign the module an instance address using a DIP swith and LED
-indicators show relay state, power and data status. 
+Module power at 5VDC is derived from the NMEA bus via a DC-DC converter.
+The module draws approximately 150mA from the bus power supply giving an
+NMEA LEN of 3. The NMEA bus is protected by a self-resetting 1A fuse.
+
+The module's NMEA/CAN data interface is implemented using an MCP2551
+industry standard transceiver and includes a switchable 120-ohm bus
+termination resistor.
+
+Four otically isolated sensor inputs rated at 12/24VDC allow connection
+of MOTOR-RETRIEVING, MOTOR-DEPLOYING, DOCKED and DEPLOYED sensors and a
+5VDC powered interface supports connection of an induction proximity
+sensor for use as a windlass rotation counter.
+
+The module is able to directly control a windlass motor through UP and
+DOWN relay outputs which are driven by control messages received over
+the host NMEA bus.
+
+An installer can quickly assign the module an instance address using a
+DIP swith and LED indicators show relay state, power and data
+transmission status. 
 
 ## Inputs
 
