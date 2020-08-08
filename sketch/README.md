@@ -1,22 +1,24 @@
 # /ankreo/sketch
 
-This folder is the build environment for all firmware and has the following
-structure:
+This folder is the build environment for all firmware and is configured as a
+standard PlatformIO project with the following directory structure.
 ```
-├── libraries/                <- the Arduino expects project libraries here
-├── Makefile                  <- build system Makefile
-├── README.md                 <- this file!
-└── utils/                    <- scripts making implementing the build system
+├── lib/                      <- application specific libraries
+├── src/                      <- application source files
+├── test/                     <- application test files
+├── utils/                    <- local build system utilities
+└── README.md                 <- this file!
 ```
-You will notice there is no Arduino sketch here.  Before attempting a build you
-must create some symbolic links which will tailor the upcoming build to your
-specific requirements.
+Before attempting a build you must at least create some symbolic links which
+will tailor the upcoming build to your specific requirements. You may also
+need to modify some PlatformIO settings to suit your needs (for example,
+to select a specific target board).
 
-1. Create a sympolic link called ```sketch.ino``` to the Arduino sketch you want
-   to compile.  Typically these will be located in the device's firmware folder
-   hierarchy.  For example:
+1. Create a sympolic link called ```src/main.cpp``` to the Arduino sketch you
+   want to compile.  Typically these will be located in the device's firmware
+   folder hierarchy.  For example:
    ```
-   $ ln -s ../spudpole/modint/firmware/1.0/sketch.ino .
+   $ ln -s ../spudpole/modint/firmware/1.0/sketch.ino src/main.cpp
    ```  
 
 2. Create a symbolic link called ```hardware``` to the module hardware version
@@ -36,35 +38,31 @@ specific requirements.
    ```
    $ ln -s ../spudpole/spudpole-types/ES1001-3000-12/ product
    ```
+The final configuration step is to ensure that PlatformIO updates main.cpp
+with values harvested from variable definitions in the filesystem hierachies
+identified above.  This requires the following entry in the PlatformIO
+configuration file.
+```
+build_xxx = "! utils/get-values hardware firmware product | utils/interpolate src/main.cpp"
+```
+With this configuration in place, all that is necessary to attempt a build
+(i.e. to compile ```main.cpp```) is to invoke the PlatformIO build process.
+I tend to use VSCode with the PlatformIO plugin, so this all do-able from
+within VSCode.
 
-Your build directory will now look something like this:
-```
-├── firmware -> ../spudpole/modint/firmware/1.0/
-├── hardware -> ../spudpole/modint/hardware/1.0/
-├── libraries/
-├── Makefile
-├── product -> ../spudpole/spudpole-types/ES1001-3000-24/
-├── README.md
-├── sketch.ino -> ../spudpole/modint/firmware/1.0/sketch.ino
-└── utils
-```
-With these links in place, all that is necessary to attempt a build (i.e. to
-compile ```sketch.ino```) is to type:
-```
-$ make
-```
+## How the local build system works
 
-## How the build system works
-
-The build system works by harvesting variable definitions from a directory
-hierarchy.  You specify leaves in the hierarchy when you make the symbolic
-links described above and the build system climbs back up the branches to
-the ```ankreo/``` root folder, gathering variable definitions as it goes.
+The local build system works by harvesting variable definitions from a
+directory hierarchy.  You specify leaves in the hierarchy when you make
+the symbolic links described above and the build system climbs back up
+the branches to the ```ankreo/``` root folder, gathering variable
+definitions as it goes.
 
 With a hierarchy like ```ankreo/spudpole/modint/hardware/1.0/``` variable
 definitions can be located in the folders with children to which they apply
 and do not have to be duplicated or embedded in hard-to-maintain fixed
-configuration files.
+configuration files. The build system also manages automatic incrementing
+of serial numbers.
 
 From the ```sketch``` folder you can see the results of this process by
 typing:
@@ -82,12 +80,5 @@ pertinent to your build by running:
 ```
 utils/get-config firmware hardware product
 ```
-and the using the ```utils/interpolate``` command to process these values
-into ```sketch.ino```.
-
-Finally, the Makefile runs the Arduino compiler against the refreshed
-sketch.
-
-The build system runs from the command line.  You must run a new build from the
-command line at least once before you start using the Arduino IDE or some other
-programming environment.
+and the using the ```utils/interpolate file.cpp``` command to process these values
+into ```file.cpp```.
