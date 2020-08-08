@@ -19,8 +19,6 @@
 struct N2kSpudpoleSettings {
   SpudpoleSettings spudpoleSettings;
   unsigned char instance;
-  void (*controlCallback)(int);
-  void (*controlTimerCallback)(unsigned long);
   double defaultCommandTimeout;
 };
 
@@ -40,9 +38,7 @@ class N2kSpudpole: public Spudpole {
   private:
     N2kSpudpoleSettings settings;
     unsigned char sequenceId;
-    tN2kWindlassDirectionControl currentCommand;
     double commandTimeout;
-       
 };
 
 #endif

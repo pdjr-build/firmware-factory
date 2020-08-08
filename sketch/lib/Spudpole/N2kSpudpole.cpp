@@ -13,7 +13,6 @@
 N2kSpudpole::N2kSpudpole(N2kSpudpoleSettings settings):
   Spudpole(settings.spudpoleSettings) {  
     this->settings = settings;
-    this->currentCommand = N2kDD484_Off;
     this->commandTimeout = this->settings.defaultCommandTimeout;
     this->sequenceId = 0;
 }
@@ -81,18 +80,7 @@ void N2kSpudpole::populatePGN128778(tN2kMsg &N2kMsg) {
     this->settings.instance
   );
 }
-    
-   
 
-void N2kSpudpole::deploy() {
-  Spudpole::deploy();
-  if (this->controlTimerCallback) this->controlTimerCallback(this->controlTimeout);
-}
-
-void N2kSpudpole::retrieve() {
-  Spudpole::retrieve();
-  if (this->controlTimerCallback) this->controlTimerCallback(this->controlTimeout);
-}
 
 tN2kDD477 N2kSpudpole::getWindlassMonitoringEvents() {
   tN2kDD477 retval = N2kDD477_NoErrorsPresent;

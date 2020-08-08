@@ -27,6 +27,15 @@
 
 #include <EEPROM.h>
 
+void onRotationSensor();
+void onDockedSensor();
+void onDeployedSensor();
+void onRetrievingSensor();
+void onDeployingSensor();
+void messageHandler(const tN2kMsg&);
+void transmitStatus();
+void commandTimeout(int action = 0, long timeout = 0L);
+void setRelayOutput(int action = 0, long timeout = 0L);
 #define EEPROM_OPERATING_TIME 0       // EEPROM address (needs 5 bytes).
 
 //********************************************************************************
@@ -54,7 +63,7 @@ const byte CAN_RX = 4;                                    // Pin 6
 unsigned short 	        PRODUCT_CODE = 1;		        // Something or other
 char         	          PRODUCT_TYPE[] = "MODINT";              // Hardware type
 char         	          PRODUCT_VERSION[] = "1.0";              // Hardware version
-char           	        PRODUCT_SERIAL_CODE[] = "126";       // Hardware serial number
+char           	        PRODUCT_SERIAL_CODE[] = "194";       // Hardware serial number
 char           	        PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 unsigned char  	        PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
 unsigned short 	        PRODUCT_N2K_VERSION = 2101;             // God knows what this means
@@ -73,7 +82,7 @@ unsigned char  	        PRODUCT_CERTIFICATION_LEVEL = 1;	// Or, indeed, this
 // value on any N2K bus and an easy way to achieve this is just to bump the device
 // number for every software build (this is done automatically in the Makefile).
 // 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 169;              // Magically changed on each build.
+const unsigned long     DEVICE_UNIQUE_NUMBER = 271;              // Magically changed on each build.
 const unsigned char     DEVICE_FUNCTION = 130;                  // 130 says PC gateway
 const unsigned char     DEVICE_CLASS = 25;                      // 25 says network device
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;        // 2046 is currently unassigned.
@@ -150,15 +159,12 @@ N2kSpudpoleSettings settings = {
       SPUDPOLE_TURNS_PER_LAYER,
       SPUDPOLE_USABLE_LINE_LENGTH,
       SPUDPOLE_NOMINAL_LINE_SPEED,
-      readTotalOperatingTime(),
-      timer
+      readTotalOperatingTime()
     },
   SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE,
   SPUDPOLE_NOMINAL_MOTOR_CURRENT
   },
   getPoleInstance(),
-  setRelayOutput,
-  0,
   N2K_COMMAND_TIMEOUT
 };
 
@@ -199,7 +205,7 @@ void setup() {
 }
 
 void loop() {
-  stopPole();
+  commandTimeout();
   transmitStatus();
   NMEA2000.ParseMessages();
 }
@@ -213,16 +219,6 @@ void messageHandler(const tN2kMsg &N2kMsg) {
 }
 
 
-/**
- * stopPole() stops the spudpole movement if no command has been received
- * within the last N2K_OPERATE_INTERVAL.
- */
-
-void stopPole() {
-  if ((WINDLASS_COMMAND_TIMESTAMP + WINDLASS_COMMAND_TIMEOUT) < millis()) {
-    spudpole.stop();
-  }
-}
   
 /**
  * transmitStatus() transmits a spudpole status update (consisting of
@@ -303,14 +299,55 @@ void PGN128776(const tN2kMsg &N2kMsg) {
  * control relays dependent upon the value of <action>: 0 says stop, 1
  * says deploy, 2 says retrieve.
  */
-void setRelayOutput(int action) {
+void setRelayOutput(int action, long timeout) {
   switch (action) {
-    case 0: digitalWrite(GPIO_RETRIEVE_RELAY, LOW); digitalWrite(GPIO_DEPLOY_RELAY, LOW); break;
-    case -1: digitalWrite(GPIO_RETRIEVE_RELAY, HIGH); digitalWrite(GPIO_DEPLOY_RELAY, LOW); break;
-    case +1: digitalWrite(GPIO_RETRIEVE_RELAY, LOW); digitalWrite(GPIO_DEPLOY_RELAY, HIGH); break;
-    default: break;
+    case 0: // Set relays OFF
+      commandTimeout(2);
+      digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
+      digitalWrite(GPIO_DEPLOY_RELAY, LOW);
+      break;
+    case -1: // Set relays for RETRIEVE
+      commandTimeout(1, timeout);
+      digitalWrite(GPIO_RETRIEVE_RELAY, HIGH);
+      digitalWrite(GPIO_DEPLOY_RELAY, LOW);
+      break;
+    case +1: // Set relays for DEPLOY
+      commandTimeout(1, timeout);
+      digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
+      digitalWrite(GPIO_DEPLOY_RELAY, HIGH);
+      break;
+    default:
+      break;
   }
 }
+
+/**
+ * commandTimeout executes <callback> after at least <timeout> milliseconds.
+ * The function should be called from loop().
+ */
+void commandTimout(int action, long timeout) {
+  static unsigned long _end = 0L;
+
+  switch (action) {
+    case 0: // Normal loop tick
+      if ((_end > 0) && (_end < millis())) {
+        setRelayOutput(0);
+        _end = 0L;
+      }
+      break;
+    case 1: // Start new timeout
+      if (timeout > 0L) {
+       _end = (millis() + timeout);
+      }
+      break;
+    case 2: // Cancel callback
+      _end = 0;
+      break;
+    default:
+      break;
+  }
+}
+
 
 //*********************************************************************
 // Interrup service rotines.
