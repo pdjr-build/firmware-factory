@@ -1,8 +1,15 @@
 # ankreo
 Build system supporting development of NMEA 2000 modules for Ankreo products.
 
-This project implements a directory hierarchy supporting the development of
-NMEA 2000 interface modules for Ankreo products.
+The build system consists of a PlatformIO project which is used as the compile
+environment for all firmware development; a formalised, hierarchical directory
+structure used to organise assets and collection of tools which configure the
+build environment by processing assets.
+
+See the file ```build/README.md``` for a description of the PlatformIO project
+and its integration with this system.
+
+
 
 The project root directory has the structure:
 ```
