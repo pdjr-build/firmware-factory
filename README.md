@@ -1,40 +1,22 @@
 # ankreo
 Build system supporting development of NMEA 2000 modules for Ankreo products.
 
-The build system consists of a PlatformIO project which is used as the compile
-environment for all firmware development; a formalised, hierarchical directory
-structure used to organise assets and collection of tools which configure the
-build environment by processing assets.
+The build system consists of:
 
-See the file ```build/README.md``` for a description of the PlatformIO project
-and its integration with this system.
+1. a PlatformIO project ```build/``` which is used as the compile environment
+   for all firmware development;
+2. a hierarchical directory structure used to organise assets, and;
+3. a collection of tools which configure the build environment by
+   processing assets.
 
+See the file ```build/README.md``` for a description of the PlatformIO
+project's integration with the build system.
 
+The directory structure used to organise project assets consists of an
+arbitrary number of product-line directories located in the ```ankreo/```
+root. The current system supports just spudpole products and the only
+root folder is ```spudpole/``` which is organised in the following way.
 
-The project root directory has the structure:
-```
-README.md
-LICENSE
-DEVICE_MANUFACTURER_NUMBER
-DEVICE_INDUSTRY_GROUP_NUMBER
-sketch/
-spudpole/
-```
-README.md (this file) and LICENSE are standard repository content.
-
-DEVICE\_MANUFACTURER\_NUMBER and DEVICE\_INDUSTRY\_GROUP\_NUMBER are part of
-the build system code configuration mechanism which allows redefinition of
-values defined in source code from a collection of distributed files each of
-which defines a variable name (by its file name) and a value by the file
-content.
-
-sketch/ is the Arduino sketch folder in which all builds are executed. Consult
-the README.md file in the sketch/ folder for a detailed description of the
-build system and how to use it.
-
-The remaining folders in this directory define particular Ankreo product lines
-(in this example, the only product line is spudpole/).  The organisation of
-these folders is arbitrary, but the default scheme looks like this.
 ```
 spudpole/
 ├── modctl/                                     <- A directory for each N2K device.             
@@ -45,7 +27,7 @@ spudpole/
 │   ├── firmware/                               <- folder for device firmware
 │   │   └── 1.0/                                <- folder for a firmware version
 │   │       ├── FIRMWARE_VERSION
-│   │       └── sketch.ino                      <- the Arduino sketch implementing the firmware version
+│   │       └── main.cpp                        <- the Arduino sketch implementing this firmware version
 │   ├── hardware/                               <- folder for device hardware
 │   │   └── 1.0/                                <- folder for hardware version
 │   │       ├── kicad/                          <- folder for hardware design
@@ -77,5 +59,18 @@ spudpole/
     │   └── SPUDPOLE_SPOOL_WIDTH_NUMBER
     └── README.md
 ```
-The placement of value definition files in this structure is critical for
-the sensible operation of the build system.
+In addition to the obvious assets you will notice that the file system
+contains a number of _definition files_ with capitalised, underscore-delimited
+names. The names correspond to configuration variable and constant names used
+in program code and their placement in the filesystem indicates the children
+to which these configuration values apply.
+
+Definition files are assumed to contain a string value unless their name
+ends in '_NUMBER' in which case they are assumed to contain a numeric value
+(the '_NUMBER' suffix is not considered to be part of the value name). For
+example DEVICE\_MANUFACTURER\_NUMBER file will be assumed to contain a
+numeric value for a variable called 'DEVICE_MANUFACTURER'.
+
+The content of a definition file should be the value to be used for the
+named variable: quotes are not required on strings and numbers can be
+expressed in whatever way the host application demands.
