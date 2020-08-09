@@ -16,28 +16,20 @@
 #include "N2kTypes.h"
 #include "Spudpole.h"
 
-struct N2kSpudpoleSettings {
-  SpudpoleSettings spudpoleSettings;
-  unsigned char instance;
-  double defaultCommandTimeout;
-};
 
 class N2kSpudpole: public Spudpole {
   public:
-    N2kSpudpole(N2kSpudpoleSettings settings);
-    N2kSpudpoleSettings getN2kSpudpoleSettings();
+    struct Settings {
+      Spudpole::Settings spudpoleSettings;
+      unsigned char instance;
+      double defaultCommandTimeout;
+    };
+    N2kSpudpole(N2kSpudpole::Settings settings);
+    N2kSpudpole::Settings getN2kSpudpoleSettings();
     void setCommandTimeout(double seconds);
     double getCommandTimeout();
-    void incrSequenceId();
-    void populatePGN128776(tN2kMsg &N2kMsg);
-    void populatePGN128777(tN2kMsg &N2kMsg);
-    void populatePGN128778(tN2kMsg &N2kMsg);
-    void deploy();
-    void retrieve();
-    void stop();
   private:
-    N2kSpudpoleSettings settings;
-    unsigned char sequenceId;
+    Settings settings;
     double commandTimeout;
 };
 

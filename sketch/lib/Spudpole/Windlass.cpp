@@ -6,23 +6,23 @@
 
 #include "Windlass.h"
 
-Windlass::Windlass(WindlassSettings settings) {
+Windlass::Windlass(Windlass::Settings settings) {
   this->settings = settings;
-  this->state = WindlassStates_UNKNOWN;
+  this->operatingState = UNKNOWN;
   this->rotationCount = 0;
   this->operatingTime = this->settings.operatingTime;
 }
 
-WindlassSettings Windlass::getWindlassSettings() {
+Windlass::Settings Windlass::getWindlassSettings() {
   return(this->settings);
 }
 
-void Windlass::setWindlassState(WindlassStates state) {
-  this->state = state;
+void Windlass::setOperatingState(Windlass::OperatingStates state) {
+  this->operatingState = state;
 }
 
-WindlassStates Windlass::getWindlassState() {
-  return(this->state);
+Windlass::OperatingStates Windlass::getOperatingState() {
+  return(this->operatingState);
 }
 
 void Windlass::setRotationCount(int rotationCount) {
@@ -38,11 +38,11 @@ void Windlass::decrRotationCount() {
 }
 
 void Windlass::bumpRotationCount() {
-  switch (this->state) {
-    case WindlassStates_RETRIEVING:
+  switch (this->operatingState) {
+    case RETRIEVING:
       this->decrRotationCount();
       break;
-    case WindlassStates_DEPLOYING:
+    case DEPLOYING:
       this->incrRotationCount();
       break;
     default:

@@ -8,14 +8,14 @@
 #include <string.h>
 #include "Spudpole.h"
 
-Spudpole::Spudpole(SpudpoleSettings settings) :
-  ElectricWindlass((ElectricWindlassSettings) settings) {
+Spudpole::Spudpole(Spudpole::Settings settings) :
+  ElectricWindlass((ElectricWindlass::Settings) settings) {
   this->settings = settings;
   this->dockedStatus = UNKNOWN;
   this->deployedStatus = UNKNOWN;
 }
 
-SpudpoleSettings Spudpole::getSpudpoleSettings() {
+Spudpole::Settings Spudpole::getSpudpoleSettings() {
   return(this->settings);
 }
 

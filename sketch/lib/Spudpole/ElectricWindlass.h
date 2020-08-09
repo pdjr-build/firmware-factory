@@ -14,26 +14,16 @@
 
 #include "Windlass.h"
 
-struct ElectricWindlassSettings {
-  WindlassSettings windlassSettings;
-  double nominalControllerVoltage;
-  double nominalMotorCurrent;
-};
 
-enum ElectricWindlassStates {
-  ElectricWindlassStates_STOPPED = 0,
-  ElectricWindlassStates_RETRIEVING = 1,
-  ElectricWindlassStates_DEPLOYING = 2,
-  ElectricWindlassStates_UNKNOWN
-};
-  
-  
 class ElectricWindlass : public Windlass {
   public:
-    ElectricWindlass(ElectricWindlassSettings settings);
-    ElectricWindlassSettings getElectricWindlassSettings();
-    void setElectricWindlassState(ElectricWindlassStates state);
-    ElectricWindlassStates getElectricWindlassState(); 
+    struct Settings {
+      Windlass::Settings windlassSettings;
+      double nominalControllerVoltage;
+      double nominalMotorCurrent;
+    };
+    ElectricWindlass(ElectricWindlass::Settings settings);
+    ElectricWindlass::Settings getElectricWindlassSettings();
     void setControllerVoltage(double voltage);
     double getControllerVoltage();
     bool isControllerUnderVoltage();
@@ -41,8 +31,7 @@ class ElectricWindlass : public Windlass {
     double getMotorCurrent();
     bool isMotorOverCurrent();
   private:
-    ElectricWindlassSettings settings;
-    ElectricWindlassStates state;
+    Settings settings;
     double controllerVoltage;
     double motorCurrent;
 };

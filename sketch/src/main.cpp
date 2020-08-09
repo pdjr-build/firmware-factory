@@ -27,6 +27,8 @@
 
 #include <EEPROM.h>
 
+unsigned char getPoleInstance();
+double readTotalOperatingTime();
 void onRotationSensor();
 void onDockedSensor();
 void onDeployedSensor();
@@ -36,6 +38,11 @@ void messageHandler(const tN2kMsg&);
 void transmitStatus();
 void commandTimeout(int action = 0, long timeout = 0L);
 void setRelayOutput(int action = 0, long timeout = 0L);
+void provisionPGN128776(tN2kMsg &msg, byte sed = 0);
+void provisionPGN128777(tN2kMsg &msg, byte sed = 0);
+void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
+
+
 #define EEPROM_OPERATING_TIME 0       // EEPROM address (needs 5 bytes).
 
 //********************************************************************************
@@ -50,8 +57,8 @@ const byte GPIO_DEPLOYED_SENSOR = 12;                        // Pin 14
 const byte GPIO_DEPLOYING_SENSOR = 22;                            // Pin 24
 const byte GPIO_RETRIEVING_SENSOR = 23;                          // Pin 25
 const byte GPIO_TRANSMIT_LED = 10;                        // Pin 12
-const byte CAN_TX = 3;                                    // Pin 5
-const byte CAN_RX = 4;                                    // Pin 6
+const byte GPIO_CAN_TX = 3;                                    // Pin 5
+const byte GPIO_CAN_RX = 4;                                    // Pin 6
 
 //********************************************************************************
 // PRODUCT INFORMATION
@@ -63,7 +70,7 @@ const byte CAN_RX = 4;                                    // Pin 6
 unsigned short 	        PRODUCT_CODE = 1;		        // Something or other
 char         	          PRODUCT_TYPE[] = "MODINT";              // Hardware type
 char         	          PRODUCT_VERSION[] = "1.0";              // Hardware version
-char           	        PRODUCT_SERIAL_CODE[] = "194";       // Hardware serial number
+char           	        PRODUCT_SERIAL_CODE[] = "268";       // Hardware serial number
 char           	        PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 unsigned char  	        PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
 unsigned short 	        PRODUCT_N2K_VERSION = 2101;             // God knows what this means
@@ -82,7 +89,7 @@ unsigned char  	        PRODUCT_CERTIFICATION_LEVEL = 1;	// Or, indeed, this
 // value on any N2K bus and an easy way to achieve this is just to bump the device
 // number for every software build (this is done automatically in the Makefile).
 // 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 271;              // Magically changed on each build.
+const unsigned long     DEVICE_UNIQUE_NUMBER = 382;              // Magically changed on each build.
 const unsigned char     DEVICE_FUNCTION = 130;                  // 130 says PC gateway
 const unsigned char     DEVICE_CLASS = 25;                      // 25 says network device
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;        // 2046 is currently unassigned.
@@ -107,6 +114,7 @@ double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
 //********************************************************************************
 // N2K SPECIFIC DEFAULTS
 //
+tN2kDD484               N2K_LAST_COMMAND = N2kDD484_Reserved;
 double                  N2K_COMMAND_TIMEOUT = 0.4;
 const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 500;
 const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5000;
@@ -115,15 +123,6 @@ const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5000;
 // N2K PGNs of messages transmitted by this program.
 //
 const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L };
-
-//********************************************************************************
-// The windlass motor will only operate as long as up/down control messages are
-// continuously received over N2K. If no such messages are received for the
-// interval expressed by WINDLASS_COMMAND_TIMEOUT then the windlass motor will
-// stop.
-//
-static unsigned long WINDLASS_COMMAND_TIMEOUT = 250;
-static unsigned long WINDLASS_COMMAND_TIMESTAMP = millis();
 
 //*********************************************************************************
 // Some definitions for incoming message handling.   PGNs which are processed and
@@ -134,24 +133,10 @@ typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tN
 void PGN128776(const tN2kMsg &N2kMsg);
 tNMEA2000Handler NMEA2000Handlers[]={ {128776L, &PGN128776}, {0, 0} };
 
-/**
- * Read the module instance address set by the hardware DIP switches.
- */
-unsigned char getPoleInstance() {
-  unsigned char instance = 0;
-  for (byte i = 0; i < 8; i++) {
-    instance = instance + (digitalRead(GPIO_INSTANCE[i]) << i);
-  }
-  return(instance);
-}
+//*************************************************************************
+// Spudpole configuration
 
-double readTotalOperatingTime() {
-  double retval = 0.0;
-  EEPROM.get(EEPROM_OPERATING_TIME, retval);
-  return(retval);
-}
-
-N2kSpudpoleSettings settings = {
+N2kSpudpole::Settings settings = {
   {
     {
       SPUDPOLE_SPOOL_DIAMETER,
@@ -167,6 +152,9 @@ N2kSpudpoleSettings settings = {
   getPoleInstance(),
   N2K_COMMAND_TIMEOUT
 };
+
+//*******************************************************************
+// Create globals
 
 N2kSpudpole spudpole(settings);
 
@@ -210,6 +198,22 @@ void loop() {
   NMEA2000.ParseMessages();
 }
 
+/**
+ * Read the module instance address set by the hardware DIP switches.
+ */
+unsigned char getPoleInstance() {
+  unsigned char instance = 0;
+  for (byte i = 0; i < 8; i++) {
+    instance = instance + (digitalRead(GPIO_INSTANCE[i]) << i);
+  }
+  return(instance);
+}
+double readTotalOperatingTime() {
+  double retval = 0.0;
+  EEPROM.get(EEPROM_OPERATING_TIME, retval);
+  return(retval);
+}
+
 void messageHandler(const tN2kMsg &N2kMsg) {
   int iHandler;
   for (iHandler=0; NMEA2000Handlers[iHandler].PGN!=0 && !(N2kMsg.PGN==NMEA2000Handlers[iHandler].PGN); iHandler++);
@@ -240,20 +244,70 @@ void messageHandler(const tN2kMsg &N2kMsg) {
   unsigned long updateInterval = spudpole.isWorking()?N2K_DYNAMIC_UPDATE_INTERVAL:N2K_STATIC_UPDATE_INTERVAL;
   if ((lastUpdate + updateInterval) < millis()) {
     lastUpdate = millis();
-
-    tN2kMsg PGN128776Message;
-    spudpole.populatePGN128776(PGN128776Message); 
-  
-    tN2kMsg PGN128777Message;
-    spudpole.populatePGN128777(PGN128777Message);   
-    NMEA2000.SendMsg(PGN128777Message);
-
-    tN2kMsg PGN128778Message;
-    spudpole.populatePGN128778(PGN128778Message);
-    NMEA2000.SendMsg(PGN128778Message);
-
+    tN2kMsg m776; provisionPGN128776(m776, sed); NMEA2000.SendMsg(m776);
+    tN2kMsg m777; provisionPGN128777(m777, sed); NMEA2000.SendMsg(m777);
+    tN2kMsg m778; provisionPGN128778(m778, sed); NMEA2000.SendMsg(m778);
     sed++;
   }
+}
+
+void provisionPGN128776(tN2kMsg &msg, byte sed) {
+  tN2kWindlassControlEvents events;
+  SetN2kPGN128776(
+    msg,
+    sed,
+    spudpole.getN2kSpudpoleSettings().instance,
+    N2K_LAST_COMMAND,
+    100,                        // Always single speed maximum
+    N2kDD488_SingleSpeed,       // These spudpoles are always single speed
+    N2kDD002_On,                // Anchor docking control is always enabled
+    N2kDD002_Unavailable,       // Power is always enabled
+    N2kDD002_Unavailable,       // Mechanical locking is unavailable
+    N2kDD002_Unavailable,       // Deck and anchor wash is unavailable
+    N2kDD002_Unavailable,       // Anchor light is unavailable
+    spudpole.getCommandTimeout(),
+    events
+  );
+}
+
+void provisionPGN128777(tN2kMsg &msg, byte sed) { 
+  tN2kWindlassOperatingEvents events;
+  events.Event.SystemError = 0;
+  events.Event.SensorError = 0;
+  events.Event.NoWindlassMotionDetected = (spudpole.getRotationCount() == 0)?1:0;
+  events.Event.RetrievalDockingDistanceReached = (spudpole.getRotationCount() < (int) spudpole.getWindlassSettings().turnsPerLayer)?1:0;
+  events.Event.EndOfRodeReached = (spudpole.getDeployedLineLength() >= spudpole.getWindlassSettings().usableLineLength)?1:0;
+  tN2kWindlassMotionStates motionStates;
+  switch (spudpole.getOperatingState()) {
+    case Windlass::STOPPED: motionStates = N2kDD480_WindlassStopped; break;
+    case Windlass::RETRIEVING: motionStates = N2kDD480_RetrievalOccurring; break;
+    case Windlass::DEPLOYING: motionStates = N2kDD480_DeploymentOccurring; break;
+    default: motionStates = N2kDD480_Unavailable; break;
+  }
+  SetN2kPGN128777(
+    msg,
+    sed,
+    spudpole.getN2kSpudpoleSettings().instance,
+    spudpole.getDeployedLineLength(),
+    spudpole.getLineSpeed(),
+    motionStates,
+    N2kDD481_RopePresentlyDetected,
+    (spudpole.isDocked())?N2kDD482_FullyDocked:N2kDD482_NotDocked,
+    events
+  );
+}
+
+void provisionPGN128778(tN2kMsg &msg, byte sed) { 
+  tN2kWindlassMonitoringEvents events;
+  SetN2kPGN128778(
+    msg,
+    sed,
+    spudpole.getN2kSpudpoleSettings().instance,
+    spudpole.getOperatingTime(),
+    spudpole.getControllerVoltage(),
+    spudpole.getMotorCurrent(),
+    events
+  );
 }
 
 /**
@@ -280,12 +334,13 @@ void PGN128776(const tN2kMsg &N2kMsg) {
     if (instance == spudpole.getN2kSpudpoleSettings().instance) {
       switch (WindlassDirectionControl) {
         case N2kDD484_Down:
-          WINDLASS_COMMAND_TIMESTAMP = millis();
-          spudpole.deploy();
+          setRelayOutput(+1, spudpole.getCommandTimeout());
           break;
         case N2kDD484_Up:
-          WINDLASS_COMMAND_TIMESTAMP = millis();
-          spudpole.retrieve();
+          setRelayOutput(-1, spudpole.getCommandTimeout());
+          break;
+        case N2kDD484_Off:
+          setRelayOutput(0, spudpole.getCommandTimeout());
           break;
         default:
           break;
@@ -305,16 +360,19 @@ void setRelayOutput(int action, long timeout) {
       commandTimeout(2);
       digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
       digitalWrite(GPIO_DEPLOY_RELAY, LOW);
+      N2K_LAST_COMMAND = N2kDD484_Off;
       break;
     case -1: // Set relays for RETRIEVE
       commandTimeout(1, timeout);
       digitalWrite(GPIO_RETRIEVE_RELAY, HIGH);
       digitalWrite(GPIO_DEPLOY_RELAY, LOW);
+      N2K_LAST_COMMAND = N2kDD484_Up;
       break;
     case +1: // Set relays for DEPLOY
       commandTimeout(1, timeout);
       digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
       digitalWrite(GPIO_DEPLOY_RELAY, HIGH);
+      N2K_LAST_COMMAND = N2kDD484_Down;
       break;
     default:
       break;
@@ -325,7 +383,7 @@ void setRelayOutput(int action, long timeout) {
  * commandTimeout executes <callback> after at least <timeout> milliseconds.
  * The function should be called from loop().
  */
-void commandTimout(int action, long timeout) {
+void commandTimeout(int action, long timeout) {
   static unsigned long _end = 0L;
 
   switch (action) {
@@ -362,11 +420,11 @@ void onDeployedSensor() {
 }
 
 void onDeployingSensor() {
-  spudpole.setElectricWindlassState(digitalRead(GPIO_DEPLOYING_SENSOR)?ElectricWindlassStates_DEPLOYING:ElectricWindlassStates_STOPPED);
+  spudpole.setOperatingState(digitalRead(GPIO_DEPLOYING_SENSOR)?Windlass::DEPLOYING:Windlass::STOPPED);
 }
 
 void onRetrievingSensor() {
-  spudpole.setElectricWindlassState(digitalRead(GPIO_RETRIEVING_SENSOR)?ElectricWindlassStates_RETRIEVING:ElectricWindlassStates_STOPPED);
+  spudpole.setOperatingState(digitalRead(GPIO_RETRIEVING_SENSOR)?Windlass::RETRIEVING:Windlass::STOPPED);
 }
 
 void onRotationSensor() {

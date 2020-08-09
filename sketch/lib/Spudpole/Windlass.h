@@ -11,29 +11,23 @@
 #ifndef WINDLASS_H
 #define WINDLASS_H
 
-struct WindlassSettings {
-  double spoolDiameter;
-  double lineDiameter;
-  int turnsPerLayer;
-  double usableLineLength;
-  double nominalLineSpeed;
-  double operatingTime;
-  unsigned long (*timerCallback)(int, unsigned long);
-};
 
-enum WindlassStates {
-  WindlassStates_STOPPED = 0,
-  WindlassStates_DEPLOYING = 1,
-  WindlassStates_RETRIEVING = 2,
-  WindlassStates_UNKNOWN = 3
-};
-  
 class Windlass {
   public:
-    Windlass(WindlassSettings settings);
-    WindlassSettings getWindlassSettings();
-    void setWindlassState(WindlassStates state);
-    WindlassStates getWindlassState();
+    struct Settings {
+      double spoolDiameter;
+      double lineDiameter;
+      unsigned int turnsPerLayer;
+      double usableLineLength;
+      double nominalLineSpeed;
+      double operatingTime;
+      unsigned long (*timerCallback)(int, unsigned long);
+    };
+    enum OperatingStates { STOPPED, DEPLOYING, RETRIEVING, UNKNOWN };
+    Windlass(Settings settings);
+    Settings getWindlassSettings();
+    void setOperatingState(OperatingStates state);
+    OperatingStates getOperatingState();
     void setRotationCount(int rotationCount);
     void incrRotationCount();
     void decrRotationCount();
@@ -45,8 +39,8 @@ class Windlass {
     unsigned long getOperatingTime();
   private:
     // PROPERTIES...
-    WindlassSettings settings;      // Configuration settings
-    WindlassStates state;           // Current state of the windlass
+    Settings settings;      // Configuration settings
+    OperatingStates operatingState;           // Current state of the windlass
     int rotationCount;              // Rotation count
     unsigned long operatingTime;    // Total windlass operating time in seconds
     double lineLengthOnLayer(int layer, int turnsOnLayer);

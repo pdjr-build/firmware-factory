@@ -6,24 +6,15 @@
 
 #include "ElectricWindlass.h"
 
-ElectricWindlass::ElectricWindlass(ElectricWindlassSettings settings) :
+ElectricWindlass::ElectricWindlass(ElectricWindlass::Settings settings) :
   Windlass(settings.windlassSettings) {
   this->settings = settings;
-  this->state = ElectricWindlassStates_UNKNOWN;
   this->controllerVoltage = this->settings.nominalControllerVoltage;
   this->motorCurrent = this->settings.nominalMotorCurrent;
 }
 
-ElectricWindlassSettings ElectricWindlass::getElectricWindlassSettings() {
+ElectricWindlass::Settings ElectricWindlass::getElectricWindlassSettings() {
   return(this->settings);
-}
-
-void ElectricWindlass::setElectricWindlassState(ElectricWindlassStates state) {
-  this->state = state;
-}
-
-ElectricWindlassStates ElectricWindlass::getElectricWindlassState() {
-  return(this->state);
 }
 
 void ElectricWindlass::setControllerVoltage(double voltage) {

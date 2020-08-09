@@ -32,9 +32,10 @@ typedef struct ElectricWindlassSettings SpudpoleSettings;
   
 class Spudpole : public ElectricWindlass {
   public:
+    typedef ElectricWindlass::Settings Settings;
     enum States { NO, YES, UNKNOWN };
-    Spudpole(SpudpoleSettings settings);
-    SpudpoleSettings getSpudpoleSettings();
+    Spudpole(Spudpole::Settings settings);
+    Spudpole::Settings getSpudpoleSettings();
     void setDockedStatus(States state);
     States getDockedStatus();
     void setDeployedStatus(States state);
@@ -43,7 +44,7 @@ class Spudpole : public ElectricWindlass {
     bool isWorking();
     bool isDeployed();
   private:
-    SpudpoleSettings settings;
+    Settings settings;
     States dockedStatus;
     States deployedStatus;
 };
