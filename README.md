@@ -1,4 +1,5 @@
 # ankreo
+
 Build system supporting development of NMEA 2000 modules for Ankreo products.
 
 The build system consists of:
@@ -60,13 +61,13 @@ spudpole/
     └── README.md
 ```
 In addition to the obvious assets you will notice that the file system
-contains a number of _definition files_ with capitalised, underscore-delimited
+contains a number of _DEFINITION\_FILES_ with capitalised, underscore-delimited
 names. The names correspond to configuration variable and constant names used
 in program code and their placement in the filesystem indicates the children
 to which these configuration values apply.
 
 Definition files are assumed to contain a string value unless their name
-ends in '_NUMBER' in which case they are assumed to contain a numeric value
+ends in '_NUMBER' in which case they are taken to contain a numeric value
 (the '_NUMBER' suffix is not considered to be part of the value name). For
 example DEVICE\_MANUFACTURER\_NUMBER file will be assumed to contain a
 numeric value for a variable called 'DEVICE_MANUFACTURER'.

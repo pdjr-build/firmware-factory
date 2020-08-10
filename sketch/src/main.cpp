@@ -27,6 +27,9 @@
 
 #include <EEPROM.h>
 
+//*********************************************************************
+// Declarations for local functions.
+//
 unsigned char getPoleInstance();
 double readTotalOperatingTime();
 void onRotationSensor();
@@ -41,9 +44,12 @@ void setRelayOutput(int action = 0, long timeout = 0L);
 void provisionPGN128776(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128777(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
+unsigned long timer(int mode);
 
-
-#define EEPROM_OPERATING_TIME 0       // EEPROM address (needs 5 bytes).
+//*********************************************************************
+// EEPROM storage locations
+//
+const int EEPROM_OPERATING_TIME = 0; 		// EEPROM address for double.
 
 //********************************************************************************
 // MCU GPIO pin definitions.
@@ -67,14 +73,14 @@ const byte GPIO_CAN_RX = 4;                                    // Pin 6
 // product description to be shoe-horned into. Any or all of these values can be
 // overriden by the Makefile using settings supplied in the file "spudpole.cfg".
 //
-unsigned short 	        PRODUCT_CODE = 1;		        // Something or other
-char         	          PRODUCT_TYPE[] = "MODINT";              // Hardware type
-char         	          PRODUCT_VERSION[] = "1.0";              // Hardware version
-char           	        PRODUCT_SERIAL_CODE[] = "280";       // Hardware serial number
-char           	        PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
-unsigned char  	        PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
-unsigned short 	        PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-unsigned char  	        PRODUCT_CERTIFICATION_LEVEL = 1;	// Or, indeed, this
+unsigned short           PRODUCT_CODE = 1;            // Something or other
+char                     PRODUCT_TYPE[] = "MODINT";              // Hardware type
+char                     PRODUCT_VERSION[] = "1.0";              // Hardware version
+char                     PRODUCT_SERIAL_CODE[] = "302";       // Hardware serial number
+char                     PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
+unsigned char            PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
+unsigned short           PRODUCT_N2K_VERSION = 2101;             // God knows what this means
+unsigned char            PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
 
 //********************************************************************************
 // DEVICE INFORMATION
@@ -89,11 +95,11 @@ unsigned char  	        PRODUCT_CERTIFICATION_LEVEL = 1;	// Or, indeed, this
 // value on any N2K bus and an easy way to achieve this is just to bump the device
 // number for every software build (this is done automatically in the Makefile).
 // 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 400;              // Magically changed on each build.
-const unsigned char     DEVICE_FUNCTION = 130;                  // 130 says PC gateway
-const unsigned char     DEVICE_CLASS = 25;                      // 25 says network device
-const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;        // 2046 is currently unassigned.
-const unsigned char     DEVICE_INDUSTRY_GROUP = 4;              // 4 says Maritime industry.
+const unsigned long     DEVICE_UNIQUE_NUMBER = 433;                 // Magically changed on each build.
+const unsigned char     DEVICE_FUNCTION = 130;                      // 130 says PC gateway
+const unsigned char     DEVICE_CLASS = 25;                          // 25 says network device
+const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;            // 2046 is currently unassigned.
+const unsigned char     DEVICE_INDUSTRY_GROUP = 4;                  // 4 says Maritime industry.
 
 //********************************************************************************
 // SPUDPOLE_INFORMATION
@@ -103,21 +109,21 @@ const unsigned char     DEVICE_INDUSTRY_GROUP = 4;              // 4 says Mariti
 // using build system configuration values and this is usually what will be
 // required.
 //
-double                  SPUDPOLE_SPOOL_DIAMETER = 0.06;
-double                  SPUDPOLE_LINE_DIAMETER = 0.01;
-unsigned char           SPUDPOLE_TURNS_PER_LAYER = 10;
-double                  SPUDPOLE_USABLE_LINE_LENGTH = 60.0;
-double                  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0;
-double                  SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;
-double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
+double                  SPUDPOLE_LINE_DIAMETER = 0.01;	            // Metres
+double                  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0; // Volts
+double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;          // Metres per second
+double                  SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;      // Amperes
+double                  SPUDPOLE_SPOOL_DIAMETER = 0.06;             // Metres
+unsigned char           SPUDPOLE_TURNS_PER_LAYER = 10;              // Integer count
+double                  SPUDPOLE_USABLE_LINE_LENGTH = 60.0;         // Metres
 
 //********************************************************************************
 // N2K SPECIFIC DEFAULTS
 //
-tN2kDD484               N2K_LAST_COMMAND = N2kDD484_Reserved;
-double                  N2K_COMMAND_TIMEOUT = 0.4;
-const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 500;
-const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5000;
+tN2kDD484               N2K_LAST_COMMAND = N2kDD484_Reserved;       // Last command received over N2K
+double                  N2K_COMMAND_TIMEOUT = 0.4;                  // Seconds
+const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 0.25;         // Seconds
+const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5.0;           // Seconds
 
 //********************************************************************************
 // N2K PGNs of messages transmitted by this program.
@@ -144,10 +150,11 @@ N2kSpudpole::Settings settings = {
       SPUDPOLE_TURNS_PER_LAYER,
       SPUDPOLE_USABLE_LINE_LENGTH,
       SPUDPOLE_NOMINAL_LINE_SPEED,
-      readTotalOperatingTime()
+      readTotalOperatingTime(),
+      timer
     },
-  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE,
-  SPUDPOLE_NOMINAL_MOTOR_CURRENT
+    SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE,
+    SPUDPOLE_NOMINAL_MOTOR_CURRENT
   },
   getPoleInstance(),
   N2K_COMMAND_TIMEOUT
@@ -159,7 +166,6 @@ N2kSpudpole::Settings settings = {
 N2kSpudpole spudpole(settings);
 
 void setup() {
-
   // Set pin modes...
   pinMode(GPIO_ROTATION_SENSOR, INPUT);
   pinMode(GPIO_DOCKED_SENSOR, INPUT_PULLUP);
@@ -432,20 +438,24 @@ void onRotationSensor() {
 }
 
 /**
- * A simple millisecond timer with the option of saving its result to
+ * operatingTimer is used to support Windlass operating time accounting.
+ * Call operatingTimer(1) to start the timer and operatingTime(0) to
+ * stop it and return the time elapsed in seconds since the last call
+ * to operatingTime(0).saves the current time in a variable andA simple milliseco
  * permanent storage.
  */
-unsigned long timer(int mode, unsigned long runTime) {
+double operatingTimer(int mode) {
   static unsigned long runTimeMillis = 0L;
   unsigned long retval = 0;
   switch (mode) {
     case 0: // Stop timing and return elapsed milliseconds
-      retval = runTime + (millis() - runTimeMillis);
-      EEPROM.put(EEPROM_OPERATING_TIME, retval);
+      retval = (runTimeMillis == 0L)?0L:(millis() - runTimeMillis);
       runTimeMillis = 0L;
       break;
-    default:
+    case 1:
       runTimeMillis = millis();
+      break;
+    default:
       break;
   }
   return(retval);
