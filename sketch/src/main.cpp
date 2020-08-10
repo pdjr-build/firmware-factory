@@ -39,32 +39,34 @@ void onRetrievingSensor();
 void onDeployingSensor();
 void messageHandler(const tN2kMsg&);
 void transmitStatus();
-void commandTimeout(int action = 0, long timeout = 0L);
+void commandTimeout(long timeout = 0L);
 void setRelayOutput(int action = 0, long timeout = 0L);
 void provisionPGN128776(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128777(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
-unsigned long timer(int mode);
+double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func);
+void operateTransmitLED(long timeout = 0L);
 
 //*********************************************************************
 // EEPROM storage locations
 //
-const int EEPROM_OPERATING_TIME = 0; 		// EEPROM address for double.
+#define EEPROM_OPERATING_TIME_ADDRESS 0 		// EEPROM address for double.
+#define TRANSMIT_LED_TIMEOUT 200 // switch TX LED off after this many milliseconds.
 
 //********************************************************************************
 // MCU GPIO pin definitions.
 //
-const byte GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
-const byte GPIO_RETRIEVE_RELAY = 8;                              // Pin10
-const byte GPIO_DEPLOY_RELAY = 9;                            // Pin 11
-const byte GPIO_ROTATION_SENSOR = 21;                    // Pin 23
-const byte GPIO_DOCKED_SENSOR = 11;                         // Pin 13
-const byte GPIO_DEPLOYED_SENSOR = 12;                        // Pin 14
-const byte GPIO_DEPLOYING_SENSOR = 22;                            // Pin 24
-const byte GPIO_RETRIEVING_SENSOR = 23;                          // Pin 25
-const byte GPIO_TRANSMIT_LED = 10;                        // Pin 12
-const byte GPIO_CAN_TX = 3;                                    // Pin 5
-const byte GPIO_CAN_RX = 4;                                    // Pin 6
+const byte              GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
+const byte              GPIO_RETRIEVE_RELAY = 8;                              // Pin10
+const byte              GPIO_DEPLOY_RELAY = 9;                            // Pin 11
+const byte              GPIO_ROTATION_SENSOR = 21;                    // Pin 23
+const byte              GPIO_DOCKED_SENSOR = 11;                         // Pin 13
+const byte              GPIO_DEPLOYED_SENSOR = 12;                        // Pin 14
+const byte              GPIO_DEPLOYING_SENSOR = 22;                            // Pin 24
+const byte              GPIO_RETRIEVING_SENSOR = 23;                          // Pin 25
+const byte              GPIO_TRANSMIT_LED = 10;                        // Pin 12
+const byte              GPIO_CAN_TX = 3;                                    // Pin 5
+const byte              GPIO_CAN_RX = 4;                                    // Pin 6
 
 //********************************************************************************
 // PRODUCT INFORMATION
@@ -73,14 +75,14 @@ const byte GPIO_CAN_RX = 4;                                    // Pin 6
 // product description to be shoe-horned into. Any or all of these values can be
 // overriden by the Makefile using settings supplied in the file "spudpole.cfg".
 //
-unsigned short           PRODUCT_CODE = 1;            // Something or other
-char                     PRODUCT_TYPE[] = "MODINT";              // Hardware type
-char                     PRODUCT_VERSION[] = "1.0";              // Hardware version
-char                     PRODUCT_SERIAL_CODE[] = "302";       // Hardware serial number
-char                     PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
-unsigned char            PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
-unsigned short           PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-unsigned char            PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
+unsigned short          PRODUCT_CODE = 1;            // Something or other
+char                    PRODUCT_TYPE[] = "MODINT";              // Hardware type
+char                    PRODUCT_VERSION[] = "1.0";              // Hardware version
+char                    PRODUCT_SERIAL_CODE[] = "336";       // Hardware serial number
+char                    PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
+unsigned char           PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
+unsigned short          PRODUCT_N2K_VERSION = 2101;             // God knows what this means
+unsigned char           PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
 
 //********************************************************************************
 // DEVICE INFORMATION
@@ -95,7 +97,7 @@ unsigned char            PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
 // value on any N2K bus and an easy way to achieve this is just to bump the device
 // number for every software build (this is done automatically in the Makefile).
 // 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 433;                 // Magically changed on each build.
+const unsigned long     DEVICE_UNIQUE_NUMBER = 484;                 // Magically changed on each build.
 const unsigned char     DEVICE_FUNCTION = 130;                      // 130 says PC gateway
 const unsigned char     DEVICE_CLASS = 25;                          // 25 says network device
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;            // 2046 is currently unassigned.
@@ -151,7 +153,7 @@ N2kSpudpole::Settings settings = {
       SPUDPOLE_USABLE_LINE_LENGTH,
       SPUDPOLE_NOMINAL_LINE_SPEED,
       readTotalOperatingTime(),
-      timer
+      windlassOperatingTimer
     },
     SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE,
     SPUDPOLE_NOMINAL_MOTOR_CURRENT
@@ -214,9 +216,12 @@ unsigned char getPoleInstance() {
   }
   return(instance);
 }
+
 double readTotalOperatingTime() {
   double retval = 0.0;
-  EEPROM.get(EEPROM_OPERATING_TIME, retval);
+  #ifdef EEPROM_OPERATING_TIME_ADDRESS
+  EEPROM.get(EEPROM_OPERATING_TIME_ADDRESS, retval);
+  #endif
   return(retval);
 }
 
@@ -227,8 +232,6 @@ void messageHandler(const tN2kMsg &N2kMsg) {
     NMEA2000Handlers[iHandler].Handler(N2kMsg); 
   }
 }
-
-
   
 /**
  * transmitStatus() transmits a spudpole status update (consisting of
@@ -253,6 +256,7 @@ void messageHandler(const tN2kMsg &N2kMsg) {
     tN2kMsg m776; provisionPGN128776(m776, sed); NMEA2000.SendMsg(m776);
     tN2kMsg m777; provisionPGN128777(m777, sed); NMEA2000.SendMsg(m777);
     tN2kMsg m778; provisionPGN128778(m778, sed); NMEA2000.SendMsg(m778);
+    operateTransmitLED(TRANSMIT_LED_TIMEOUT);
     sed++;
   }
 }
@@ -355,27 +359,31 @@ void PGN128776(const tN2kMsg &N2kMsg) {
   }
 }
 
-/**
+/**********************************************************************
  * setRelayOutput() operates the GPIO pins associated with the module's
  * control relays dependent upon the value of <action>: 0 says stop, 1
  * says deploy, 2 says retrieve.
+ * 
+ * Setting either relay on or off initialises a cancel timer which will
+ * switch relays off after <timeout> milliseconds.
  */
+
 void setRelayOutput(int action, long timeout) {
   switch (action) {
     case 0: // Set relays OFF
-      commandTimeout(2);
+      commandTimeout(-1); // cancel any operating timeout
       digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
       digitalWrite(GPIO_DEPLOY_RELAY, LOW);
       N2K_LAST_COMMAND = N2kDD484_Off;
       break;
     case -1: // Set relays for RETRIEVE
-      commandTimeout(1, timeout);
+      commandTimeout(timeout);
       digitalWrite(GPIO_RETRIEVE_RELAY, HIGH);
       digitalWrite(GPIO_DEPLOY_RELAY, LOW);
       N2K_LAST_COMMAND = N2kDD484_Up;
       break;
     case +1: // Set relays for DEPLOY
-      commandTimeout(1, timeout);
+      commandTimeout(timeout);
       digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
       digitalWrite(GPIO_DEPLOY_RELAY, HIGH);
       N2K_LAST_COMMAND = N2kDD484_Down;
@@ -385,37 +393,43 @@ void setRelayOutput(int action, long timeout) {
   }
 }
 
-/**
- * commandTimeout executes <callback> after at least <timeout> milliseconds.
- * The function should be called from loop().
+/**********************************************************************
+ * commandTimeout() switches relay outputs off after some timout
+ * interval has expired.  There are two call options.
+ * 
+ * commandTimeout() should be called from inside loop().  It checks to
+ * see if a previously initialised timeout interval has expired and if
+ * so sets relay outputs OFF and cancels the timeout.
+ * 
+ * commandTimeout(timeout) if timeout is greater than zero initialises
+ * a timeout session, if timeout is -1, then cancels any operating
+ * timeout.
  */
-void commandTimeout(int action, long timeout) {
+
+void commandTimeout(long timeout) {
   static unsigned long _end = 0L;
 
-  switch (action) {
-    case 0: // Normal loop tick
-      if ((_end > 0) && (_end < millis())) {
+  switch (timeout) {
+    case 0L: // Normal loop tick
+      if ((_end > 0L) && (_end < millis())) {
         setRelayOutput(0);
         _end = 0L;
       }
       break;
-    case 1: // Start new timeout
-      if (timeout > 0L) {
-       _end = (millis() + timeout);
-      }
+    case -1L: // Cancel timeout
+      _end = 0L;
       break;
-    case 2: // Cancel callback
-      _end = 0;
-      break;
-    default:
+    default: // Start new timeout
+      _end = (millis() + timeout);
       break;
   }
 }
 
 
-//*********************************************************************
-// Interrup service rotines.
-//
+/**********************************************************************
+ * Interrup service routines triggered directly from disgital I/O pin
+ * state changes
+ */
 
 void onDockedSensor() {
   spudpole.setDockedStatus(digitalRead(GPIO_DOCKED_SENSOR)?Spudpole::YES:Spudpole::NO);
@@ -437,26 +451,61 @@ void onRotationSensor() {
   spudpole.bumpRotationCount();
 }
 
-/**
- * operatingTimer is used to support Windlass operating time accounting.
- * Call operatingTimer(1) to start the timer and operatingTime(0) to
- * stop it and return the time elapsed in seconds since the last call
- * to operatingTime(0).saves the current time in a variable andA simple milliseco
- * permanent storage.
+/**********************************************************************
+ * windlassOperatingTimer is a callback function for use by the
+ * Windlass class in support of operating time accounting. Support is
+ * provided for both NORMAL and STORAGE operating modes, but note that
+ * STORAGE mode is only supported if the global EEPROM_OPERATING_TIME
+ * is defined with a EEPROM storage address. See Windlass.h for more
+ * information.
  */
-double operatingTimer(int mode) {
-  static unsigned long runTimeMillis = 0L;
-  unsigned long retval = 0;
-  switch (mode) {
-    case 0: // Stop timing and return elapsed milliseconds
-      retval = (runTimeMillis == 0L)?0L:(millis() - runTimeMillis);
-      runTimeMillis = 0L;
+double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func) {
+  static unsigned long startMillis = 0L;
+  double retval = 0.0;
+  switch (func) {
+    case Windlass::STOP: // Stop timing and return elapsed seconds
+      if (startMillis != 0L) {
+        retval = (double) ((millis() - startMillis) * 1000);
+        startMillis = 0L;
+        #ifdef EEPROM_OPERATING_TIME_ADDRESS
+        if (mode == Windlass::STORAGE) EEPROM.put(EEPROM_OPERATING_TIME_ADDRESS, retval);
+        #endif
+      }
       break;
-    case 1:
-      runTimeMillis = millis();
+    case Windlass::START:
+      startMillis = millis();
       break;
     default:
       break;
   }
   return(retval);
+}
+
+/**********************************************************************
+ * operateTransmitLED() switches on an LED and switches it off after a
+ * defined period.  The function requires the definition of
+ * GPIO_TRANSMIT_LED and GPIO_TRANSMIT_LED_TITMEOUT.
+ * 
+ * a call to operateTransmitLED() should be made from loop() in order
+ * to manage switching the LED off.  A call to operateTransmitLED(timeout)
+ *  will switch the LED on and arrange for it to be turned off after
+ * <timeout> milliseconds.
+ */
+
+void operateTransmitLED(long timeout) {
+  #ifdef GPIO_TRANSMIT_LED
+  static void _end = 0L;
+  switch (timeout) {
+    case 0L:
+      if ((_end) && (_end < millis())) {
+        digitalWrite(GPIO_TRANSMIT_LED, LOW);
+        _end = 0L;
+      }
+      break;
+    default:
+      digitalWrite(GPIO_TRANSMIT_LED, HIGH);
+      _end = (millis() + timeout);
+      break;      
+  }
+  #endif
 }
