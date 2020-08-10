@@ -27,9 +27,10 @@
 
 #include <EEPROM.h>
 
-//*********************************************************************
-// Declarations for local functions.
-//
+/**********************************************************************
+ * Declarations for local functions.
+ */
+
 unsigned char getPoleInstance();
 double readTotalOperatingTime();
 void onRotationSensor();
@@ -47,15 +48,16 @@ void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
 double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func);
 void operateTransmitLED(long timeout = 0L);
 
-//*********************************************************************
-// EEPROM storage locations
-//
-#define EEPROM_OPERATING_TIME_ADDRESS 0 		// EEPROM address for double.
-#define TRANSMIT_LED_TIMEOUT 200 // switch TX LED off after this many milliseconds.
+// EEPROM storage address (stored data value is a double)
+#define EEPROM_OPERATING_TIME_ADDRESS 0
 
-//********************************************************************************
-// MCU GPIO pin definitions.
-//
+// switch TX LED off after this many milliseconds.
+#define TRANSMIT_LED_TIMEOUT 200
+
+/**********************************************************************
+ * MCU GPIO pin definitions.
+ */
+
 const byte              GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
 const byte              GPIO_RETRIEVE_RELAY = 8;                              // Pin10
 const byte              GPIO_DEPLOY_RELAY = 9;                            // Pin 11
@@ -68,68 +70,79 @@ const byte              GPIO_TRANSMIT_LED = 10;                        // Pin 12
 const byte              GPIO_CAN_TX = 3;                                    // Pin 5
 const byte              GPIO_CAN_RX = 4;                                    // Pin 6
 
-//********************************************************************************
-// PRODUCT INFORMATION
-//
-// This poorly structured set of values is what NMEA expects a manufacturer's
-// product description to be shoe-horned into. Any or all of these values can be
-// overriden by the Makefile using settings supplied in the file "spudpole.cfg".
-//
-unsigned short          PRODUCT_CODE = 1;            // Something or other
-char                    PRODUCT_TYPE[] = "MODINT";              // Hardware type
-char                    PRODUCT_VERSION[] = "1.0";              // Hardware version
-char                    PRODUCT_SERIAL_CODE[] = "336";       // Hardware serial number
-char                    PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
-unsigned char           PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
-unsigned short          PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-unsigned char           PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
+/**********************************************************************
+ * PRODUCT INFORMATION
+ * 
+ * This poorly structured set of values is what NMEA expects a product
+ * description to be shoe-horned into.
+ */
 
-//********************************************************************************
-// DEVICE INFORMATION
-//
-// Because of NMEA's closed standard, most of this is fiction. Maybe it can be
-// made better with more research. In particular, even recent releases of the
-// NMEA function and class lists found using Google don't discuss anchor
-// systems, so the proper values for DEVICE_CLASS and DEVICE_FUNCTION in this
-// application are not known. Unsurprisingly, NMEA haven't assigned an anonymous
-// manufacturer code, but 2046 is currently unassigned, so we use that.
-// DEVICE_UNIQUE_NUMBER and DEVICE_MANUFACTURER_CODE together must make a unique
-// value on any N2K bus and an easy way to achieve this is just to bump the device
-// number for every software build (this is done automatically in the Makefile).
-// 
-const unsigned long     DEVICE_UNIQUE_NUMBER = 484;                 // Magically changed on each build.
-const unsigned char     DEVICE_FUNCTION = 130;                      // 130 says PC gateway
-const unsigned char     DEVICE_CLASS = 25;                          // 25 says network device
-const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;            // 2046 is currently unassigned.
-const unsigned char     DEVICE_INDUSTRY_GROUP = 4;                  // 4 says Maritime industry.
+const unsigned char     PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
+const unsigned short    PRODUCT_CODE = 1;            // Something or other
+const char              PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
+const unsigned char     PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
+const unsigned short    PRODUCT_N2K_VERSION = 2101;             // God knows what this means
+const char              PRODUCT_SERIAL_CODE[] = "340";       // Hardware serial number
+const char              PRODUCT_TYPE[] = "MODINT";              // Hardware type
+const char              PRODUCT_VERSION[] = "1.0";              // Hardware version
 
-//********************************************************************************
-// SPUDPOLE_INFORMATION
-//
-// These settings define the operating characteristics of the spudpole to which
-// the firmware build will relate.  Any or all of these values can be overriden by
-// using build system configuration values and this is usually what will be
-// required.
-//
-double                  SPUDPOLE_LINE_DIAMETER = 0.01;	            // Metres
-double                  SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0; // Volts
-double                  SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;          // Metres per second
-double                  SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;      // Amperes
-double                  SPUDPOLE_SPOOL_DIAMETER = 0.06;             // Metres
-unsigned char           SPUDPOLE_TURNS_PER_LAYER = 10;              // Integer count
-double                  SPUDPOLE_USABLE_LINE_LENGTH = 60.0;         // Metres
+/**********************************************************************
+ * DEVICE INFORMATION
+ * 
+ * Because of NMEA's closed standard, most of this is fiction. Maybe it
+ * can be made better with more research. In particular, even recent
+ * releases of the NMEA function and class lists found using Google
+ * don't discuss anchor systems, so the proper values for CLASS and
+ * FUNCTION in this application are not known.  At the moment they are
+ * set to 25 (network device) and 130 (PC gateway).
+ * 
+ * INDUSTRY_GROUP we can be confident about (4 says maritime). However,
+ * MANUFACTURER_CODE is only allocated to subscribed NMEA members and,
+ * unsurprisingly, an anonymous code has not been assigned: 2046 is
+ * currently unused, so we adopt that.  
+ * 
+ * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
+ * value on any N2K bus and an easy way to achieve this is just to
+ * bump the device number for every software build and this is done
+ * automatically by the build system.
+ */
 
-//********************************************************************************
-// N2K SPECIFIC DEFAULTS
-//
+const unsigned char     DEVICE_CLASS = 25;
+const unsigned char     DEVICE_FUNCTION = 130;
+const unsigned char     DEVICE_INDUSTRY_GROUP = 4;
+const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;
+const unsigned long     DEVICE_UNIQUE_NUMBER = 490;
+
+/**********************************************************************
+ * SPUDPOLE_INFORMATION
+ * 
+ * These settings define the operating characteristics of the spudpole
+ * to which the firmware build will relate.  Any or all of these values
+ * can be overriden by using build system configuration values and this
+ * is usually what will be required before each build.
+ */
+
+const double            SPUDPOLE_LINE_DIAMETER = 0.01;	            // Metres
+const double            SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0; // Volts
+const double            SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;          // Metres per second
+const double            SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;      // Amperes
+const double            SPUDPOLE_SPOOL_DIAMETER = 0.06;             // Metres
+const unsigned char     SPUDPOLE_TURNS_PER_LAYER = 10;              // Integer count
+const double            SPUDPOLE_USABLE_LINE_LENGTH = 60.0;         // Metres
+
+/**********************************************************************
+ * N2K SPECIFIC DEFAULTS
+ */
+
 tN2kDD484               N2K_LAST_COMMAND = N2kDD484_Reserved;       // Last command received over N2K
-double                  N2K_COMMAND_TIMEOUT = 0.4;                  // Seconds
+const double            N2K_COMMAND_TIMEOUT = 0.4;                  // Seconds
 const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 0.25;         // Seconds
 const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5.0;           // Seconds
 
-//********************************************************************************
-// N2K PGNs of messages transmitted by this program.
-//
+/**********************************************************************
+ * N2K PGNs of messages transmitted by this program.
+ */
+
 const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L };
 
 //*********************************************************************************
