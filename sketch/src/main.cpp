@@ -117,24 +117,21 @@ const unsigned long     DEVICE_UNIQUE_NUMBER = 490;
  * SPUDPOLE_INFORMATION
  * 
  * These settings define the operating characteristics of the spudpole
- * to which the firmware build will relate.  Any or all of these values
- * can be overriden by using build system configuration values and this
- * is usually what will be required before each build.
+ * to which the firmware build will relate. All values in SI units.
  */
 
-const double            SPUDPOLE_LINE_DIAMETER = 0.01;	            // Metres
-const double            SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0; // Volts
-const double            SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;          // Metres per second
-const double            SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;      // Amperes
-const double            SPUDPOLE_SPOOL_DIAMETER = 0.06;             // Metres
-const unsigned char     SPUDPOLE_TURNS_PER_LAYER = 10;              // Integer count
-const double            SPUDPOLE_USABLE_LINE_LENGTH = 60.0;         // Metres
+const double            SPUDPOLE_LINE_DIAMETER = 0.01;
+const double            SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0;
+const double            SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
+const double            SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;
+const double            SPUDPOLE_SPOOL_DIAMETER = 0.06;
+const unsigned char     SPUDPOLE_TURNS_PER_LAYER = 10;
+const double            SPUDPOLE_USABLE_LINE_LENGTH = 60.0;
 
 /**********************************************************************
  * N2K SPECIFIC DEFAULTS
  */
 
-tN2kDD484               N2K_LAST_COMMAND = N2kDD484_Reserved;       // Last command received over N2K
 const double            N2K_COMMAND_TIMEOUT = 0.4;                  // Seconds
 const unsigned long     N2K_DYNAMIC_UPDATE_INTERVAL = 0.25;         // Seconds
 const unsigned long     N2K_STATIC_UPDATE_INTERVAL = 5.0;           // Seconds
@@ -175,10 +172,16 @@ N2kSpudpole::Settings settings = {
   N2K_COMMAND_TIMEOUT
 };
 
-//*******************************************************************
-// Create globals
+/**********************************************************************
+ * GLOBAL VARIABLES
+ *
+ * The NMEA2000 global is created automatically to suit selected
+ * hardware.  Otherwise there are only two: an instance of N2kSpudpole
+ * scratch storage for the last operating command received over N2K. 
+ */
 
 N2kSpudpole spudpole(settings);
+tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
 void setup() {
   // Set pin modes...
@@ -213,15 +216,35 @@ void setup() {
   NMEA2000.Open();                             
 }
 
+/**********************************************************************
+ * The process loop's work is fairly constrained.
+ *
+ * commandTimeout() ensures that any active UP or DOWN commands that
+ *     have been received over N2K (and will have operated the output
+ *     relays) are cancelled if they have timed out.
+ * operateTransmitLED() similarly ensures that the TX LED which is
+ *     turned on each time a status report is issued gets turned off
+ *     a few hundred milliseconds later.
+ * transmitStatus() makes sure that the module transmits windlass
+ *     status PGNs at intervals appropriate to its current operating
+ *     mode.
+ * NMEA2000.parseMessages() processes any incoming control messages
+ *     that may have arrived since the last turn around the loop.
+ */
+
 void loop() {
   commandTimeout();
   transmitStatus();
+  operateTransmitLED();
   NMEA2000.ParseMessages();
 }
 
-/**
- * Read the module instance address set by the hardware DIP switches.
+/**********************************************************************
+ * getPoleInstance() returns the module instance address set by the
+ * hardware DIP switches defined in the GPIO_INSTANCE array.  The pin
+ * sequence supplied in the array is lo-bit to hi-bit, left to right.
  */
+
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
   for (byte i = 0; i < 8; i++) {
@@ -229,6 +252,11 @@ unsigned char getPoleInstance() {
   }
   return(instance);
 }
+
+/**********************************************************************
+ * readTotalOperatingTime() returns the total windlass operating time
+ * from EEPROM at address EEPROM_OPERATING_TIME_ADDRESS.
+ */
 
 double readTotalOperatingTime() {
   double retval = 0.0;
