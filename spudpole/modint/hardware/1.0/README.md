@@ -1,9 +1,9 @@
 # MODINT v1.0
 
-This module design includes [circuit schematic](schematic.pdf), [pcb layout](pcb.pdf)
-and [prototype enclosure](enclosure.pdf) proposals for an NMEA 2000 compatible
-spudpole interface built around a Teensy 3.2 MCU. The module is designed to be
-powered directly from the host NMEA 2000 bus.
+This prototype module design includes a [circuit schematic](schematic.pdf),
+[pcb layout](pcb.pdf) and [enclosure proposal](enclosure.pdf) for an NMEA 2000
+compatible spudpole interface built around a Teensy 3.2 MCU. The module is
+designed to be powered directly from the host NMEA 2000 bus.
 
 ## Packaging proposal
 
@@ -15,13 +15,25 @@ The enclosure is drilled to expose PCB mounted status LEDs.
 
 ## Circuit design
 
-Module power at 5VDC is derived from the NMEA bus via a DC-DC converter.
-The module draws approximately 150mA from the bus power supply giving an
-NMEA LEN of 3. The NMEA bus is protected by a self-resetting 1A fuse.
+### Power supply
 
-The module's NMEA/CAN data interface is implemented using an MCP2551
-industry standard transceiver and includes a switchable 120-ohm bus
-termination resistor.
+The module is powered at 5VDC by the output of a DC-DC converter which is
+connected directly to the S and C connections of the host NMEA bus. Typically
+this will be operating at 12VD, but the module will accept bus voltages in the
+range 9VDC through 36VDC.
+
+The module draws approximately 150mA from the bus power supply giving an
+NMEA LEN of 3. The NMEA bus is protected by a self-resetting 1A polyfuse.
+
+### CAN interface
+
+The NMEA/CAN data interface is implemented using an MCP2551 industry standard
+transceiver. The transciver power input is decoupled by a tantalum capacitor.
+The CAN H and L signals are fed directly to the transceiver inputs, but the
+circuit board has provision for adding components for RC input filtering should
+this prove necessary.
+
+### Sensor inputs 
 
 Four otically isolated sensor inputs rated at 12/24VDC allow connection
 of MOTOR-RETRIEVING, MOTOR-DEPLOYING, DOCKED and DEPLOYED sensors and a

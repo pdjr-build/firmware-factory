@@ -58,14 +58,14 @@ void operateTransmitLED(long timeout = 0L);
  * MCU GPIO pin definitions.
  */
 
-const byte              GPIO_INSTANCE[] = { 13,14,15,16,17,18,19,20 }; // Pins 15-22
-const byte              GPIO_RETRIEVE_RELAY = 8;                              // Pin10
-const byte              GPIO_DEPLOY_RELAY = 9;                            // Pin 11
+const byte              GPIO_INSTANCE[] = { 20,19,18,17,16,15,14,13 }; // Pins 15-22
+const byte              GPIO_RETRIEVE_RELAY = 22;                              // Pin10
+const byte              GPIO_DEPLOY_RELAY = 23;                            // Pin 11
 const byte              GPIO_ROTATION_SENSOR = 21;                    // Pin 23
-const byte              GPIO_DOCKED_SENSOR = 11;                         // Pin 13
+const byte              GPIO_DOCKED_SENSOR = 9;                         // Pin 13
 const byte              GPIO_DEPLOYED_SENSOR = 12;                        // Pin 14
-const byte              GPIO_DEPLOYING_SENSOR = 22;                            // Pin 24
-const byte              GPIO_RETRIEVING_SENSOR = 23;                          // Pin 25
+const byte              GPIO_DEPLOYING_SENSOR = 11;                            // Pin 24
+const byte              GPIO_RETRIEVING_SENSOR = 8;                          // Pin 25
 const byte              GPIO_TRANSMIT_LED = 10;                        // Pin 12
 const byte              GPIO_CAN_TX = 3;                                    // Pin 5
 const byte              GPIO_CAN_RX = 4;                                    // Pin 6
@@ -82,7 +82,7 @@ const unsigned short    PRODUCT_CODE = 1;            // Something or other
 const char              PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 const unsigned char     PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
 const unsigned short    PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-const char              PRODUCT_SERIAL_CODE[] = "340";       // Hardware serial number
+const char              PRODUCT_SERIAL_CODE[] = "348";       // Hardware serial number
 const char              PRODUCT_TYPE[] = "MODINT";              // Hardware type
 const char              PRODUCT_VERSION[] = "1.0";              // Hardware version
 
@@ -111,7 +111,7 @@ const unsigned char     DEVICE_CLASS = 25;
 const unsigned char     DEVICE_FUNCTION = 130;
 const unsigned char     DEVICE_INDUSTRY_GROUP = 4;
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;
-const unsigned long     DEVICE_UNIQUE_NUMBER = 490;
+const unsigned long     DEVICE_UNIQUE_NUMBER = 502;
 
 /**********************************************************************
  * SPUDPOLE_INFORMATION
@@ -185,17 +185,19 @@ tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
 void setup() {
   // Set pin modes...
+  for (int i = 0 ; i < 8; i++ { pinMode(GPIO_INSTANCE[i], INPUT_PULLUP); }
   pinMode(GPIO_ROTATION_SENSOR, INPUT);
   pinMode(GPIO_DOCKED_SENSOR, INPUT_PULLUP);
   pinMode(GPIO_DEPLOYED_SENSOR, INPUT_PULLUP);
   pinMode(GPIO_DEPLOYING_SENSOR, INPUT_PULLUP);
   pinMode(GPIO_RETRIEVING_SENSOR, INPUT_PULLUP);
-  pinMode(GPIO_DEPLOY_RELAY, OUTPUT);
-  pinMode(GPIO_RETRIEVE_RELAY, OUTPUT);
+  pinMode(GPIO_DN_RELAY, OUTPUT);
+  pinMode(GPIO_UP_RELAY, OUTPUT);
+  pinMode(GPIO_TRANSMIT_LED, OUTPUT);
   
   // Set default pin states...
-  digitalWrite(GPIO_DEPLOY_RELAY, LOW);
-  digitalWrite(GPIO_RETRIEVE_RELAY, LOW);
+  digitalWrite(GPIO_DN_RELAY, LOW);
+  digitalWrite(GPIO_UP_RELAY, LOW);
 
   // Attach interrupts...
   attachInterrupt(digitalPinToInterrupt(GPIO_ROTATION_SENSOR), onRotationSensor, FALLING);
