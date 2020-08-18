@@ -7,45 +7,47 @@ two anchor windlasses. The module allows physical switches in one
 location to operate a windlass in some other location subject to the
 requirement that the windlass to be operated must have an N2K interface
 that supports the N2K
-[Windlass Network Messages control protocol](
+[Windlass Network Messages](
 https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
+control protocol.
 
-Although __MODCTL__ was developed to support spudpole operation, it
-will allow operation of any N2K controlled windlass which uses the
-described protocol.
+__MODCTL__ was developed to support spudpole operation, but it will
+allow operation of any N2K controlled windlass which uses the
+referenced protocol.
+
+Multiple __MODCTL__ modules can be installed on a single bus and an
+acquire/release control protocol allows non-conflictual operation
 
 ## Switch inputs
 
-__MODCTL__ supports four input channels which allow connection of
-switches to operate a maximum of two spudpoles, SPUD0 and SPUD1. Switch
-inputs are optically-isolated, active high, and rated for 12/24VDC and
-connections are made through a five way terminal block.
+__MODCTL__ supports four input channels. Inputs are optically-isolated,
+active high, and rated for operation at both 12/24VDC.
 
-1. SPUD0\_UP;
-2. SPUD0\_DOWN;
-3. SPUD1\_UP;
-4. SPUD1\_DOWN;
-5. GND.
+| Pin | Windlass | Function | Description                             |
+|:----|:-    ----|:---------|:----------------------------------------|
+| 1   | SPUD0    | UP       | Retrieve spudpole 0.                    |
+| 2   | SPUD0    | DOWN     | Deploy spudpole 0.                      |
+| 3   | SPUD1    | UP       | Retrieve spudpole 1.                    |
+| 4   | SPUD1    | DOWN     | Deploy spudpole 1.                      |
+| 5   | ---      | GND      | Reference ground for inputs 1..4.       |
+
+Inputs 1 through 4 must be maintained for continuous operation of the
+associated spudpole.
 
 ## Status outputs
 
-The module has six zero volt output channels which signal the operating
-state of the controlled spudpole(s). Each output channel is rated at
-50VDC 1A maximum load and will typically be used for connection of an
-external panel indicator.
+The module has five zero volt output channels which signal the
+operating state of the controlled spudpole(s) and will typically be
+used for connection of external panel indicators. Each output channel
+is switched by a reed relay rated at 50VDC 1A maximum load.
 
-6. SPUD0\_DOCKED 
-7. SPUD0\_DOCKED
-8. SPUD0\_DEPLOYED
-9. SPUD0\_DEPLOYED
-10. SPUD0\_OPERATING
-11. SPUD0\_OPERATING
-12. SPUD1\_DOCKED 
-13. SPUD1\_DOCKED
-14. SPUD1\_DEPLOYED
-15. SPUD1\_DEPLOYED
-16. SPUD1\_OPERATING
-17. SPUD1\_OPERATING
+| Pin  | Windlass | Function | Description                            |
+|:-----|:---------|:---------|:---------------------------------------|
+| 1&2  | ---      | PWR      | Closes to indicate module is powered.  Pulses to indicate that another panel is operating a spudpole. |
+| 3&4  | SPUD0    | UP       | Closes to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
+| 5&6  | SPUD0    | DOWN     | Closes to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
+| 7&8  | SPUD1    | UP       | Closes to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
+| 9&10 | SPUD1    | DOWN     | Closes to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
 
 ## NMEA bus interface
 

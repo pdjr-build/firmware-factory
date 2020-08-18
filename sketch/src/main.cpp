@@ -109,7 +109,7 @@ const unsigned short    PRODUCT_CODE = 1;            // Something or other
 const char              PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
 const unsigned char     PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
 const unsigned short    PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-const char              PRODUCT_SERIAL_CODE[] = "388";       // Hardware serial number
+const char              PRODUCT_SERIAL_CODE[] = "392";       // Hardware serial number
 const char              PRODUCT_TYPE[] = "MODINT";              // Hardware type
 const char              PRODUCT_VERSION[] = "1.0";              // Hardware version
 
@@ -138,7 +138,7 @@ const unsigned char     DEVICE_CLASS = 25;
 const unsigned char     DEVICE_FUNCTION = 130;
 const unsigned char     DEVICE_INDUSTRY_GROUP = 4;
 const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;
-const unsigned long     DEVICE_UNIQUE_NUMBER = 562;
+const unsigned long     DEVICE_UNIQUE_NUMBER = 568;
 
 /**********************************************************************
  * SPUDPOLE_INFORMATION
