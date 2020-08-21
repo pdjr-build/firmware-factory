@@ -11,6 +11,7 @@ if [ -f "${TARGET}" ] ; then
     		value="${value#"${value%%[![:space:]]*}"}"
     		value="${value%"${value##*[![:space:]]}"}"   
 		sed -i "/${key}.*=/ s!=.*;!= ${value};!" ${TARGET}
+		#sed -i "/^#define ${key}\s+/ s!^.*$!#define ${key} ${value}!" ${TARGET}
 	done
 fi
 
