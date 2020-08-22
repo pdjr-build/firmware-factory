@@ -22,7 +22,7 @@ __MODCTL__ supports four input channels. Inputs are optically-isolated,
 active high, and rated for operation at both 12/24VDC.
 
 | Pin | Windlass | Function | Description                             |
-|:----|:-    ----|:---------|:----------------------------------------|
+|:----|:---------|:---------|:----------------------------------------|
 | 1   | SPUD0    | UP       | Retrieve spudpole 0.                    |
 | 2   | SPUD0    | DOWN     | Deploy spudpole 0.                      |
 | 3   | SPUD1    | UP       | Retrieve spudpole 1.                    |
