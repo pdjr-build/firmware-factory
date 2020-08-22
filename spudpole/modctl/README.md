@@ -4,19 +4,17 @@ NMEA 2000 (N2K) spudpole control module.
 
 This project implements __MODCTL__, an N2K control interface for one or
 two anchor windlasses. The module allows physical switches in one
-location to operate a windlass in some other location subject to the
-requirement that the windlass to be operated must have an N2K interface
-that supports the N2K
-[Windlass Network Messages](
+location on the N2K bus to operate a windlass in some other location
+subject to the requirement that the windlass to be operated must have
+an N2K interface that supports the [Windlass Network Messages](
 https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
-control protocol.
+protocol.
 
-__MODCTL__ was developed to support spudpole operation, but it will
-allow operation of any N2K controlled windlass which uses the
-referenced protocol.
+__MODCTL__ was developed to operate spudpoles, but it will allow
+operation of any N2K controlled windlass which uses the referenced
+protocol.
 
-Multiple __MODCTL__ modules can be installed on a single bus and an
-acquire/release control protocol allows non-conflictual operation
+Multiple __MODCTL__ modules can be installed on a single bus.
 
 ## Switch inputs
 
@@ -43,11 +41,11 @@ is switched by a reed relay rated at 50VDC 1A maximum load.
 
 | Pin  | Windlass | Function | Description                            |
 |:-----|:---------|:---------|:---------------------------------------|
-| 1&2  | ---      | PWR      | Closes to indicate module is powered.  Pulses to indicate that another panel is operating a spudpole. |
-| 3&4  | SPUD0    | UP       | Closes to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
-| 5&6  | SPUD0    | DOWN     | Closes to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
-| 7&8  | SPUD1    | UP       | Closes to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
-| 9&10 | SPUD1    | DOWN     | Closes to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
+| 1&2  | ---      | PWR      | Close to indicate module is powered.  Pulses to indicate that another panel is operating a spudpole. |
+| 3&4  | SPUD0    | UP       | Close to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
+| 5&6  | SPUD0    | DOWN     | Close to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
+| 7&8  | SPUD1    | UP       | Close to indicate spudpole is docked. Pulses to indicate spudpole is being retrieved. |
+| 9&10 | SPUD1    | DOWN     | Close to indicate spudpole is deployed. Pulses to indicate spudpole is being deployed. |
 
 ## NMEA bus interface
 
@@ -59,6 +57,7 @@ accepts the following message types:
 
 | PGN    | Message name                      | Comment               |
 |:-------|:----------------------------------|:----------------------|
+| 128776 | Anchor Windlass Control Status    | Drives status outputs |
 | 128777 | Anchor Windlass Operating Status  | Drives status outputs |
 
 And issues the following control message types when any of the input
