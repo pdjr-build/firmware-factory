@@ -10,8 +10,12 @@ if [ -f "${TARGET}" ] ; then
    		value=${line#* }
     		value="${value#"${value%%[![:space:]]*}"}"
     		value="${value%"${value##*[![:space:]]}"}"   
-		sed -i "/${key}.*=/ s!=.*;!= ${value};!" ${TARGET}
-		#sed -i "/^#define ${key}\s+/ s!^.*$!#define ${key} ${value}!" ${TARGET}
+		value="${value//\"/\\\"}"
+		if [ "${value}" != "" ] ; then
+			echo "${key} ${value}"
+			#sed -i "/${key}.*=/ s!=.*;!= ${value};!" ${TARGET}
+			sed -i "/^\#define.*${key}/ s!.*!#define ${key} ${value}!" ${TARGET}
+		fi
 	done
 fi
 

@@ -2,7 +2,6 @@
 #
 # usage: get-config-values [dirname...]
 
-
 declare -a OUTPUT
 OUTPUT=()
 
@@ -12,24 +11,23 @@ else
 	STARTDIR="$(pwd)"
 	while [ "${1}" != "" ] ; do
 		cd "${STARTDIR}"
-		cd "$(readlink -f ${1})"
-  		while :; do
-    			for rname in * ; do
-      				if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then
-      					VALUE=$(cat "${rname}");
-					OLINE="${rname%_NUMBER} "
-      					if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
-      					OLINE="${OLINE}${VALUE}"
-      					if [[ "${rname}" != *"_NUMBER" ]] ; then OLINE="${OLINE}\"" ; fi
+		if [ -d "${1}" ] ; then
+			cd "$(readlink -f ${1})"
+  			while :; do
+    				for rname in * ; do
+      					if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then
+						NAME=${rname%++}
+      						VALUE=$(cat "${rname}");
+      						OUTPUT+=("${NAME} ${VALUE}")
 
-      					OUTPUT+=("${OLINE}")
-      					if [[ "${rname}" == *"_SERIAL_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
-     					if [[ "${rname}" == *"_UNIQUE_"* ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
-      				fi
-    			done
-    			if [ "$(basename `pwd`)" == "ankreo" ] ; then break ; fi
-    			cd ..
-  		done
+						# Increment the value of files whose name ends in ++
+      						if [[ "${rname}" == *"++" ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
+      					fi
+    				done
+    				if [ "$(basename `pwd`)" == "ankreo" ] ; then break ; fi
+    				cd ..
+  			done
+		fi
 		shift
 	done
 	printf '%s\n' "${OUTPUT[@]}" | sort | uniq
