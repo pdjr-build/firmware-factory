@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo "Current configuration:"
+echo ""
+echo -n "Source directory: "
+if [ -L "src" ] ; then
+	echo "$(ls -l src | cut -d ' ' -f 11-)"
+else
+	echo "NOT CONFIGURED"
+fi

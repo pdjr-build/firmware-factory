@@ -1,3 +1,23 @@
+/**********************************************************************
+ * This firmware provides a mechanical switch control interface for a
+ * maximum of two windlasses using the NMEA 2000 Windlass Network
+ * Messages protocol based around PGNs 128776, 128777 and 128778.
+ * 
+ * UP and DOWN control channels are provided for each windlass and the
+ * firmware treats a LOW signal as active. Hardware supporting this
+ * code will usually opto-isolate physical switch inputs, so typically
+ * the hardware inputs will be inverted from active HIGH.
+ * 
+ * The method of control is straightforwards: if any control channel
+ * becomes active then the firmware will output a PGN126208 Group
+ * Function Control message commanding the associated windlass to
+ * operate in the same sense as the control. PGN126208 messages will
+ * continue to be output every 250ms until the control channel becomes
+ * inactive.
+ * 
+ * The firmware supports five status outputs which are active HIGH.
+ */
+
 #include <Arduino.h>
 #include <EEPROM.h>
 
@@ -42,12 +62,10 @@
 #define GPIO_W1_DN_SWITCH 16
 #define GPIO_PWR_RELAY 22
 #define GPIO_W0_UP_RELAY 21
-#define GPIO_W0_DN_RELAY 22
-#define GPIO_W1_UP_RELAY 23
-#define GPIO_W1_DN_RELAY 24
-#define GPIO_TRANSMIT_LED 10
-#define GPIO_CAN_TX 3
-#define GPIO_CAN_RX 4
+#define GPIO_W0_DN_RELAY 20
+#define GPIO_W1_UP_RELAY 19
+#define GPIO_W1_DN_RELAY 18
+#define GPIO_TRANSMIT_LED 1
 
 /**********************************************************************
  * EEPROMADDR permanent storage addresses
@@ -76,6 +94,7 @@ enum OUTPUT_STATE_T { OSON, OSOFF, OSFLASH };
 
 struct WINDLASS_T {
   unsigned char instance; 
+  unsigned char address;
   int upRelayGpio;
   int dnRelayGpio;
   OUTPUT_STATE_T upRelayState;
@@ -110,7 +129,7 @@ void debounceSwitches(DEBOUNCED_SWITCHES_T &switches);
 unsigned char debounce(unsigned char sample);
 void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]);
 void updateRelayOutput(WINDLASS_T windlasses[]);
-void transmitWindlassControl(unsigned char instance, unsigned char up, unsigned char down);
+void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned char down);
 
 /**********************************************************************
  * PRODUCT INFORMATION
@@ -161,11 +180,11 @@ void transmitWindlassControl(unsigned char instance, unsigned char up, unsigned 
 
 const unsigned long TransmitMessages[] PROGMEM={ 0L };
 
-//*********************************************************************************
-// Some definitions for incoming message handling.   PGNs which are processed and
-// the functions which process them must be declared here and registered in the
-// NMEA2000Handlers jump vector.
-//
+/**********************************************************************
+ * Some definitions for incoming message handling.   PGNs which are
+ * processed and the functions which process them must be declared here
+ * and registered in the NMEA2000Handlers jump vector.
+ */
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
 void PGN128777(const tN2kMsg &N2kMsg);
 tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
@@ -177,12 +196,12 @@ tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
 DEBOUNCED_SWITCHES_T DEBOUNCED_SWITCHES;
 
 WINDLASS_T WINDLASSES[2] = {
-  { EEPROM.read(EEPROMADDR_W0_INSTANCE), GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY, OSOFF, OSOFF },
-  { EEPROM.read(EEPROMADDR_W1_INSTANCE), GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY, OSOFF, OSOFF }
+  { EEPROM.read(EEPROMADDR_W0_INSTANCE), 0xFF, GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY, OSOFF, OSOFF },
+  { EEPROM.read(EEPROMADDR_W1_INSTANCE), 0xFF, GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY, OSOFF, OSOFF }
 };
 
 /**********************************************************************
- * MAIN PROGRAM
+ * MAIN PROGRAM - setup()
  */
 
 void setup() {
@@ -201,11 +220,10 @@ void setup() {
   pinMode(GPIO_W0_UP_RELAY, OUTPUT);
   pinMode(GPIO_W0_DN_RELAY, OUTPUT);
 
-    // Cycle outputs as startup check (probably means flash LEDs a few times)
+  // Cycle outputs as startup check and leave all LOW
   exerciseRelayOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
-  
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
 
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
@@ -216,19 +234,33 @@ void setup() {
 }
 
 /**********************************************************************
- * The process loop's work is fairly constrained.
- *
- * commandTimeout() ensures that any active UP or DOWN commands that
- *     have been received over N2K (and will have operated the output
- *     relays) are cancelled if they have timed out.
- * operateTransmitLED() similarly ensures that the TX LED which is
- *     turned on each time a status report is issued gets turned off
- *     a few hundred milliseconds later.
- * transmitStatus() makes sure that the module transmits windlass
- *     status PGNs at intervals appropriate to its current operating
- *     mode.
- * NMEA2000.parseMessages() processes any incoming control messages
- *     that may have arrived since the last turn around the loop.
+ * MAIN PROGRAM - loop()
+ * 
+ * With the exception of NMEA2000.parseMessages() all of the functions
+ * called from loop() implement interval timers which ensure that they
+ * will mostly return immediately, only performing their substantive
+ * tasks when the globally defined interval timers expire.
+ * 
+ * debounceSwitches() reads the MCU switch input pins and debounces
+ * them. The interval defined in SWITCH_DEBOUNCE_INTERVAL needs to
+ * ensure a fairly high sampling rate for the debounce to be effective
+ * and a value around 5ms is recommended.
+ * 
+ * processSwitches() takes the debounced switch inputs and if an input
+ * is active generates an appropriate N2K message to signal the switch
+ * control. The windlass control protocol requires that control
+ * messages are issued every 250ms and SWITCH_PROCESS_INTERVAL is set
+ * to this value by default.  Typically windlass equipment will stop
+ * if it does not receive a control message at least every half-second
+ * or thereabouts (the standard defines a maximum of 1.2s), so setting
+ * the process interval much higher could lead to control stuttering.
+ * 
+ * NMEA2000.parseMessages() arranges for any incoming N2K messages to
+ * be processed.
+ * 
+ * updateRelayOutput() updates the output channels using data received
+ * over NMEA. The frequency of update is set by RELAY_UPDATE_INTERVAL
+ * which defaults to 330ms.
  */
 
 void loop() {
@@ -236,6 +268,7 @@ void loop() {
   processSwitches(DEBOUNCED_SWITCHES, WINDLASSES);
   NMEA2000.ParseMessages();
   updateRelayOutput(WINDLASSES);
+  operateTransmitLED();
 }
 
 /**********************************************************************
@@ -285,18 +318,44 @@ void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
       EEPROM.update(EEPROMADDR_W1_INSTANCE, (windlasses[1].instance = getPoleInstance()));
     }
     if ((!switches.state.W0Up) || (!switches.state.W0Dn)) {
-      transmitWindlassControl(windlasses[0].instance, switches.state.W0Up, switches.state.W0Dn);
+      transmitWindlassControl(windlasses[0], switches.state.W0Up, switches.state.W0Dn);
     }
     if ((!switches.state.W1Up) || (!switches.state.W1Dn)) {
-      transmitWindlassControl(windlasses[1].instance, switches.state.W1Up, switches.state.W1Dn);
+      transmitWindlassControl(windlasses[1], switches.state.W1Up, switches.state.W1Dn);
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
 }
 
-void transmitWindlassControl(unsigned char instance, unsigned char up, unsigned char down) {
-  if (up ^ down) { // Can't do both at once!
+/**********************************************************************
+ * transmitWindlassControl() sends a Group Function control message for
+ * PGN128776 Windlass Control Status to the device identified by
+ * <windlass>, setting the Windlass Direction Control property to
+ * reflect the state of <up> and <down>.
+ * 
+ * transmitWindlassControl() will not operate if a status transmission
+ * has not previously been received from the network node defined by
+ * <windlass> since the CAN address of the target windlass will be
+ * unknown.
+ */
 
+void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned char down) {
+  // We can't go up and down at the same time...
+  if (up ^ down) {
+    // And we must have programmed an index and have recovered an address...
+    if ((windlass.instance != 0xFF) && (windlass.address != 0xFF)) {
+      tN2kMsg N2kMsg;
+      N2kMsg.SetPGN(126208UL);
+      N2kMsg.Priority = 2;
+      N2kMsg.Destination = windlass.address;
+      N2kMsg.AddByte(0x01); // Command message
+      N2kMsg.Add3ByteInt(128776L); // Windlass Control Status PGN
+      N2kMsg.AddByte(0xF8); // Retain existing priority
+      N2kMsg.AddByte(0x01); // Just one parameter pair to follow
+      N2kMsg.AddByte(0x03); // Parameter 1 - Field 3 is Windlass Direction Control
+      N2kMsg.AddByte((up != 0)?0x02:((down != 0)?0x01:0x00));
+      NMEA2000.SendMsg(N2kMsg);
+    }
   }
 }  
 
@@ -345,6 +404,11 @@ void PGN128777(const tN2kMsg &N2kMsg) {
   if (ParseN2kPGN128777(N2kMsg, SID, WindlassIdentifier, RodeCounterValue, WindlassLineSpeed, WindlassMotionStatus, RodeTypeStatus, AnchorDockingStatus, WindlassOperatingEvents)) {
     for (int i = 0; i < 2; i++) {
       if ((WINDLASSES[i].instance != 0xFF) && (WINDLASSES[i].instance == WindlassIdentifier)) {
+        // We have a message from a configured device, so occult the LED
+        
+        // Save the CAN address of the sender because we will need this to direct control messages
+        WINDLASSES[i].address = N2kMsg.Source;
+        // And now set the relay states
         if (AnchorDockingStatus == N2kDD482_FullyDocked) {
           // Set UP relay ON, DN relay off
           WINDLASSES[i].upRelayState = OSON;
@@ -413,19 +477,15 @@ void updateRelayOutput(WINDLASS_T windlasses[]) {
  */
 
 void operateTransmitLED(unsigned long timeout) {
-  static unsigned long _end = 0L;
+  static unsigned long deadline = 0L;
+  unsigned long now = millis();
   #ifdef GPIO_TRANSMIT_LED
-  switch (timeout) {
-    case 0L:
-      if ((_end) && (_end < millis())) {
-        digitalWrite(GPIO_TRANSMIT_LED, LOW);
-        _end = 0L;
-      }
-      break;
-    default:
-      digitalWrite(GPIO_TRANSMIT_LED, HIGH);
-      _end = (millis() + timeout);
-      break;      
+  if (timeout) {
+    deadline = (now + timeout);
+    digitalWrite(GPIO_TRANSMIT_LED, LOW);
+  }
+  if (now > deadline) {
+    digitalWrite(GPIO_TRANSMIT_LED, HIGH);
   }
   #endif
 }
@@ -453,6 +513,3 @@ void exerciseRelayOutputs(int cycles, unsigned long onmillis, unsigned long offm
     delay(offmillis);
   }
 }
-
-
-

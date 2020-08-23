@@ -14,10 +14,10 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Device:R R5
+L Device:R R6
 U 1 1 5F1E6C5E
 P 8800 3700
-F 0 "R5" H 8900 3650 50  0000 C CNN
+F 0 "R6" H 8900 3650 50  0000 C CNN
 F 1 "4K7" H 8950 3750 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical" V 8730 3700 50  0001 C CNN
 F 3 "~" H 8800 3700 50  0001 C CNN
@@ -25,10 +25,10 @@ F 3 "~" H 8800 3700 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L Device:R R6
+L Device:R R7
 U 1 1 5F21EFF3
 P 10100 3650
-F 0 "R6" V 10200 3650 50  0000 C CNN
+F 0 "R7" V 10200 3650 50  0000 C CNN
 F 1 "100R" V 10000 3650 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 10030 3650 50  0001 C CNN
 F 3 "~" H 10100 3650 50  0001 C CNN
@@ -36,10 +36,10 @@ F 3 "~" H 10100 3650 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:R R7
+L Device:R R8
 U 1 1 5F21F397
 P 10100 4000
-F 0 "R7" V 10000 4000 50  0000 C CNN
+F 0 "R8" V 10000 4000 50  0000 C CNN
 F 1 "100R" V 10200 4000 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 10030 4000 50  0001 C CNN
 F 3 "~" H 10100 4000 50  0001 C CNN
@@ -111,10 +111,10 @@ $EndComp
 Wire Wire Line
 	9850 2650 9950 2650
 $Comp
-L Converter_DCDC:TEC2-2411WI U9
+L Converter_DCDC:TEC2-2411WI U8
 U 1 1 5F3165C2
 P 8750 1700
-F 0 "U9" H 8750 2167 50  0000 C CNN
+F 0 "U8" H 8750 2167 50  0000 C CNN
 F 1 "TEC2-2411WI" H 8750 2076 50  0000 C CNN
 F 2 "Converter_DCDC:Converter_DCDC_TRACO_TMR-xxxx_THT" H 8750 1350 50  0001 C CNN
 F 3 "https://www.tracopower.com/products/tec2wi.pdf" H 8750 1200 50  0001 C CNN
@@ -261,7 +261,7 @@ Wire Wire Line
 Connection ~ 6500 4050
 Connection ~ 6500 6200
 Wire Wire Line
-	7950 1500 7950 2550
+	7850 1500 7850 2550
 Wire Wire Line
 	9850 1500 9700 1500
 Wire Wire Line
@@ -275,7 +275,7 @@ Wire Wire Line
 Wire Wire Line
 	9850 1500 9850 2650
 Wire Wire Line
-	5200 1500 7950 1500
+	5200 1500 7850 1500
 Wire Wire Line
 	6500 6200 7350 6200
 NoConn ~ 9950 3450
@@ -296,16 +296,16 @@ Wire Wire Line
 Wire Wire Line
 	9050 2550 9050 2650
 Wire Wire Line
-	8450 2550 7950 2550
+	8450 2550 7850 2550
 Connection ~ 8450 2550
 Wire Wire Line
 	9050 2550 9450 2550
 Wire Wire Line
 	9450 2550 9450 6200
 Connection ~ 9050 2550
-Connection ~ 7950 1500
+Connection ~ 7850 1500
 Wire Wire Line
-	7950 1500 8250 1500
+	7850 1500 8250 1500
 Connection ~ 8150 6200
 Wire Wire Line
 	8150 6200 8800 6200
@@ -350,10 +350,10 @@ F 3 "" H 2950 2800 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L PDJR:Teensy_3.2 U8
+L PDJR:Teensy_3.2 U7
 U 1 1 5F393C28
 P 6400 3750
-F 0 "U8" H 6950 2183 50  0000 C CNN
+F 0 "U7" H 6950 2183 50  0000 C CNN
 F 1 "Teensy_3.2" H 6950 2274 50  0000 C CNN
 F 2 "pdjr:Teensy30_31_32_LC" H 6400 3750 50  0001 C CNN
 F 3 "" H 6400 3750 50  0001 C CNN
@@ -372,10 +372,10 @@ F 3 "https://www.omron.com/ecb/products/pdf/en-g6e.pdf" H 10550 3050 50  0001 C 
 	0    -1   1    0   
 $EndComp
 $Comp
-L PDJR:MCP2551-I-P U10
+L PDJR:MCP2551-I-P U9
 U 1 1 5F39D3A6
 P 8750 3050
-F 0 "U10" H 9294 3096 50  0000 L CNN
+F 0 "U9" H 9294 3096 50  0000 L CNN
 F 1 "MCP2551-I-P" H 9294 3005 50  0000 L CNN
 F 2 "Package_DIP:DIP-8_W7.62mm" H 8750 2550 50  0001 C CIN
 F 3 "http://ww1.microchip.com/downloads/en/devicedoc/21667d.pdf" H 8750 3050 50  0001 C CNN
@@ -843,4 +843,35 @@ Wire Wire Line
 	4150 6450 4150 5450
 Wire Wire Line
 	4050 4850 5750 4850
+$Comp
+L Device:LED_Small D5
+U 1 1 5F437CEE
+P 7100 3550
+F 0 "D5" H 7100 3785 50  0000 C CNN
+F 1 "LED_Small" H 7100 3694 50  0000 C CNN
+F 2 "LED_THT:LED_D3.0mm" V 7100 3550 50  0001 C CNN
+F 3 "~" V 7100 3550 50  0001 C CNN
+	1    7100 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R5
+U 1 1 5F439207
+P 7600 3550
+F 0 "R5" V 7550 3700 50  0000 C CNN
+F 1 "270R" V 7600 3550 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 7530 3550 50  0001 C CNN
+F 3 "~" H 7600 3550 50  0001 C CNN
+	1    7600 3550
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7850 2550 7850 3550
+Connection ~ 7850 2550
+Wire Wire Line
+	7750 3550 7850 3550
+Wire Wire Line
+	7450 3550 7200 3550
+Wire Wire Line
+	7000 3550 6400 3550
 $EndSCHEMATC

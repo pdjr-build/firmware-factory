@@ -16,6 +16,13 @@ protocol.
 
 Multiple __MODCTL__ modules can be installed on a single bus.
 
+## Status indication
+
+The module has a single status LED which illuminates when the device is
+receiving power and occults when a PGN128777 Windlass Operating Status
+message is received from a configured windlass.  A flickering LED is an
+indication that the module is powered, configured and working normally.
+
 ## Physical inputs
 
 __MODCTL__ supports four physical input channels intended for connection
