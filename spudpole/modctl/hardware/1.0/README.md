@@ -1,19 +1,28 @@
 # MODCTL v1.0
 
 This prototype module design includes a [circuit schematic](schematic.pdf),
-[pcb layout](pcb.pdf) and [enclosure proposal](enclosure.pdf) for an NMEA 2000
-compatible spudpole interface built around a Teensy 3.2 MCU. The module is
-designed to be powered directly from the host NMEA 2000 bus.
+[pcb layout](pcb.pdf) and [enclosure proposal](enclosure.pdf) and firmware
+for an NMEA 2000 compatible spudpole control interface built around a Teensy
+3.2 MCU.
 
-## Packaging proposal
+The design has the following key features.
+
+* Power supplied by the NMEA 2000 bus (LEN = 1).
+* Support for operation of one or two remote windlasses.
+* Separate UP and DOWN input channels for each windlass.
+* Separate UP and DOWN zero-volt operating status outputs for each windlass.
+* Zero-volt module power status output with NMEA active indication.
+* NMEA bus connection by standard M12 5-pin connector.
+* Assocation with remote windlass by hardware address configuration.
+* Multiple status/diagnostic indicator LEDs.
+
+## Enclosure proposal
 
 The protoype PCB design is configured for an 80x80x23 flanged ABS
 [enclosure](https://docs.rs-online.com/960c/0900766b814af9a1.pdf)
-with grommeted cable entry for sensor connections and an industry
+with grommeted cable entry for input and output cables and an industry
 standard M12 5-pin industrial connector for NMEA/CAN connection.
 The enclosure is drilled to expose PCB mounted status LEDs.
-
-## Circuit design
 
 ### Power supply
 

@@ -54,18 +54,20 @@
 
 #define GPIO_INSTANCE_PINS (12,11,10,9,8,7,6,5)
 #define GPIO_INSTANCE ARGN(7, GPIO_INSTANCE_PINS)
-#define GPIO_W0_PRG_SWITCH 23
-#define GPIO_W1_PRG_SWITCH 0
+#define GPIO_W0_PRG_SWITCH 22
+#define GPIO_W1_PRG_SWITCH 23
 #define GPIO_W0_UP_SWITCH 13
 #define GPIO_W0_DN_SWITCH 14
 #define GPIO_W1_UP_SWITCH 15
 #define GPIO_W1_DN_SWITCH 16
-#define GPIO_PWR_RELAY 22
-#define GPIO_W0_UP_RELAY 21
-#define GPIO_W0_DN_RELAY 20
-#define GPIO_W1_UP_RELAY 19
-#define GPIO_W1_DN_RELAY 18
-#define GPIO_POWER_LED 1
+#define GPIO_PWR_RELAY 21
+#define GPIO_W0_UP_RELAY 20
+#define GPIO_W0_DN_RELAY 19
+#define GPIO_W1_UP_RELAY 18
+#define GPIO_W1_DN_RELAY 17
+#define GPIO_POWER_LED 2
+#define GPIO_W0_LED 1
+#define GPIO_W1_LED 0
 
 /**********************************************************************
  * EEPROMADDR permanent storage addresses
@@ -247,6 +249,8 @@ void setup() {
   pinMode(GPIO_W0_UP_RELAY, OUTPUT);
   pinMode(GPIO_W0_DN_RELAY, OUTPUT);
 
+  Serial.begin(9600);
+
   // Cycle outputs as startup check and leave all LOW
   exerciseRelayOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
 
@@ -257,7 +261,8 @@ void setup() {
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
-  NMEA2000.Open();                             
+  NMEA2000.Open();  
+
 }
 
 /**********************************************************************
@@ -335,7 +340,8 @@ unsigned char debounce(unsigned char sample) {
 }
 
 /**********************************************************************
- * Update <windlasses> from <switches> by se
+ * processSwitches() invokes various handlers dependent upon the state
+ * of their associated switch input channels.
  */
 
 void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
@@ -349,10 +355,16 @@ void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
       EEPROM.update(EEPROMADDR_W1_INSTANCE, (windlasses[1].instance = getPoleInstance()));
     }
     if ((!switches.state.W0Up) || (!switches.state.W0Dn)) {
+      digitalWrite(GPIO_W0_LED, HIGH);
       transmitWindlassControl(windlasses[0], switches.state.W0Up, switches.state.W0Dn);
+    } else {
+      digitalWrite(GPIO_W0_LED, LOW);
     }
     if ((!switches.state.W1Up) || (!switches.state.W1Dn)) {
+      digitalWrite(GPIO_W1_LED, HIGH);
       transmitWindlassControl(windlasses[1], switches.state.W1Up, switches.state.W1Dn);
+    } else {
+      digitalWrite(GPIO_W1_LED, LOW);
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -476,6 +488,7 @@ void PGN128777(const tN2kMsg &N2kMsg) {
  */
 
 void updateRelayOutput(WINDLASS_T windlasses[]) {
+  Serial.println("updateRelayOutput()...");
   static unsigned long deadline = millis();
   unsigned long now = millis();
   if (now > deadline) {

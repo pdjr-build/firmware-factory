@@ -1,69 +1,79 @@
-# MODCTL
+# MODCTL - NMEA 2000 windlass control interface module.
 
-NMEA 2000 (N2K) spudpole control module.
-
-This project implements __MODCTL__, an N2K control interface for one or
-two anchor windlasses. The module allows physical switches in one
-location on the N2K bus to operate a windlass in some other location
-subject to the requirement that the windlass to be operated must have
-an N2K interface that supports the [Windlass Network Messages](
+__MODCTL__ is an NMEA 2000 module which allows a physical control panel
+(i.e. one made up of switches and indicators) to operate one or two
+NMEA 2000 enabled windlasses.
+The module uses the N2K [Windlass Network Messages](
 https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
-protocol.
+protocol to transmit commands to and receive status information from
+associated windlasses.
 
-__MODCTL__ was developed to operate spudpoles, but it will allow
-operation of any N2K controlled windlass which uses the referenced
-protocol.
+__MODCTL__ connects to the NMEA bus by a standard M12 5-pin circular
+connector and is powered directly from the NMEA bus.
+The module will accept supply voltages in the range 9VDC to 36VDC and
+has an NMEA LEN of 1.
 
-Multiple __MODCTL__ modules can be installed on a single bus.
+Switch input signals in the range 12VDC to 24VDC nominal are used to
+command UP and DOWN windlass motion and zero-volt UP and DOWN output
+relays support the connection of panel indicators.
 
-## Status indication
+__MODCTL__ is configured by a PCB mounted DIP switch which allows entry
+of NMEA instance addresses which define the windlass or windlasses that
+are to be controlled.
+Status and diagnostic LEDs confirm NMEA connection and operating state
+of the device.
 
-The module has a single status LED which illuminates when the device is
-receiving power and occults when a PGN128777 Windlass Operating Status
-message is received from a configured windlass.  A flickering LED is an
-indication that the module is powered, configured and working normally.
+Multiple control interface modules can be installed on a single NMEA
+bus controlling the same or different windlasses as their peers.
 
-## Physical inputs
+## Connections
 
-__MODCTL__ supports four physical input channels intended for connection
-of switch contacts. Inputs are optically-isolated, active high, and rated
-for operation at 12 or 24VDC.
+All connections are made by through screw connector blocks using 20AWG
+wire.
 
-| Pin | Windlass | Function | Description                             |
-|:----|:---------|:---------|:----------------------------------------|
-| 1   | SPUD0    | UP       | Retrieve spudpole 0.                    |
-| 2   | SPUD0    | DOWN     | Deploy spudpole 0.                      |
-| 3   | SPUD1    | UP       | Retrieve spudpole 1.                    |
-| 4   | SPUD1    | DOWN     | Deploy spudpole 1.                      |
-| 5   | ---      | GND      | Reference ground for inputs 1..4.       |
+| Block  | Terminal | Name     | Rating   | Description |
+|:------:|:--------:|:---------|:--------:|:------------|
+| SWITCH | 1        | W0-UP-SW | 12/24VDC | Windlass 0 UP (active high). |
+| SWITCH | 2        | W0-DN-SW | 12/24VDC | Windlass 0 DOWN (active high). |
+| SWITCH | 3        | W1-UP-SW | 12/24VDC | Windlass 1 UP (active high). |
+| SWITCH | 4        | W1-DN-SW | 12/24VDC | Windlass 1 DOWN (active high). |
+| SWITCH | 5        | GND      | 0VDC     | Reference ground for terminals 1 through 4. |
+| STATUS | 1-2      | W0-UP-ST | 50V 1A   | Connected continuously when Windlass 0 is docked; intermittently when Windlass 0 is retrieving. |
+| STATUS | 3-4      | W0-DN-ST | 50V 1A   | Connected continuously when Windlass 0 is deployed; intermittently when Windlass 0 is deploying. |
+| STATUS | 5-6      | W1-UP-ST | 50V 1A   | Connected continuously when Windlass 1 is docked; intermittently when Windlass 1 is retrieving. |
+| STATUS | 7-8      | W1-DN-ST | 50V 1A   | Connected continuously when Windlass 1 is deployed; intermittently when Windlass 1 is deploying. |
+| STATUS | 9-10     | PWR      | 50V 1A   | Connected when the module is powered, occulting each time a status message is received from a windlass. |
+ 
+## Configuring the module
 
-Inputs on pins 1 through 4 must be maintained for continuous operation of
-the associated spudpole.
+To operate correctly the module must be configured with the NMEA
+instance address of the windlass or windlasses which are being
+controlled.
 
-## Physical outputs
+To configure Windlass 0:
 
-The module has five zero volt SPST normally-open output channels which
-signal the operating state of the controlled spudpole(s) and will
-typically be used for connection of external panel indicators. Each
-output channel is switched by a reed relay rated at 50VDC 1A maximum
-load.
+1. Connect the module to the NMEA bus and confirm that the PWR/RX LED
+   is illuminated.
+2. If you have connected switches to the SWITCH terminal block, then
+   ensure that the switches are in the OFF position.
+3. Enter the instance address of the windlass you wish to control
+   using the DIP switch on the module PCB.
+4. Press the PRG W0 button on the module PCB.
 
-| Pin  | Windlass | Function | Description                            |
-|:-----|:---------|:---------|:---------------------------------------|
-| 1&2  | ---      | PWR      | Closed when module is powered.  Pulses to indicate that another panel is operating a spudpole. |
-| 3&4  | SPUD0    | UP       | Closed when spudpole 0 is docked. Pulses to indicate spudpole 0 is being retrieved. |
-| 5&6  | SPUD0    | DOWN     | Closed when spudpole 0 is deployed. Pulses to indicate spudpole 0 is being deployed. |
-| 7&8  | SPUD1    | UP       | Closed when spudpole 1 is docked. Pulses to indicate spudpole 1 is being retrieved. |
-| 9&10 | SPUD1    | DOWN     | Closed when spudpole 1 is deployed. Pulses to indicate spudpole 1 is being deployed. |
+If the NMEA interface on the remote spudpole is powered up, then after
+a few seconds the status outputs for Windlass 0 should become active
+to indicate the condition of the windlass.
+After this, the switch inputs for Windlass 0 should command the remote
+windlass.
 
-## NMEA bus interface
+If a second windlass is to be controlled as Windlass 1, then use a
+similar procedure, but press the PRG W1 button at step 4. 
 
-__MODCTL__ connects to the host N2K bus through a standard M12 5-pin
-male connector.
+## NMEA 2000 messages
 
 In addition to the usual N2K network management messages the module
-accepts the following message types and processes them to drive the
-physical outputs.
+accepts the following message types and processes them to drive its
+status outputs.
 
 | PGN    | Message name                      | Comment               |
 |:-------|:----------------------------------|:----------------------|
@@ -71,27 +81,10 @@ physical outputs.
 | 128777 | Anchor Windlass Operating Status  | Drives status outputs |
 
 The module issues the following control message types in response to
-signals on the physical inputs.
+signals on the switch inputs.
 
 | PGN    | Message name                      | Comment               |
 |:-------|:----------------------------------|:----------------------|
 | 126208 | Command Group Function            | 250ms transmition rate|
 
-## Configuring the module
-
-To operate correctly the module must be configured with the NMEA
-instance address of the windlass or windlasses which are being
-controlled.
-
-The module PCB has an 8-way DIP switch which allows entry of an
-instance address in binary and two buttons labelled PRG\_SPUD0 and
-PRG\_SPUD1 which are used to associate a remote windlass with each of
-the switch operating channels.
-
-To program a channel, the address of the remote windlass interface is
-set up on the instance DIP switch and then the appropriate PRG button
-must be held closed. After a two second delay, the module LED will
-flash once to indicate that the address has been saved to non-volatile
-memory. Addresses can be reprogrammed using the same procedure should
-that be necessary.
 

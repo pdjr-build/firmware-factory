@@ -1,21 +1,16 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass[9pt,a4paper]{article}
 \usepackage{geometry}
 \geometry{
- a4paper,
- total={170mm,257mm},
- top=25mm,
- bottom=25mm
+ margin=2.5cm
  }
 \usepackage{fancyhdr}
 \pagestyle{fancy}
-\fancyhead[CO,CE]{main.cpp}
+\fancyhead{main.cpp}
 \usepackage[usenames,dvipsnames]{color}  %% Allow color names
 
 %% The listings package will format your source code
 \usepackage{listings}
 \lstdefinestyle{customasm}{
-  numbers=right,
-  stepnumber=5,
   belowcaptionskip=1\baselineskip,
   xleftmargin=\parindent,
   language=C++,

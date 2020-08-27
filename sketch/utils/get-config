@@ -12,7 +12,7 @@ else
 	while [ "${1}" != "" ] ; do
 		cd "${STARTDIR}"
 		if [ -d "${1}" ] ; then
-			cd "$(readlink -f ${1})"
+			cd "$(readlink ${1})"
   			while :; do
     				for rname in * ; do
       					if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then

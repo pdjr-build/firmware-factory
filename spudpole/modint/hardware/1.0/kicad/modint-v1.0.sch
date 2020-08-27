@@ -634,53 +634,20 @@ Wire Wire Line
 Wire Wire Line
 	1350 4500 1400 4500
 Wire Wire Line
-	1400 4500 1400 5150
+	1400 4500 1400 4800
 $Comp
 L Device:D_Small D1
 U 1 1 5F50E803
-P 2250 4100
-F 0 "D1" H 2390 4060 50  0000 R CNN
-F 1 "1N4007" H 2360 4170 39  0000 R CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 2250 4100 50  0001 C CNN
-F 3 "~" V 2250 4100 50  0001 C CNN
-	1    2250 4100
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:D_Small D2
-U 1 1 5F51D322
-P 2250 4300
-F 0 "D2" H 2390 4260 50  0000 R CNN
-F 1 "1N4007" H 2360 4370 39  0000 R CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 2250 4300 50  0001 C CNN
-F 3 "~" V 2250 4300 50  0001 C CNN
-	1    2250 4300
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:D_Small D3
-U 1 1 5F51D6A0
-P 2250 4500
-F 0 "D3" H 2390 4460 50  0000 R CNN
-F 1 "1N4007" H 2360 4570 39  0000 R CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 2250 4500 50  0001 C CNN
-F 3 "~" V 2250 4500 50  0001 C CNN
-	1    2250 4500
+P 1850 4800
+F 0 "D1" H 1990 4760 50  0000 R CNN
+F 1 "1N4007" H 1960 4870 39  0000 R CNN
+F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 1850 4800 50  0001 C CNN
+F 3 "~" V 1850 4800 50  0001 C CNN
+	1    1850 4800
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	2350 3950 2350 4000
-$Comp
-L Device:D_Small D4
-U 1 1 5F59B904
-P 2250 4700
-F 0 "D4" H 2390 4660 50  0000 R CNN
-F 1 "1N4007" H 2360 4770 39  0000 R CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 2250 4700 50  0001 C CNN
-F 3 "~" V 2250 4700 50  0001 C CNN
-	1    2250 4700
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5250 1050 5250 1450
 Wire Wire Line
@@ -815,51 +782,14 @@ Connection ~ 2750 3000
 Wire Wire Line
 	2750 3000 3050 3000
 Wire Wire Line
-	2450 3950 2450 4100
-Wire Wire Line
 	1350 4200 1700 4200
 Wire Wire Line
-	2000 4000 2050 4000
+	2450 4800 2550 4800
+Connection ~ 2550 4800
 Wire Wire Line
-	2350 4100 2450 4100
-Connection ~ 2450 4100
-Wire Wire Line
-	2450 4100 2450 5150
-Wire Wire Line
-	2150 4100 2050 4100
-Wire Wire Line
-	2050 4100 2050 4000
-Connection ~ 2050 4000
-Wire Wire Line
-	2050 4000 2350 4000
-Wire Wire Line
-	1400 5150 2450 5150
-Connection ~ 2450 5150
-Wire Wire Line
-	2450 5150 2550 5150
-Connection ~ 2550 5150
-Wire Wire Line
-	2550 5150 2850 5150
-Wire Wire Line
-	2000 4200 2050 4200
+	2550 4800 2850 4800
 Wire Wire Line
 	2650 4200 2650 3950
-Wire Wire Line
-	2150 4300 2050 4300
-Wire Wire Line
-	2050 4300 2050 4200
-Connection ~ 2050 4200
-Wire Wire Line
-	2550 3950 2550 4300
-Wire Wire Line
-	2050 4200 2650 4200
-Wire Wire Line
-	2350 4300 2550 4300
-Connection ~ 2550 4300
-Wire Wire Line
-	2550 4300 2550 5150
-Wire Wire Line
-	2000 4400 2050 4400
 Wire Wire Line
 	2750 3950 2750 4400
 Wire Wire Line
@@ -875,40 +805,10 @@ Wire Wire Line
 Wire Wire Line
 	1500 4600 1700 4600
 Wire Wire Line
-	2000 4600 2050 4600
-Wire Wire Line
 	3050 4600 3050 3950
+Connection ~ 2850 4800
 Wire Wire Line
-	2850 3950 2850 4500
-Connection ~ 2850 5150
-Wire Wire Line
-	2850 5150 2950 5150
-Wire Wire Line
-	2950 3950 2950 4700
-Wire Wire Line
-	2150 4500 2050 4500
-Wire Wire Line
-	2050 4500 2050 4400
-Connection ~ 2050 4400
-Wire Wire Line
-	2050 4400 2750 4400
-Wire Wire Line
-	2150 4700 2050 4700
-Wire Wire Line
-	2050 4700 2050 4600
-Connection ~ 2050 4600
-Wire Wire Line
-	2050 4600 3050 4600
-Wire Wire Line
-	2350 4500 2850 4500
-Connection ~ 2850 4500
-Wire Wire Line
-	2850 4500 2850 5150
-Wire Wire Line
-	2350 4700 2950 4700
-Connection ~ 2950 4700
-Wire Wire Line
-	2950 4700 2950 5150
+	2850 4800 2950 4800
 Wire Wire Line
 	8700 4550 9600 4550
 $Comp
@@ -1081,4 +981,25 @@ Wire Wire Line
 Wire Wire Line
 	9500 6200 9500 5700
 Connection ~ 9100 6200
+Wire Wire Line
+	2000 4600 3050 4600
+Wire Wire Line
+	2000 4400 2750 4400
+Wire Wire Line
+	2000 4200 2650 4200
+Wire Wire Line
+	2000 4000 2350 4000
+Wire Wire Line
+	2450 3950 2450 4800
+Wire Wire Line
+	2550 3950 2550 4800
+Wire Wire Line
+	2850 3950 2850 4800
+Wire Wire Line
+	2950 3950 2950 4800
+Wire Wire Line
+	1950 4800 2450 4800
+Connection ~ 2450 4800
+Wire Wire Line
+	1750 4800 1400 4800
 $EndSCHEMATC
