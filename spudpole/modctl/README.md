@@ -33,18 +33,18 @@ bus controlling the same or different windlasses as their peers.
 All connections are made by through screw connector blocks using 20AWG
 wire.
 
-| Block  | Terminal | Name     | Rating   | Description |
-|:------:|:--------:|:---------|:--------:|:------------|
-| SWITCH | 1        | W0-UP-SW | 12/24VDC | Windlass 0 UP (active high). |
-| SWITCH | 2        | W0-DN-SW | 12/24VDC | Windlass 0 DOWN (active high). |
-| SWITCH | 3        | W1-UP-SW | 12/24VDC | Windlass 1 UP (active high). |
-| SWITCH | 4        | W1-DN-SW | 12/24VDC | Windlass 1 DOWN (active high). |
-| SWITCH | 5        | GND      | 0VDC     | Reference ground for terminals 1 through 4. |
-| STATUS | 1-2      | W0-UP-ST | 50V 1A   | Connected continuously when Windlass 0 is docked; intermittently when Windlass 0 is retrieving. |
-| STATUS | 3-4      | W0-DN-ST | 50V 1A   | Connected continuously when Windlass 0 is deployed; intermittently when Windlass 0 is deploying. |
-| STATUS | 5-6      | W1-UP-ST | 50V 1A   | Connected continuously when Windlass 1 is docked; intermittently when Windlass 1 is retrieving. |
-| STATUS | 7-8      | W1-DN-ST | 50V 1A   | Connected continuously when Windlass 1 is deployed; intermittently when Windlass 1 is deploying. |
-| STATUS | 9-10     | PWR      | 50V 1A   | Connected when the module is powered, occulting each time a status message is received from a windlass. |
+| Block  | Terminal | Name | Rating   | Description |
+|:------:|:--------:|:---- |:--------:|:------------|
+| SWITCH | 1        | 0U   | 12/24VDC | Windlass 0 UP (active high). |
+| SWITCH | 2        | 0D   | 12/24VDC | Windlass 0 DOWN (active high). |
+| SWITCH | 3        | 1U   | 12/24VDC | Windlass 1 UP (active high). |
+| SWITCH | 4        | 1D   | 12/24VDC | Windlass 1 DOWN (active high). |
+| SWITCH | 5        | GND  | 0VDC     | Reference ground for terminals 1 through 4. |
+| STATUS | 1-2      | 0UP  | 50V 1A   | Connected continuously when Windlass 0 is docked; intermittently when Windlass 0 is retrieving. |
+| STATUS | 3-4      | 0DN  | 50V 1A   | Connected continuously when Windlass 0 is deployed; intermittently when Windlass 0 is deploying. |
+| STATUS | 5-6      | 1UP  | 50V 1A   | Connected continuously when Windlass 1 is docked; intermittently when Windlass 1 is retrieving. |
+| STATUS | 7-8      | 1DN  | 50V 1A   | Connected continuously when Windlass 1 is deployed; intermittently when Windlass 1 is deploying. |
+| STATUS | 9-10     | PWR  | 50V 1A   | Connected when the module is powered, occulting each time a status message is received from a windlass. |
  
 ## Configuring the module
 
