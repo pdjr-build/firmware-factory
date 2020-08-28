@@ -47,7 +47,9 @@
 #include <EEPROM.h>
 
 #include "../lib/arraymacros.h"
-  
+
+#define SERIAL_DEBUG
+
 /**********************************************************************
  * GPIO digital pin numbers for Teensy 3.2 MCU.
  */
@@ -234,6 +236,10 @@ WINDLASS_T WINDLASSES[2] = {
  */
 
 void setup() {
+  #ifdef SERIAL_DEBUG
+  Serial.begin(9600);
+  #endif
+
   // Set pin modes...
   int ipins[GPIO_INSTANCE];
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
@@ -249,7 +255,6 @@ void setup() {
   pinMode(GPIO_W0_UP_RELAY, OUTPUT);
   pinMode(GPIO_W0_DN_RELAY, OUTPUT);
 
-  Serial.begin(9600);
 
   // Cycle outputs as startup check and leave all LOW
   exerciseRelayOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
@@ -349,6 +354,10 @@ void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
   unsigned long now = millis();
   if (now > deadline) {
     if (!switches.state.W0Prog) {
+      #ifdef SERIAL_DEBUG
+      Serial.write("Processing switch W0 PRG");
+      Serial.println(getPoleInstance(), HEX);
+      #endif
       EEPROM.update(EEPROMADDR_W0_INSTANCE, (windlasses[0].instance = getPoleInstance()));
     }
     if (!switches.state.W1Prog) {
@@ -488,7 +497,10 @@ void PGN128777(const tN2kMsg &N2kMsg) {
  */
 
 void updateRelayOutput(WINDLASS_T windlasses[]) {
+  #ifdef SERIAL_DEBUG
   Serial.println("updateRelayOutput()...");
+  #endif
+
   static unsigned long deadline = millis();
   unsigned long now = millis();
   if (now > deadline) {

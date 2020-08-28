@@ -28,6 +28,8 @@ bus controlling the same or different windlasses as their peers.
 
 ## Connections
 
+![PCB layout](pcb.svg)
+
 All connections are made by through screw connector blocks using 20AWG
 wire.
 
