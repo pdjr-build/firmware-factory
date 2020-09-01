@@ -74,13 +74,13 @@ $EndComp
 $Comp
 L Device:R R4
 U 1 1 5F1BFA5C
-P 2350 3050
-F 0 "R4" V 2400 3200 50  0000 C CNN
-F 1 "1K4" V 2350 3050 39  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2280 3050 50  0001 C CNN
-F 3 "~" H 2350 3050 50  0001 C CNN
-F 4 "1W" V 2350 3050 50  0001 C CNN "Power"
-	1    2350 3050
+P 2350 2850
+F 0 "R4" V 2400 3000 50  0000 C CNN
+F 1 "1K4" V 2350 2850 39  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2280 2850 50  0001 C CNN
+F 3 "~" H 2350 2850 50  0001 C CNN
+F 4 "1W" V 2350 2850 50  0001 C CNN "Power"
+	1    2350 2850
 	0    -1   -1   0   
 $EndComp
 NoConn ~ 9250 1700
@@ -124,12 +124,12 @@ $EndComp
 $Comp
 L Connector:Screw_Terminal_01x05 J1
 U 1 1 5F3640AE
-P 1400 2750
-F 0 "J1" H 1400 3050 50  0000 C CNN
-F 1 "SWITCH INPUTS" H 1400 2400 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-5-2.54_1x05_P2.54mm_Horizontal" H 1400 2750 50  0001 C CNN
-F 3 "~" H 1400 2750 50  0001 C CNN
-	1    1400 2750
+P 1750 2750
+F 0 "J1" H 1750 3050 50  0000 C CNN
+F 1 "SWITCH INPUTS" H 1750 2400 50  0000 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-5-2.54_1x05_P2.54mm_Horizontal" H 1750 2750 50  0001 C CNN
+F 3 "~" H 1750 2750 50  0001 C CNN
+	1    1750 2750
 	-1   0    0    -1  
 $EndComp
 $Comp
@@ -147,13 +147,13 @@ $EndComp
 $Comp
 L Device:R R1
 U 1 1 5F39177B
-P 2350 2350
-F 0 "R1" V 2400 2500 50  0000 C CNN
-F 1 "1K4" V 2350 2350 39  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2280 2350 50  0001 C CNN
-F 3 "~" H 2350 2350 50  0001 C CNN
-F 4 "1W" V 2350 2350 50  0001 C CNN "Power"
-	1    2350 2350
+P 2350 2550
+F 0 "R1" V 2400 2700 50  0000 C CNN
+F 1 "1K4" V 2350 2550 39  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2280 2550 50  0001 C CNN
+F 3 "~" H 2350 2550 50  0001 C CNN
+F 4 "1W" V 2350 2550 50  0001 C CNN "Power"
+	1    2350 2550
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
@@ -176,12 +176,6 @@ Wire Wire Line
 	9650 3050 9950 3050
 Wire Wire Line
 	9850 3250 9950 3250
-Text GLabel 1300 2750 0    50   Input ~ 0
-W1_UP_SW
-Text GLabel 1300 2650 0    50   Input ~ 0
-W0_DN_SW
-Text GLabel 1300 2850 0    50   Input ~ 0
-W1_DN_SW
 $Comp
 L Device:C C2
 U 1 1 5F37E57C
@@ -204,8 +198,6 @@ F 3 "~" H 5850 4050 50  0001 C CNN
 	1    5850 4050
 	0    -1   -1   0   
 $EndComp
-Text GLabel 1300 2950 0    50   Input ~ 0
-GND
 Wire Wire Line
 	6000 4050 6500 4050
 Wire Wire Line
@@ -461,7 +453,6 @@ Wire Wire Line
 	2850 2850 2800 2850
 Wire Wire Line
 	2800 2950 2800 2850
-Connection ~ 2800 2950
 Wire Wire Line
 	2800 2950 2850 2950
 Connection ~ 2800 2850
@@ -475,32 +466,14 @@ Wire Wire Line
 Wire Wire Line
 	2800 2450 2850 2450
 Wire Wire Line
-	2800 2950 2800 3200
-Wire Wire Line
-	2100 2550 2100 2350
-Wire Wire Line
-	2100 2350 2200 2350
-Wire Wire Line
-	2100 2850 2100 3050
-Wire Wire Line
-	2100 3050 2200 3050
-Wire Wire Line
-	2000 2950 2000 3200
-Wire Wire Line
-	2000 3200 2800 3200
-Wire Wire Line
 	3700 2050 7350 2050
 Wire Wire Line
 	7350 2050 7350 2450
 Connection ~ 7350 2450
 Wire Wire Line
-	2100 2550 1600 2550
+	1950 2650 2200 2650
 Wire Wire Line
-	1600 2650 2200 2650
-Wire Wire Line
-	2200 2750 1600 2750
-Wire Wire Line
-	1600 2850 2100 2850
+	2200 2750 1950 2750
 Wire Wire Line
 	4400 4000 3500 4000
 Wire Wire Line
@@ -840,26 +813,37 @@ Wire Wire Line
 $Comp
 L Device:D_Small D1
 U 1 1 5F48CA8E
-P 1750 2950
-F 0 "D1" H 1700 3000 50  0000 R CNN
-F 1 "1N4007" H 2050 3000 39  0000 R CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 1750 2950 50  0001 C CNN
-F 3 "~" V 1750 2950 50  0001 C CNN
-	1    1750 2950
+P 2350 2950
+F 0 "D1" H 2300 2900 50  0000 R CNN
+F 1 "1N4007" H 2650 2900 39  0000 R CNN
+F 2 "Diode_THT:D_DO-35_SOD27_P2.54mm_Vertical_AnodeUp" V 2350 2950 50  0001 C CNN
+F 3 "~" V 2350 2950 50  0001 C CNN
+	1    2350 2950
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	1650 2950 1600 2950
-Wire Wire Line
-	1850 2950 2000 2950
-Wire Wire Line
-	2500 2350 2850 2350
 Wire Wire Line
 	2500 2650 2850 2650
 Wire Wire Line
 	2500 2750 2850 2750
 Wire Wire Line
-	2500 3050 2850 3050
-Text GLabel 1300 2550 0    50   Input ~ 0
-W0_UP_SW
+	1950 2550 2200 2550
+Wire Wire Line
+	2850 2350 2700 2350
+Wire Wire Line
+	2700 2350 2700 2550
+Wire Wire Line
+	2700 2550 2500 2550
+Wire Wire Line
+	1950 2850 2200 2850
+Wire Wire Line
+	2850 3050 2700 3050
+Wire Wire Line
+	2700 3050 2700 2850
+Wire Wire Line
+	2700 2850 2500 2850
+Wire Wire Line
+	1950 2950 2250 2950
+Wire Wire Line
+	2800 2950 2450 2950
+Connection ~ 2800 2950
 $EndSCHEMATC

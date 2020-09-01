@@ -1,8 +1,8 @@
 # MODCTL - NMEA 2000 windlass control interface module.
 
 __MODCTL__ is an NMEA 2000 module which allows a physical control panel
-(i.e. one made up of switches and indicators) to operate one or two
-NMEA 2000 enabled windlasses.
+made up of switches and indicators to operate one or two NMEA 2000
+enabled windlasses.
 The module uses the N2K [Windlass Network Messages](
 https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
 protocol to transmit commands to and receive status information from

@@ -50,9 +50,12 @@
 
 #define SERIAL_DEBUG
 
-/**********************************************************************
- * GPIO digital pin numbers for Teensy 3.2 MCU.
- */
+//*********************************************************************
+// LOCAL DEFINES - THESE MAY BE OVERRIDDEN BY THE BUILD SYSTEM
+//*********************************************************************
+
+#define EEPROMADDR_W0_INSTANCE 0
+#define EEPROMADDR_W1_INSTANCE 1
 
 #define GPIO_INSTANCE_PINS (12,11,10,9,8,7,6,5)
 #define GPIO_INSTANCE ARGN(7, GPIO_INSTANCE_PINS)
@@ -72,11 +75,53 @@
 #define GPIO_W1_LED 0
 
 /**********************************************************************
- * EEPROMADDR permanent storage addresses
+ * DEVICE INFORMATION
+ * 
+ * Because of NMEA's closed standard, most of this is fiction. Maybe it
+ * can be made better with more research. In particular, even recent
+ * releases of the NMEA function and class lists found using Google
+ * don't discuss anchor systems, so the proper values for CLASS and
+ * FUNCTION in this application are not known.  At the moment they are
+ * set to 25 (network device) and 130 (PC gateway).
+ * 
+ * INDUSTRY_GROUP we can be confident about (4 says maritime). However,
+ * MANUFACTURER_CODE is only allocated to subscribed NMEA members and,
+ * unsurprisingly, an anonymous code has not been assigned: 2046 is
+ * currently unused, so we adopt that.  
+ * 
+ * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
+ * value on any N2K bus and an easy way to achieve this is just to
+ * bump the device number for every software build and this is done
+ * automatically by the build system.
  */
 
-#define EEPROMADDR_W0_INSTANCE 0
-#define EEPROMADDR_W1_INSTANCE 1
+#define DEVICE_CLASS 25
+#define DEVICE_FUNCTION 130
+#define DEVICE_INDUSTRY_GROUP 4
+#define DEVICE_MANUFACTURER_CODE 2046
+#define DEVICE_UNIQUE_NUMBER 849
+
+/**********************************************************************
+ * PRODUCT INFORMATION
+ * 
+ * This poorly structured set of values is what NMEA expects a product
+ * description to be shoe-horned into.
+ */
+
+#define PRODUCT_CERTIFICATION_LEVEL 1
+#define PRODUCT_CODE 2
+#define PRODUCT_FIRMWARE_VERSION "1.0"
+#define PRODUCT_LEN 3
+#define PRODUCT_N2K_VERSION 2101
+#define PRODUCT_SERIAL_CODE "MODCTL-1.0"
+#define PRODUCT_TYPE "MODCTL"
+#define PRODUCT_VERSION "1.0"
+
+//*********************************************************************
+// END OF LOCAL DEFINES
+//*********************************************************************
+
+#include "build.h"
 
 /**********************************************************************
  * Miscellaneous
@@ -162,48 +207,8 @@ void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]);
 void updateRelayOutput(WINDLASS_T windlasses[]);
 void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned char down);
 
-/**********************************************************************
- * PRODUCT INFORMATION
- * 
- * This poorly structured set of values is what NMEA expects a product
- * description to be shoe-horned into.
- */
 
-#define PRODUCT_CERTIFICATION_LEVEL 1  // Or, indeed, this
-#define PRODUCT_CODE 2
-#define PRODUCT_FIRMWARE_VERSION "1.0"
-#define PRODUCT_LEN 3                        // Power consumption as LEN * 50mA
-#define PRODUCT_N2K_VERSION 2101             // God knows what this means
-#define PRODUCT_SERIAL_CODE "14"
-#define PRODUCT_TYPE "MODCTL"
-#define PRODUCT_VERSION "1.0"              // Hardware version
 
-/**********************************************************************
- * DEVICE INFORMATION
- * 
- * Because of NMEA's closed standard, most of this is fiction. Maybe it
- * can be made better with more research. In particular, even recent
- * releases of the NMEA function and class lists found using Google
- * don't discuss anchor systems, so the proper values for CLASS and
- * FUNCTION in this application are not known.  At the moment they are
- * set to 25 (network device) and 130 (PC gateway).
- * 
- * INDUSTRY_GROUP we can be confident about (4 says maritime). However,
- * MANUFACTURER_CODE is only allocated to subscribed NMEA members and,
- * unsurprisingly, an anonymous code has not been assigned: 2046 is
- * currently unused, so we adopt that.  
- * 
- * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
- * value on any N2K bus and an easy way to achieve this is just to
- * bump the device number for every software build and this is done
- * automatically by the build system.
- */
-
-#define DEVICE_CLASS 25
-#define DEVICE_FUNCTION 130
-#define DEVICE_INDUSTRY_GROUP 4
-#define DEVICE_MANUFACTURER_CODE 2046
-#define DEVICE_UNIQUE_NUMBER 838
 
 /**********************************************************************
  * N2K PGNs of messages transmitted by this program.

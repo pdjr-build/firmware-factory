@@ -1,34 +1,45 @@
 #!/bin/bash
-#
-# usage: get-config-values [dirname...]
+# NAME
+#   get-config - generate #define statements from configuration files.
+# SYNOPSIS
+#   get-config dirname...
+# DESCRIPTION
+#   get-config traverses the directory hierarchy identified by dirname,
+#   climbing up the directory structure until a directory is encountered
+#   that contains a file called 'STOP'.
+#   In each directory, files with names that consist entirely of
+#   uppercase characters and underscores are considered to be
+#   configuration files and are processed into declarations of the
+#	  form "#define <configfile-name> <configfile-content>"
+#		When a directory is encountered that contains a file called 'STOP',
+#   a list of all generated declarations is writen to standard output.
 
 declare -a OUTPUT
 OUTPUT=()
 
 if [ "${1}" == "" ] ; then
-   	${0} "."
+ 	${0} "."
 else
-	STARTDIR="$(pwd)"
-	while [ "${1}" != "" ] ; do
-		cd "${STARTDIR}"
-		if [ -d "${1}" ] ; then
-			cd "$(readlink ${1})"
-  			while :; do
-    				for rname in * ; do
-      					if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then
-						NAME=${rname%++}
-      						VALUE=$(cat "${rname}");
-      						OUTPUT+=("${NAME} ${VALUE}")
-
-						# Increment the value of files whose name ends in ++
-      						if [[ "${rname}" == *"++" ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
-      					fi
-    				done
-    				if [ "$(basename `pwd`)" == "ankreo" ] ; then break ; fi
-    				cd ..
-  			done
-		fi
-		shift
-	done
-	printf '%s\n' "${OUTPUT[@]}" | sort | uniq
+  STARTDIR="$(pwd)"
+  while [ "${1}" != "" ] ; do
+    cd "${STARTDIR}"
+    if [ -d "${1}" ] ; then
+      cd "$(readlink ${1})"
+      while :; do
+        for rname in * ; do
+          if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then
+            NAME=${rname%++}
+            VALUE=$(cat "${rname}");
+            OUTPUT+=("#define ${NAME} ${VALUE}")
+            # Increment the value of files whose name ends in ++
+            if [[ "${rname}" == *"++" ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
+          fi
+        done
+        if [[ ( "$(basename `pwd`)" == "/" ) || ( -f "STOP" ) ]] ; then break ; fi
+        cd ..
+      done
+    fi
+    shift
+  done
+  printf '%s\n' "${OUTPUT[@]}" | sort | uniq
 fi
