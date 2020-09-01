@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-
 #include <ActisenseReader.h>
 #include <N2kMsg.h>
 #include <N2kTypes.h>
@@ -17,30 +16,14 @@
 #include <N2kMessagesEnumToStr.h>
 #include <N2kMessages.h>
 #include <N2kDef.h>
-
 #include <string.h>
-
 #include <NMEA2000_teensy.h>
-
 #include <N2kSpudpole.h>
+#include "../lib/arraymacros.h"
 
-#include <EEPROM.h>
-
-/**********************************************************************
- * Helper macros to allow array definition.
- */
-#define CONCAT(A,B) A ## B
-#define EXPAND_CONCAT(A,B) CONCAT(A, B)
-#define ARGN(N, LIST) EXPAND_CONCAT(ARG_, N) LIST
-#define ARG_0(A0, ...) A0
-#define ARG_1(A0, A1, ...) A1
-#define ARG_2(A0, A1, A2, ...) A2
-#define ARG_3(A0, A1, A2, A3, ...) A3
-#define ARG_4(A0, A1, A2, A3, A4, ...) A4
-#define ARG_5(A0, A1, A2, A3, A4, A5, ...) A5
-#define ARG_6(A0, A1, A2, A3, A4, A5, A6, ...) A6
-#define ARG_7(A0, A1, A2, A3, A4, A5, A6, A7, ...) A7
-#define ARG_8(A0, A1, A2, A3, A4, A5, A6, A7, A8, ...)      A8
+//*********************************************************************
+// START OF DEFINES WHICH MAY BE OVERWRITTEN BY THE BUILD SYSTEM
+//*********************************************************************
 
 /**********************************************************************
  * MCU GPIO digital pin numbers.
@@ -56,8 +39,70 @@
 #define GPIO_DEPLOYING_SENSOR 11
 #define GPIO_RETRIEVING_SENSOR 8
 #define GPIO_TRANSMIT_LED 10
-#define GPIO_CAN_TX 3
-#define GPIO_CAN_RX 4
+
+/**********************************************************************
+ * PRODUCT INFORMATION
+ * 
+ * This poorly structured set of values is what NMEA expects a product
+ * description to be shoe-horned into.
+ */
+
+#define PRODUCT_CERTIFICATION_LEVEL 1
+#define PRODUCT_CODE 1
+#define PRODUCT_FIRMWARE_VERSION "1.0"
+#define PRODUCT_LEN 3
+#define PRODUCT_N2K_VERSION 2101
+#define PRODUCT_SERIAL_CODE "390"
+#define PRODUCT_TYPE "MODINT"
+#define PRODUCT_VERSION "1.0"
+
+/**********************************************************************
+ * DEVICE INFORMATION
+ * 
+ * Because of NMEA's closed standard, most of this is fiction. Maybe it
+ * can be made better with more research. In particular, even recent
+ * releases of the NMEA function and class lists found using Google
+ * don't discuss anchor systems, so the proper values for CLASS and
+ * FUNCTION in this application are not known.  At the moment they are
+ * set to 25 (network device) and 130 (PC gateway).
+ * 
+ * INDUSTRY_GROUP we can be confident about (4 says maritime). However,
+ * MANUFACTURER_CODE is only allocated to subscribed NMEA members and,
+ * unsurprisingly, an anonymous code has not been assigned: 2046 is
+ * currently unused, so we adopt that.  
+ * 
+ * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
+ * value on any N2K bus and an easy way to achieve this is just to
+ * bump the device number for every software build and this is done
+ * automatically by the build system.
+ */
+
+#define DEVICE_CLASS 25
+#define DEVICE_FUNCTION 130
+#define DEVICE_INDUSTRY_GROUP 4
+#define DEVICE_MANUFACTURER_CODE 2046
+#define DEVICE_UNIQUE_NUMBER 565
+
+/**********************************************************************
+ * SPUDPOLE_INFORMATION
+ * 
+ * These settings define the operating characteristics of the spudpole
+ * to which the firmware build will relate. All values in SI units.
+ */
+
+#define SPUDPOLE_LINE_DIAMETER 0.01
+#define SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE 24.0
+#define SPUDPOLE_NOMINAL_LINE_SPEED 0.3
+#define SPUDPOLE_NOMINAL_MOTOR_CURRENT 80.0
+#define SPUDPOLE_SPOOL_DIAMETER 0.06
+#define SPUDPOLE_TURNS_PER_LAYER 10
+#define SPUDPOLE_USABLE_LINE_LENGTH 60.0
+
+//*********************************************************************
+// END OF DEFINES WHICH MAY BE OVERWRITTEN BY THE BUILD SYSTEM
+//*********************************************************************
+
+#include "build.h"
 
 /**********************************************************************
  * EEPROMADDR permanent storage addresses
@@ -97,63 +142,6 @@ void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
 double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func);
 void operateTransmitLED(unsigned long timeout = 0L);
 
-/**********************************************************************
- * PRODUCT INFORMATION
- * 
- * This poorly structured set of values is what NMEA expects a product
- * description to be shoe-horned into.
- */
-
-const unsigned char     PRODUCT_CERTIFICATION_LEVEL = 1;  // Or, indeed, this
-const unsigned short    PRODUCT_CODE = 1;            // Something or other
-const char              PRODUCT_FIRMWARE_VERSION[] = "1.0";   // Firmware version
-const unsigned char     PRODUCT_LEN = 3;                        // Power consumption as LEN * 50mA
-const unsigned short    PRODUCT_N2K_VERSION = 2101;             // God knows what this means
-const char              PRODUCT_SERIAL_CODE[] = "390";       // Hardware serial number
-const char              PRODUCT_TYPE[] = "MODINT";              // Hardware type
-const char              PRODUCT_VERSION[] = "1.0";              // Hardware version
-
-/**********************************************************************
- * DEVICE INFORMATION
- * 
- * Because of NMEA's closed standard, most of this is fiction. Maybe it
- * can be made better with more research. In particular, even recent
- * releases of the NMEA function and class lists found using Google
- * don't discuss anchor systems, so the proper values for CLASS and
- * FUNCTION in this application are not known.  At the moment they are
- * set to 25 (network device) and 130 (PC gateway).
- * 
- * INDUSTRY_GROUP we can be confident about (4 says maritime). However,
- * MANUFACTURER_CODE is only allocated to subscribed NMEA members and,
- * unsurprisingly, an anonymous code has not been assigned: 2046 is
- * currently unused, so we adopt that.  
- * 
- * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
- * value on any N2K bus and an easy way to achieve this is just to
- * bump the device number for every software build and this is done
- * automatically by the build system.
- */
-
-const unsigned char     DEVICE_CLASS = 25;
-const unsigned char     DEVICE_FUNCTION = 130;
-const unsigned char     DEVICE_INDUSTRY_GROUP = 4;
-const unsigned int      DEVICE_MANUFACTURER_CODE = 2046;
-const unsigned long     DEVICE_UNIQUE_NUMBER = 565;
-
-/**********************************************************************
- * SPUDPOLE_INFORMATION
- * 
- * These settings define the operating characteristics of the spudpole
- * to which the firmware build will relate. All values in SI units.
- */
-
-const double            SPUDPOLE_LINE_DIAMETER = 0.01;
-const double            SPUDPOLE_NOMINAL_CONTROLLER_VOLTAGE = 24.0;
-const double            SPUDPOLE_NOMINAL_LINE_SPEED = 0.3;
-const double            SPUDPOLE_NOMINAL_MOTOR_CURRENT = 80.0;
-const double            SPUDPOLE_SPOOL_DIAMETER = 0.06;
-const unsigned char     SPUDPOLE_TURNS_PER_LAYER = 10;
-const double            SPUDPOLE_USABLE_LINE_LENGTH = 60.0;
 
 /**********************************************************************
  * N2K PGNs of messages transmitted by this program.

@@ -37,15 +37,10 @@
 #include <N2kMessagesEnumToStr.h>
 #include <N2kMessages.h>
 #include <N2kDef.h>
-
 #include <string.h>
-
 #include <NMEA2000_teensy.h>
-
 #include <N2kSpudpole.h>
-
 #include <EEPROM.h>
-
 #include "../lib/arraymacros.h"
 
 #define SERIAL_DEBUG
@@ -56,6 +51,12 @@
 
 #define EEPROMADDR_W0_INSTANCE 0
 #define EEPROMADDR_W1_INSTANCE 1
+
+/**********************************************************************
+ * MCU DIGITAL IO PIN ALLOCATION
+ * 
+ * GPIO pin definitions for the Teensy 3.2 MCU
+ */
 
 #define GPIO_INSTANCE_PINS (12,11,10,9,8,7,6,5)
 #define GPIO_INSTANCE ARGN(7, GPIO_INSTANCE_PINS)

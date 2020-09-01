@@ -863,8 +863,6 @@ Wire Wire Line
 	2450 850  5150 850 
 Wire Wire Line
 	3950 2650 3850 2650
-Wire Wire Line
-	3050 2650 3050 750 
 Connection ~ 3050 750 
 Wire Wire Line
 	3050 750  7200 750 
@@ -954,9 +952,6 @@ Wire Wire Line
 	4350 2900 3850 2900
 Wire Wire Line
 	3850 2900 3850 2650
-Connection ~ 3850 2650
-Wire Wire Line
-	3850 2650 3050 2650
 Text GLabel 1050 4500 0    50   Input ~ 0
 GND
 $Comp
@@ -1002,4 +997,9 @@ Wire Wire Line
 Connection ~ 2450 4800
 Wire Wire Line
 	1750 4800 1400 4800
+Wire Wire Line
+	3050 2900 3850 2900
+Connection ~ 3850 2900
+Wire Wire Line
+	3050 750  3050 2900
 $EndSCHEMATC
