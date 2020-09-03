@@ -20,7 +20,6 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-
 #include <ActisenseReader.h>
 #include <N2kMsg.h>
 #include <N2kTypes.h>
@@ -41,9 +40,9 @@
 #include <NMEA2000_teensy.h>
 #include <N2kSpudpole.h>
 #include <EEPROM.h>
-#include "../lib/arraymacros.h"
+#include "arraymacros.h"
 
-#define SERIAL_DEBUG
+#define SERIAL_DEBUG  // Write debug output to the USB port
 
 //*********************************************************************
 // LOCAL DEFINES - THESE MAY BE OVERRIDDEN BY THE BUILD SYSTEM
@@ -58,8 +57,7 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_INSTANCE_PINS (12,11,10,9,8,7,6,5)
-#define GPIO_INSTANCE ARGN(7, GPIO_INSTANCE_PINS)
+#define GPIO_INSTANCE_PINS { 12,11,10,9,8,7,6,5 }
 #define GPIO_W0_PRG_SWITCH 22
 #define GPIO_W1_PRG_SWITCH 23
 #define GPIO_W0_UP_SWITCH 13
@@ -247,7 +245,7 @@ void setup() {
   #endif
 
   // Set pin modes...
-  int ipins[GPIO_INSTANCE];
+  int ipins[] = GPIO_INSTANCE_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
   pinMode(GPIO_W0_PRG_SWITCH, INPUT_PULLUP);
   pinMode(GPIO_W1_PRG_SWITCH, INPUT_PULLUP);
@@ -426,9 +424,9 @@ void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned cha
 
 unsigned char getPoleInstance() {
   unsigned char instance = 0xFF;
-  #ifdef GPIO_INSTANCE
+  #ifdef GPIO_INSTANCE_PINS
   instance = 0x00;
-  int ipins[GPIO_INSTANCE]; 
+  int ipins[] = GPIO_INSTANCE_PINS; 
   for (byte i = 0; i < ELEMENTCOUNT(ipins); i++) {
     instance = instance + (digitalRead(ipins[i]) << i);
   }
