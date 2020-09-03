@@ -1,7 +1,17 @@
 # sketch/
 
 The ```sketch/``` folder is a PlatformIO project which provides a build
-environment for the compilation of all firmware.
+environment for firmware compilation.
+The project space is managed so that individual firmwares can be mapped
+into the ```sketch/``` folder for compilation and therefore do not requre
+their own project spaces, reducing complexity and ensuring consistency in
+build configuration.
+A utility program executed from within the PlatformIO build process is
+used to harvest program configuration values from across one or more
+specified folder hierarchies and careful organisation of project storage
+can eliminate the need to maintain complex per-firmware configuration
+files.
+
 The standard PlatformIO build arrangement is tweaked in the following
 ways.
 
