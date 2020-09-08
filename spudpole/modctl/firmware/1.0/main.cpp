@@ -203,6 +203,7 @@ void debounceSwitches(DEBOUNCED_SWITCHES_T &switches);
 void exerciseOutputs(int, unsigned long, unsigned long);
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
+void operateLED(unsigned int gpio = 0xFF, unsigned int flashes = 0x01, unsigned int endstate = 0x01);
 void operatePowerLED(unsigned long timeout = 0L);
 void PGN128777(const tN2kMsg&);
 void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]);
@@ -573,11 +574,22 @@ void operatePowerLED(unsigned long timeout) {
  * <endstate>.
  * 
  * FLASHLED_HEARTBEAT defines the basic period.
-void flashLED(unsigned int gpio, unsigned int flashes) {
-  static unsigned int[4][2] leds = { {255,0},{255,0},{255,0},{255,0} };
-  for (int i = 0; i < ELEMENTCOUNT(leds); i++) {
-    if (leds[i][0] != 255) {
-      if (digitalRead(leds[i][0])  
+ */
+
+void operateLED(unsigned int gpio, unsigned int flashes, unsigned int endstate) {
+  static unsigned int[4][4] leds = { {255,0,0,0},{255,0,0,0},{255,0,0,0},{255,0,0,0} };
+  if (gpio == 0xFF) {
+    for (int i = 0; i < ELEMENTCOUNT(leds); i++) {
+      if (leds[i][0] != 255) {
+        if (digitalRead(leds[i][0]) {
+        }
+      }
+    }
+  } else {
+    switch (flashes) {
+      case 0:
+        break;
+      case 1:  
 
 /**********************************************************************
  * Exercise the relay and LED outputs by turning them on for
