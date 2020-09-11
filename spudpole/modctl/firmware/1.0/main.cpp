@@ -41,8 +41,10 @@
 #include <string.h>
 #include <NMEA2000_teensy.h>
 #include <N2kSpudpole.h>
+#include <LedManager.h>
 #include <EEPROM.h>
 #include "arraymacros.h"
+#include "WindlassState.h"
 
 #define SERIAL_DEBUG  // Write debug output to the USB port
 
@@ -139,6 +141,12 @@
 #define SWITCH_DEBOUNCE_INTERVAL 5 // milliseconds
 #define SWITCH_PROCESS_INTERVAL 250 // milliseconds
 #define RELAY_UPDATE_INTERVAL 330 // milliseconds
+#define CONFIGURATION_CHECK_INTERVAL 5000
+#define WINDLASS_INSTANCE_DISABLE_ADDRESS 127
+#define STATUS_LED_MANAGER_HEARTBEAT 300
+#define STATUS_LED_MANAGER_INTERVAL 10
+#define STATE_LED_MANAGER_HEARTBEAT 300
+#define STATE_LED_MANAGER_INTERVAL 1
 
 /**********************************************************************
  * Output relays can either be on, off or flashing...
@@ -146,35 +154,6 @@
 
 enum OUTPUT_STATE_T { OSON, OSOFF, OSFLASH };
 
-/**********************************************************************
- * Convenience structure holding key properties of a controlled
- * windlass:
- * 
- * instance     instance number of the remote windlass device. This
- *              value must be stored in EEPROM before the firmware can
- *              begin to communicate with the remote windlass device.
- * address      CAN address of the remote windlass device. This value
- *              is set automatically as soon as a PGN128777 Windlass
- *              Operating Status message is received from a windlass
- *              with the defined instance number.
- * upRelayGpio  address of the pin to which the UP output relay is
- *              connected.
- * dnRelayGpio  address of the pin to which the DOWN output relay is
- *              connected.
- * upRelayState the state of the UP relay derived from PGN 128777
- *              messages received from the remote windlass device.
- * dnRelayState the state of the DOWN relay derived from PGN 128777
- *              messages received from the remote windlass device.
- */
-
-struct WINDLASS_T {
-  unsigned char instance; 
-  unsigned char address;
-  int upRelayGpio;
-  int dnRelayGpio;
-  OUTPUT_STATE_T upRelayState;
-  OUTPUT_STATE_T dnRelayState;
-};
 
 /**********************************************************************
  * Convenience structure used to provide the debounced state of all the
@@ -200,15 +179,11 @@ union DEBOUNCED_SWITCHES_T {
 
 unsigned char debounce(unsigned char sample);
 void debounceSwitches(DEBOUNCED_SWITCHES_T &switches);
-void exerciseOutputs(int, unsigned long, unsigned long);
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
-void operateLED(unsigned int gpio = 0xFF, unsigned int flashes = 0x01, unsigned int endstate = 0x01);
-void operatePowerLED(unsigned long timeout = 0L);
 void PGN128777(const tN2kMsg&);
-void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]);
-void updateRelayOutput(WINDLASS_T windlasses[]);
-void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned char down);
+void processSwitches(DEBOUNCED_SWITCHES_T &switches, WindlassState *w0, WindlassState *w1);
+void transmitWindlassControl(WindlassState *windlass, unsigned char up, unsigned char down);
 
 /**********************************************************************
  * N2K PGNs of messages transmitted by this program.
@@ -230,12 +205,16 @@ tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
  * GLOBAL VARIABLES
  */
 
-DEBOUNCED_SWITCHES_T DEBOUNCED_SWITCHES;
+// LED manager with long interval for status leds.
+LedManager *statusLedManager = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+// LED manager with short interval for state output relays (leds).
+LedManager *stateLedManager = new LedManager(STATE_LED_MANAGER_HEARTBEAT, STATE_LED_MANAGER_INTERVAL);
 
-WINDLASS_T WINDLASSES[2] = {
-  { EEPROM.read(EEPROMADDR_W0_INSTANCE), 0xFF, GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY, OSOFF, OSOFF },
-  { EEPROM.read(EEPROMADDR_W1_INSTANCE), 0xFF, GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY, OSOFF, OSOFF }
-};
+
+WindlassState *Windlass0 = new WindlassState(EEPROM.read(EEPROMADDR_W0_INSTANCE), GPIO_W0_LED, GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY);
+WindlassState *Windlass1 = new WindlassState(EEPROM.read(EEPROMADDR_W1_INSTANCE), GPIO_W1_LED, GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY);
+
+DEBOUNCED_SWITCHES_T DEBOUNCED_SWITCHES;
 
 bool JUST_STARTED = true;
 
@@ -269,8 +248,14 @@ void setup() {
   pinMode(GPIO_W1_UP_RELAY, OUTPUT);
   pinMode(GPIO_W1_UP_SWITCH, INPUT_PULLUP);
 
+  Windlass0->setLedManagers(statusLedManager, stateLedManager);
+  Windlass1->setLedManagers(statusLedManager, stateLedManager);
+
+  statusLedManager->operate(GPIO_BOARD_LED, 0, 3);
+  
+
   // Cycle outputs as startup check and leave all LOW
-  exerciseOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
+  //exerciseOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
 
   //NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   //NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
@@ -319,10 +304,10 @@ void setup() {
 void loop() {
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
   debounceSwitches(DEBOUNCED_SWITCHES);
-  if (!JUST_STARTED) processSwitches(DEBOUNCED_SWITCHES, WINDLASSES);
+  if (!JUST_STARTED) processSwitches(DEBOUNCED_SWITCHES, Windlass0, Windlass1);
   //NMEA2000.ParseMessages();
-  //updateRelayOutput(WINDLASSES);
-  operatePowerLED();
+  statusLedManager->loop();
+  stateLedManager->loop();
 }
 
 /**********************************************************************
@@ -362,27 +347,36 @@ unsigned char debounce(unsigned char sample) {
  * of their associated switch input channels.
  */
 
-void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
+void processSwitches(DEBOUNCED_SWITCHES_T &switches, WindlassState *w0, WindlassState *w1) {
   static unsigned long deadline = 0L;
   unsigned long now = millis();
+  unsigned char instance;
   if (now > deadline) {
     if (!switches.state.W0Prog) {
-      EEPROM.update(EEPROMADDR_W0_INSTANCE, (windlasses[0].instance = getPoleInstance()));
+      instance = getPoleInstance();
+      w0->setInstance(instance);
+      EEPROM.update(EEPROMADDR_W0_INSTANCE, instance);
     }
     if (!switches.state.W1Prog) {
-      EEPROM.update(EEPROMADDR_W1_INSTANCE, (windlasses[1].instance = getPoleInstance()));
+      instance = getPoleInstance();
+      w1->setInstance(instance);
+      EEPROM.update(EEPROMADDR_W1_INSTANCE, instance);
     }
-    if ((!switches.state.W0Up) ^ (!switches.state.W0Dn)) {
-      digitalWrite(GPIO_W0_LED, HIGH);
-      transmitWindlassControl(windlasses[0], switches.state.W0Up, switches.state.W0Dn);
-    } else {
-      digitalWrite(GPIO_W0_LED, LOW);
+    if (w0->isReady()) {
+      if ((!switches.state.W0Up) ^ (!switches.state.W0Dn)) {
+        statusLedManager->operate(GPIO_W0_LED, HIGH);
+        transmitWindlassControl(w0, switches.state.W0Up, switches.state.W0Dn);
+      } else {
+        statusLedManager->operate(GPIO_W0_LED, LOW);
+      }
     }
-    if ((!switches.state.W1Up) ^ (!switches.state.W1Dn)) {
-      digitalWrite(GPIO_W1_LED, HIGH);
-      transmitWindlassControl(windlasses[1], switches.state.W1Up, switches.state.W1Dn);
-    } else {
-      digitalWrite(GPIO_W1_LED, LOW);
+    if (w1->isReady()) {
+      if ((!switches.state.W1Up) ^ (!switches.state.W1Dn)) {
+        statusLedManager->operate(GPIO_W1_LED, HIGH);
+        transmitWindlassControl(w1, switches.state.W1Up, switches.state.W1Dn);
+      } else {
+        statusLedManager->operate(GPIO_W1_LED, LOW);
+      }
     }   
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -400,23 +394,21 @@ void processSwitches(DEBOUNCED_SWITCHES_T &switches, WINDLASS_T windlasses[]) {
  * unknown.
  */
 
-void transmitWindlassControl(WINDLASS_T windlass, unsigned char up, unsigned char down) {
+void transmitWindlassControl(WindlassState *windlass, unsigned char up, unsigned char down) {
   // FIX FOR TESTING
-  windlass.address = 0x20;
+  // windlass.address = 0x20;
   // FIX FOR TESTING
-  if ((windlass.instance != 0xFF) && (windlass.address != 0xFF)) {
-    tN2kMsg N2kMsg;
-    N2kMsg.SetPGN(126208UL);
-    N2kMsg.Priority = 2;
-    N2kMsg.Destination = windlass.address;
-    N2kMsg.AddByte(0x01); // Command message
-    N2kMsg.Add3ByteInt(128776L); // Windlass Control Status PGN
-    N2kMsg.AddByte(0xF8); // Retain existing priority
-    N2kMsg.AddByte(0x01); // Just one parameter pair to follow
-    N2kMsg.AddByte(0x03); // Parameter 1 - Field 3 is Windlass Direction Control
-    N2kMsg.AddByte((up != 0)?0x02:((down != 0)?0x01:0x00));
-    NMEA2000.SendMsg(N2kMsg);
-  }
+  tN2kMsg N2kMsg;
+  N2kMsg.SetPGN(126208UL);
+  N2kMsg.Priority = 2;
+  N2kMsg.Destination = windlass->getAddress();
+  N2kMsg.AddByte(0x01); // Command message
+  N2kMsg.Add3ByteInt(128776UL); // Windlass Control Status PGN
+  N2kMsg.AddByte(0xF8); // Retain existing priority
+  N2kMsg.AddByte(0x01); // Just one parameter pair to follow
+  N2kMsg.AddByte(0x03); // Parameter 1 - Field 3 is Windlass Direction Control
+  N2kMsg.AddByte((up != 0)?0x02:((down != 0)?0x01:0x00));
+  NMEA2000.SendMsg(N2kMsg);
 }  
 
 /**********************************************************************
@@ -461,164 +453,36 @@ void PGN128777(const tN2kMsg &N2kMsg) {
   tN2kRodeTypeStates RodeTypeStatus;
   tN2kAnchorDockingStates AnchorDockingStatus;
   tN2kWindlassOperatingEvents WindlassOperatingEvents;
+  WindlassState *windlass = NULL;
 
   if (ParseN2kPGN128777(N2kMsg, SID, WindlassIdentifier, RodeCounterValue, WindlassLineSpeed, WindlassMotionStatus, RodeTypeStatus, AnchorDockingStatus, WindlassOperatingEvents)) {
-    for (int i = 0; i < 2; i++) {
-      if ((WINDLASSES[i].instance != 0xFF) && (WINDLASSES[i].instance == WindlassIdentifier)) {
-        // We have a message from a configured device, so occult the LED
-        operatePowerLED(POWER_LED_TIMEOUT);
-        // Save the CAN address of the sender because we will need this to direct control messages
-        WINDLASSES[i].address = N2kMsg.Source;
+    if ((!Windlass0->isDisabled()) && (Windlass0->getInstance() == WindlassIdentifier)) {
+      windlass = Windlass0;
+    } else {
+      if ((!Windlass1->isDisabled()) && (Windlass1->getInstance() == WindlassIdentifier)) {
+        windlass = Windlass1;
+      }
+    }
+    if (windlass != NULL) {
+      if (!windlass->isConfigured()) windlass->setAddress(N2kMsg.Source);
+      if (windlass->isReady()) {
         // And now set the relay states
         if (AnchorDockingStatus == N2kDD482_FullyDocked) {
-          // Set UP relay ON, DN relay off
-          WINDLASSES[i].upRelayState = OSON;
-          WINDLASSES[i].dnRelayState = OSOFF;
+          windlass->setState(WindlassState::DOCKED);
         } else {
           switch (WindlassMotionStatus) {
             case N2kDD480_DeploymentOccurring:
-              // Set DN relay FLASHING
-              WINDLASSES[i].upRelayState = OSOFF;
-              WINDLASSES[i].dnRelayState = OSFLASH;
+              windlass->setState(WindlassState::DEPLOYING);
               break;
             case N2kDD480_RetrievalOccurring:
-              WINDLASSES[i].upRelayState = OSFLASH;
-              WINDLASSES[i].dnRelayState = OSOFF;
+              windlass->setState(WindlassState::RETRIEVING);
               break;
             default:
-              WINDLASSES[i].upRelayState = OSOFF;
-              WINDLASSES[i].dnRelayState = OSON;
+              windlass->setState(WindlassState::DEPLOYED);
               break;
           }
         }
       }
     }
-  }
-}
-
-/**********************************************************************
- * updateRelayOutput() processes the WINDLASSES variable, setting the
- * state of relay outputs dependent on the value of the upRelayState
- * and dnRelayState attributes. The function should be called from the
- * loop() and will operate at the inerval defined in
- * RELAY_UPDATE_INTERVAL.
- */
-
-void updateRelayOutput(WINDLASS_T windlasses[]) {
-  #ifdef SERIAL_DEBUG
-  Serial.println("updateRelayOutput()...");
-  #endif
-
-  static unsigned long deadline = millis();
-  unsigned long now = millis();
-  if (now > deadline) {
-    for (int i = 0; i < 2; i++) {
-      switch (windlasses[i].upRelayState) {
-        case OSON: digitalWrite(windlasses[i].upRelayGpio, HIGH); break;
-        case OSOFF:  digitalWrite(windlasses[i].upRelayGpio, LOW);break;
-        case OSFLASH: digitalWrite(windlasses[i].upRelayGpio, (digitalRead(windlasses[i].upRelayGpio) == HIGH)?LOW:HIGH); break;
-      }
-      switch (windlasses[i].dnRelayState) {
-        case OSON: digitalWrite(windlasses[i].dnRelayGpio, HIGH); break;
-        case OSOFF:  digitalWrite(windlasses[i].dnRelayGpio, LOW);break;
-        case OSFLASH: digitalWrite(windlasses[i].dnRelayGpio, (digitalRead(windlasses[i].dnRelayGpio) == HIGH)?LOW:HIGH); break;
-      }
-    }
-    deadline = (now + RELAY_UPDATE_INTERVAL);
-  }
-}
-
-/**********************************************************************
- * The transmit LED is illuminated to indicate that the device has
- * power and occults on each NMEA transmit. operatePowerLED()
- * switches the LED off and arranges to switch it on after a short,
- * defined, period.  The function requires the definition of
- * GPIO_POWER_LED and POWER_LED_TIMEOUT.
- * 
- * A call to operatePowerLED() should be made from loop() in order
- * to manage switching the LED.  A call to operatePowerLED(timeout)
- *  will switch the LED off and arrange for it to be turned on after
- * <timeout> milliseconds.
- */
-
-void operatePowerLED(unsigned long timeout) {
-  static unsigned long deadline = 0L;
-  unsigned long now = millis();
-  #ifdef GPIO_POWER_LED
-  if (timeout) {
-    deadline = (now + timeout);
-    digitalWrite(GPIO_POWER_LED, LOW);
-  }
-  if (now > deadline) {
-    digitalWrite(GPIO_POWER_LED, HIGH);
-  }
-  #endif
-}
-
-/**********************************************************************
- * operateLED(gpio, flashes, atend) operates the LED on <gpio>,
- * according to the pattern defined by <flashes>: a zero value turns
- * the LED off; 1 turns it on and any other value causes the set number
- * of flashes. What happens after <flashes> has been implemented is
- * determined by <atend>: 0 says switch off, 1 says leave on.
- * 
- * The method should be called in the following way:
- * 
- * operateLED() should be called from loop(). At the interval specified
- *   by OPERATE_LED_HEARTBEAT is will process the configured outputs.
- * operateLED(gpio) will restart any previously configured pattern for
- *   the specified LED.
- * operateLED(gpio, flashes) will flash the LED given number of times
- *   and leave it off.
- *  leaving the LED in the state specified by
- * <endstate>.
- * 
- * FLASHLED_HEARTBEAT defines the basic period.
- */
-
-void operateLED(unsigned int gpio, unsigned int flashes, unsigned int endstate) {
-  static unsigned int[4][4] leds = { {255,0,0,0},{255,0,0,0},{255,0,0,0},{255,0,0,0} };
-  if (gpio == 0xFF) {
-    for (int i = 0; i < ELEMENTCOUNT(leds); i++) {
-      if (leds[i][0] != 255) {
-        if (digitalRead(leds[i][0]) {
-        }
-      }
-    }
-  } else {
-    switch (flashes) {
-      case 0:
-        break;
-      case 1:  
-
-/**********************************************************************
- * Exercise the relay and LED outputs by turning them on for
- * <onmillis>, off for <offmillis> and repeating the whole thing
- * <cycles> times.  Use to indicate reboot and allow a check of
- * whatever output devices are connected to the relays.
- */
-
-void exerciseOutputs(int cycles, unsigned long onmillis, unsigned long offmillis) {
-  for (int i = 0; i < cycles; i++) {
-    digitalWrite(GPIO_POWER_RELAY, HIGH);
-    digitalWrite(GPIO_W0_UP_RELAY, HIGH);
-    digitalWrite(GPIO_W0_DN_RELAY, HIGH);
-    digitalWrite(GPIO_W1_UP_RELAY, HIGH);
-    digitalWrite(GPIO_W1_DN_RELAY, HIGH);
-    digitalWrite(GPIO_POWER_LED, HIGH);
-    digitalWrite(GPIO_W0_LED, HIGH);
-    digitalWrite(GPIO_W1_LED, HIGH);
-    digitalWrite(GPIO_BOARD_LED, HIGH);
-    delay(onmillis);
-    digitalWrite(GPIO_POWER_RELAY, LOW);
-    digitalWrite(GPIO_W0_UP_RELAY, LOW);
-    digitalWrite(GPIO_W0_DN_RELAY, LOW);
-    digitalWrite(GPIO_W1_UP_RELAY, LOW);
-    digitalWrite(GPIO_W1_DN_RELAY, LOW);
-    digitalWrite(GPIO_POWER_LED, LOW);
-    digitalWrite(GPIO_W0_LED, LOW);
-    digitalWrite(GPIO_W1_LED, LOW);
-    digitalWrite(GPIO_BOARD_LED, LOW);
-    delay(offmillis);
   }
 }

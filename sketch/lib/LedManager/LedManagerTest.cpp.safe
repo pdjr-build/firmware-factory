@@ -1,0 +1,43 @@
+#include <Arduino.h>
+#include <EEPROM.h>
+#include <string.h>
+#include "arraymacros.h"
+#include "LedManager.h"
+
+#define SERIAL_DEBUG  // Write debug output to the USB port
+
+/**********************************************************************
+ * MCU EEPROM STORAGE ADDRESSES
+ */
+
+#define EEPROMADDR_W0_INSTANCE 0
+#define EEPROMADDR_W1_INSTANCE 1
+
+/**********************************************************************
+ * MCU DIGITAL IO PIN ALLOCATION
+ * 
+ * GPIO pin definitions for the Teensy 3.2 MCU
+ */
+
+#define GPIO_BOARD_LED 13
+#define GPIO_POWER_LED 5
+#define GPIO_W0_LED 2
+#define GPIO_W1_LED 1
+
+LedManager *myLeds = new LedManager(350,5);
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(GPIO_BOARD_LED, OUTPUT);
+  pinMode(GPIO_POWER_LED, OUTPUT);
+  pinMode(GPIO_W0_LED, OUTPUT);
+  pinMode(GPIO_W1_LED, OUTPUT);
+  
+  myLeds->operate(13,0,-2);
+  //myLeds->operate(5,0,-2);
+  //myLeds->operate(2,0,3);
+}
+
+void loop() {
+  myLeds->loop();
+}

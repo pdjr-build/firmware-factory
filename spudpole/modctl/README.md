@@ -26,7 +26,37 @@ of the device.
 Multiple control interface modules can be installed on a single NMEA
 bus controlling the same or different windlasses as their peers.
 
-## Connections
+## Module characteristics
+
+![Fig 1: module schematic](module.png)
+
+Figure 1 illustrates the appearance of the module with the cover in
+place and with the cover removed.
+
+The top cover includes the NMEA bus connector (1) and three status
+LEDs (2). The cover is penetrated by two cable glands (3) which allow
+passage of switch and indicator connection cables.
+
+The printed circuit board includes connectors for switch (4) and
+indicator (5) connection. A DIL switch (6) allows entry of windlass
+instance addresses and two programme switches (7) allow an address
+entered on the DIL switch to be saved to module memory.
+
+ 
+
+The module has three status LEDs labeled PWR/TX, W0 and W1 which are
+modulated to provide diagnostic feedback.
+
+| LED    | Appearance                        | Meaning |
+|:------:|:----------------------------------|:--------|
+| All    | 3 rapid flashes                   | The module has just been connected to power and is initialising.|
+| PWR/RX | Steady on with occasional flicker | The module has power. The LED will flicker each time an NMEA message is received from a configured windlass. |
+| W_n_   | Two flashes, repeating            | Control channel W_n_ has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
+|        | One flash, repeating              | Control channel W_n_ has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
+|        | Unlit                             | Control channel W_n_ is operating normally but is inactive. |
+|        | Steady illumination               | Control channel W_n_ is active (input _n_U or _n_D switch is high). |
+
+# Connections
 
 ![PCB layout](pcb.png)
 
@@ -40,11 +70,11 @@ wire.
 | SWITCH | 3        | 1U   | 12/24VDC | Windlass 1 UP (active high). |
 | SWITCH | 4        | 1D   | 12/24VDC | Windlass 1 DOWN (active high). |
 | SWITCH | 5        | GND  | 0VDC     | Reference ground for terminals 1 through 4. |
-| STATUS | 1-2      | 0UP  | 50V 1A   | Connected continuously when Windlass 0 is docked; intermittently when Windlass 0 is retrieving. |
-| STATUS | 3-4      | 0DN  | 50V 1A   | Connected continuously when Windlass 0 is deployed; intermittently when Windlass 0 is deploying. |
-| STATUS | 5-6      | 1UP  | 50V 1A   | Connected continuously when Windlass 1 is docked; intermittently when Windlass 1 is retrieving. |
-| STATUS | 7-8      | 1DN  | 50V 1A   | Connected continuously when Windlass 1 is deployed; intermittently when Windlass 1 is deploying. |
-| STATUS | 9-10     | PWR  | 50V 1A   | Connected when the module is powered, occulting each time a status message is received from a windlass. |
+| STATUS | 1-2      | 0UP  | 50V 1A   | Windlass 0 UP STATE. |
+| STATUS | 3-4      | 0DN  | 50V 1A   | Windlass 0 DOWN STATE. |
+| STATUS | 5-6      | 1UP  | 50V 1A   | Windlass 0 UP STATE. |
+| STATUS | 7-8      | 1DN  | 50V 1A   | Windlass 0 DOWN STATE. |
+| STATUS | 9-10     | PWR  | 50V 1A   | Module power / transmission state. |
  
 ## Configuring the module
 
