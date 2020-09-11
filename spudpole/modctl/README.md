@@ -56,10 +56,10 @@ diagnostic feedback especially relevant to the installer.
 |:------:|:----------------------------------|:--------|
 | All    | 3 rapid flashes                   | The module has just been connected to power and is initialising.|
 | PWR/RX | Steady on with occasional flicker | The module has power. The LED will flicker each time an NMEA message is received from a configured windlass. |
-| W_n_   | Two flashes, repeating            | Control channel W_n_ has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
-|        | One flash, repeating              | Control channel W_n_ has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
-|        | Unlit                             | Control channel W_n_ is operating normally but is inactive. |
-|        | Steady illumination               | Control channel W_n_ is active (input _n_U or _n_D switch is high). |
+| W*n*   | Two flashes, repeating            | Control channel W*n* has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
+|        | One flash, repeating              | Control channel W*n* has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
+|        | Unlit                             | Control channel W*n* is operating normally but is inactive. |
+|        | Steady illumination               | Control channel W*n* is active (input _n_U or _n_D switch is high). |
 
 # Connections
 
