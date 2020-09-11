@@ -42,10 +42,15 @@ indicator (5) connection. A DIL switch (6) allows entry of windlass
 instance addresses and two programme switches (7) allow an address
 entered on the DIL switch to be saved to module memory.
 
- 
+### (1) NMEA bus connector
+The module uses an industry standard standard M12 circular industrial
+connector for NMEA connection. Any standard N2K drop cable will allow
+the module to connect to the host an NMEA bus through the usual
+T-connector.
 
-The module has three status LEDs labeled PWR/TX, W0 and W1 which are
-modulated to provide diagnostic feedback.
+### (2) Status LEDs 
+The three status LEDs labeled PWR/TX, W0 and W1 are modulated to provide
+diagnostic feedback especially relevant to the installer.
 
 | LED    | Appearance                        | Meaning |
 |:------:|:----------------------------------|:--------|
