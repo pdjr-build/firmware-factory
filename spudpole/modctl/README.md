@@ -61,6 +61,16 @@ diagnostic feedback especially relevant to the installer.
 |        | Unlit                             | Control channel W*n* is operating normally but is inactive. |
 |        | Steady illumination               | Control channel W*n* is active (input *n*U or *n*D switch is high). |
 
+### (3) Cable glands
+
+### (4) Switch connector
+
+### (5) Indicator connector
+
+### (6) Instance DIL switch
+
+### (7)
+
 # Connections
 
 ![PCB layout](pcb.png)
