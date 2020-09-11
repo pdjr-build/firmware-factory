@@ -52,45 +52,60 @@ T-connector.
 The three status LEDs labeled PWR/TX, W0 and W1 are modulated to provide
 diagnostic feedback especially relevant to the installer.
 
-| LED    | Appearance                        | Meaning |
+| LED    | Illumination state                | Meaning |
 |:------:|:----------------------------------|:--------|
-| All    | 3 rapid flashes                   | The module has just been connected to power and is initialising.|
-| PWR/RX | Steady on with occasional flicker | The module has power. The LED will flicker each time an NMEA message is received from a configured windlass. |
+| All    | Three rapid flashes               | The module has just been connected to power and is initialising.|
+| PWR/RX | Steady                            | The module has power.|
+|        | Occulting                         | The module is receiving NMEA data from a configured windlass. |
 | W*n*   | Two flashes, repeating            | Control channel W*n* has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
 |        | One flash, repeating              | Control channel W*n* has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
 |        | Unlit                             | Control channel W*n* is operating normally but is inactive. |
-|        | Steady illumination               | Control channel W*n* is active (input *n*U or *n*D switch is high). |
+|        | Steady                            | Control channel W*n* is active (input *n*U or *n*D is high). |
 
 ### (3) Cable glands
+Two 6mm cable glands allow passage of switch and indicator connection
+cables.
 
 ### (4) Switch connector
+The switch connector is a five-pole connector with a common GND 0VDC
+reference and inputs 0U, 0D, 1U and 1D for windlass switch inputs. All
+inputs are active high and the module will accept voltages at 12VDC and
+24VDC nominal relative to GND.
 
 ### (5) Indicator connector
+The indicator connector block is a zero-volt connection for PWR, 0UP, 0DN,
+1UP and 1DN indicators. The relays which support the connections are
+modulated dependent upon status data received from the remote windlasses
+configured for the two module control channels.
+
+| Indicator | Illumination state                | Meaning |
+|:---------:|:----------------------------------|:--------|
+| All       | Three rapid flashes               | The module has just been connected to power and is initialising.|
+| PWR       | Steady                            | The module has power.|
+|           | Occulting                         | The module is transmitting NMEA control messages.|
+| 0UP       | Steady                            | The tackle attached to the windlass (anchor, spudpole, etc.) is fully retrieved and docked.|
+|           | Isophase                          | The windlass is retrieving its associated tackle.|
+| 0DN       | Steady                            | The tackle attached to the windlass (anchor, spudpole, etc.) is deployed.|
+|           | Isophase                          | The windlass is deploying its associated tackle.|
 
 ### (6) Instance DIL switch
+The INSTANCE DIL switch allows the entry of instance numbers in the range
+0 through 127 using a binary representation. The value 127 has special
+significance to the module and if programmed will disable the associated
+control channel.
+Normally, the INSTANCE switch is used to enter the instance numbers of the
+windlasses that are controlled by the module.
+The seven slide switches are each labelled with their corresponding decimal
+value and the sliders are active when in the right-hand position.
+For example, to enter the instance number 10, the swithces should be set
+LRLRLLL (top to bottom).
 
-### (7)
+### (7) Programme switches
+The PRGW0 and PRGW1 switches save the address set up on (6) to the module's
+EEPROM memory, associating the specified remote windlass with the selected
+module control channel (or disabling the control channel if the INSTANCE
+address is set to 127).
 
-# Connections
-
-![PCB layout](pcb.png)
-
-All connections are made by through screw connector blocks using 20AWG
-wire.
-
-| Block  | Terminal | Name | Rating   | Description |
-|:------:|:--------:|:---- |:--------:|:------------|
-| SWITCH | 1        | 0U   | 12/24VDC | Windlass 0 UP (active high). |
-| SWITCH | 2        | 0D   | 12/24VDC | Windlass 0 DOWN (active high). |
-| SWITCH | 3        | 1U   | 12/24VDC | Windlass 1 UP (active high). |
-| SWITCH | 4        | 1D   | 12/24VDC | Windlass 1 DOWN (active high). |
-| SWITCH | 5        | GND  | 0VDC     | Reference ground for terminals 1 through 4. |
-| STATUS | 1-2      | 0UP  | 50V 1A   | Windlass 0 UP STATE. |
-| STATUS | 3-4      | 0DN  | 50V 1A   | Windlass 0 DOWN STATE. |
-| STATUS | 5-6      | 1UP  | 50V 1A   | Windlass 0 UP STATE. |
-| STATUS | 7-8      | 1DN  | 50V 1A   | Windlass 0 DOWN STATE. |
-| STATUS | 9-10     | PWR  | 50V 1A   | Module power / transmission state. |
- 
 ## Configuring the module
 
 To operate correctly the module must be configured with the NMEA
