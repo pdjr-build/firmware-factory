@@ -227,6 +227,8 @@ void setup() {
   Serial.begin(9600);
   #endif
 
+  //EEPROM.update(EEPROMADDR_W0_INSTANCE,0x01);
+  Windlass0->setAddress(0xEF);
   // Set pin modes...
   int ipins[] = GPIO_INSTANCE_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
@@ -253,18 +255,14 @@ void setup() {
 
   statusLedManager->operate(GPIO_BOARD_LED, 0, 3);
   
+  NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
+  NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
 
-  // Cycle outputs as startup check and leave all LOW
-  //exerciseOutputs(STARTUP_CHECK_CYCLE_COUNT, STARTUP_CHECK_CYCLE_ON_PERIOD, STARTUP_CHECK_CYCLE_OFF_PERIOD);
-
-  //NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
-  //NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
-
-  //NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
-  //NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
-  //NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
-  //NMEA2000.SetMsgHandler(messageHandler);
-  //NMEA2000.Open();  
+  NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
+  NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
+  NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
+  NMEA2000.SetMsgHandler(messageHandler);
+  NMEA2000.Open();  
 }
 
 /**********************************************************************

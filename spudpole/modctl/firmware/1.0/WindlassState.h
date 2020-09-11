@@ -14,10 +14,10 @@ class WindlassState {
   public:
     enum State { DOCKED, DEPLOYING, DEPLOYED, RETRIEVING, UNKNOWN };
     WindlassState(unsigned char instance, int gpioStatusLed, int gpioUpLed, int gpioDownLed);
-    void setLedManagers(LedManager *statusLedManager, LedManager *stateLedManager);
     void setInstance(unsigned char instance);
     void setAddress(unsigned char address);
     void setState(WindlassState::State state);
+    void setLedManagers(LedManager *statusLedManager, LedManager *stateLedManager);
     unsigned char getInstance();
     unsigned char getAddress();
     bool isDisabled();
@@ -26,12 +26,12 @@ class WindlassState {
   private:
     unsigned char instance; 
     unsigned char address;
+    State state;
     LedManager *statusLedManager;
     LedManager *stateLedManager;
     int gpioStatusLed;
     int gpioUpLed;
     int gpioDownLed;
-    State state;
     void updateStatusLed();
     void updateStateLed();
 };
