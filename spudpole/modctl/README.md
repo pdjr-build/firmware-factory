@@ -26,7 +26,7 @@ of the device.
 Multiple control interface modules can be installed on a single NMEA
 bus controlling the same or different windlasses as their peers.
 
-## Module characteristics
+## About the module
 
 ![Fig 1: module schematic](module.png)
 
@@ -37,10 +37,13 @@ The top cover includes the NMEA bus connector (1) and three status
 LEDs (2). The cover is penetrated by two cable glands (3) which allow
 passage of switch and indicator connection cables.
 
-The printed circuit board includes connectors for switch (4) and
-indicator (5) connection. A DIL switch (6) allows entry of windlass
-instance addresses and two programme switches (7) allow an address
-entered on the DIL switch to be saved to module memory.
+The top cover is released by pinching at points (A) and lifting away
+from the base.
+Removal of the cover reveals the module printed circuit board which
+includes connectors for switches (4) and indicators (5).
+A DIL switch (6) allows entry of windlass instance addresses and two
+programme switches (7) allow an address entered on the DIL switch to
+be saved to module memory.
 
 ### (1) NMEA bus connector
 The module uses an industry standard standard M12 circular industrial
@@ -58,7 +61,7 @@ diagnostic feedback especially relevant to the installer.
 | PWR/RX | Steady                            | The module has power.|
 |        | Occulting                         | The module is receiving NMEA data from a configured windlass. |
 | W*n*   | Two flashes, repeating            | Control channel W*n* has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
-|        | One flash, repeating              | Control channel W*n* has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
+|        | One flash, repeating              | Control channel W*n* has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuring the module" below. |
 |        | Unlit                             | Control channel W*n* is operating normally but is inactive. |
 |        | Steady                            | Control channel W*n* is active (input *n*U or *n*D is high). |
 
@@ -108,28 +111,37 @@ address is set to 127).
 
 ## Configuring the module
 
-To operate correctly the module must be configured with the NMEA
-instance address of the windlass or windlasses which are being
-controlled.
+To operate correctly the module must be configured with the NMEA instance
+of the windlasses which are being controlled.
+If only one windlass is to be controlled then a special instance value can
+be used to disable the unused channel.
+The module is supplied with channe W0 unconfigured and channel W1 disabled.
 
-To configure Windlass 0:
+To configure a windlass control channel.
 
-1. Connect the module to the NMEA bus and confirm that the PWR/RX LED
-   is illuminated.
-2. If you have connected switches to the SWITCH terminal block, then
+1. Inspect the windlass which is to be controlled and identify the instance
+   number that has been assigned to its NMEA interface.
+2. Connect the module to the NMEA bus and confirm that it has power.
+3. If you have connected switches to the SWITCH terminal block, then
    ensure that the switches are in the OFF position.
-3. Enter the instance address of the windlass you wish to control
-   using the DIP switch on the module PCB.
-4. Press the PRG W0 button on the module PCB.
+4. Enter the instance number of the windlass you wish to control (i.e the
+   value identified at (1)) using the DIP switch on the module PCB.
+   The module allows instance numbers in the range 0 through 126 to be
+   entered.
+   An instance number of 127 can be used to disable a control channel.
+5. Press the PRGW0 button on the module PCB to store the windlass instance
+   number for channel W0 or PRGW1 to store the instance number for channel
+   W1.
 
 If the NMEA interface on the remote spudpole is powered up, then after
-a few seconds the status outputs for Windlass 0 should become active
-to indicate the condition of the windlass.
-After this, the switch inputs for Windlass 0 should command the remote
+a few seconds the module status LED for the selected control channel should
+turn off and the status outputs for windlass should become active to indicate
+the condition of the windlass.
+After this, the switch inputs for the channel should command the remote
 windlass.
 
-If a second windlass is to be controlled as Windlass 1, then use a
-similar procedure, but press the PRG W1 button at step 4. 
+You can repeat this procedure at any time to update a configuration or
+programme a second windlass.
 
 ## NMEA 2000 messages
 
