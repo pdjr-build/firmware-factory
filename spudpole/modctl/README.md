@@ -59,7 +59,7 @@ diagnostic feedback especially relevant to the installer.
 | W*n*   | Two flashes, repeating            | Control channel W*n* has not been configured with the instance number of the windlass it should operate. See "Configuring the module" below. |
 |        | One flash, repeating              | Control channel W*n* has been configured with an instance number, but has not received a transmission from the specified windlass. See "Configuration the module" below. |
 |        | Unlit                             | Control channel W*n* is operating normally but is inactive. |
-|        | Steady illumination               | Control channel W*n* is active (input _n_U or _n_D switch is high). |
+|        | Steady illumination               | Control channel W*n* is active (input *n*U or *n*D switch is high). |
 
 # Connections
 
