@@ -1,4 +1,5 @@
 /**********************************************************************
+ * modctl-1.0.0.cpp - MODCTL firmware version 1.0.0.
  * Copyright (c) 2020 Paul Reeve, <preeve@pdjr.eu>
  *
  * This firmware provides a switch control interface for a maximum of
@@ -22,27 +23,10 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <ActisenseReader.h>
-#include <N2kMsg.h>
 #include <N2kTypes.h>
-#include <N2kMaretron.h>
-#include <N2kGroupFunctionDefaultHandlers.h>
-#include <NMEA2000_CAN.h>
-#include <Seasmart.h>
-#include <NMEA2000.h>
-#include <NMEA2000_CompilerDefns.h>
-#include <N2kGroupFunction.h>
-#include <N2kDeviceList.h>
-#include <N2kCANMsg.h>
-#include <N2kStream.h>
-#include <N2kMessagesEnumToStr.h>
 #include <N2kMessages.h>
-#include <N2kDef.h>
-#include <string.h>
 #include <NMEA2000_teensy.h>
-#include <N2kSpudpole.h>
 #include <LedManager.h>
-#include <EEPROM.h>
 #include "arraymacros.h"
 #include "WindlassState.h"
 
@@ -204,6 +188,8 @@ tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
 /**********************************************************************
  * GLOBAL VARIABLES
  */
+
+tNMEA2000_teensy NMEA2000;
 
 // LED manager with long interval for status leds.
 LedManager *statusLedManager = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
