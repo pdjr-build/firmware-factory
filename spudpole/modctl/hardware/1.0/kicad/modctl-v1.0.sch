@@ -173,7 +173,7 @@ Connection ~ 3700 2750
 Wire Wire Line
 	3700 2750 3700 3050
 Wire Wire Line
-	9650 3050 9950 3050
+	9750 3050 9950 3050
 Wire Wire Line
 	9850 3250 9950 3250
 $Comp
@@ -222,21 +222,14 @@ Wire Wire Line
 Wire Wire Line
 	9850 1500 9700 1500
 Wire Wire Line
-	9950 2850 9650 2850
-Wire Wire Line
-	9650 2850 9650 1900
-Wire Wire Line
-	9250 1900 9650 1900
-Wire Wire Line
 	9850 1500 9850 2650
 Wire Wire Line
 	5200 1500 7850 1500
 Wire Wire Line
 	6500 6200 7350 6200
-NoConn ~ 9950 3450
 Wire Wire Line
-	9250 3050 9650 3050
-Connection ~ 9650 3050
+	9250 3050 9750 3050
+Connection ~ 9750 3050
 Wire Wire Line
 	9250 3250 9850 3250
 Connection ~ 9850 3250
@@ -254,7 +247,7 @@ Connection ~ 8450 2550
 Wire Wire Line
 	9050 2550 9450 2550
 Wire Wire Line
-	9450 2550 9450 6200
+	9450 2550 9450 2850
 Connection ~ 9050 2550
 Connection ~ 7850 1500
 Wire Wire Line
@@ -309,8 +302,8 @@ $Comp
 L PDJR:MCP2551-I-P U9
 U 1 1 5F39D3A6
 P 8750 3050
-F 0 "U9" H 9294 3096 50  0000 L CNN
-F 1 "MCP2551-I-P" H 9294 3005 50  0000 L CNN
+F 0 "U9" H 8700 3250 50  0000 L CNN
+F 1 "MCP2551-I-P" H 8750 3150 50  0000 C CNN
 F 2 "Package_DIP:DIP-8_W7.62mm" H 8750 2550 50  0001 C CIN
 F 3 "http://ww1.microchip.com/downloads/en/devicedoc/21667d.pdf" H 8750 3050 50  0001 C CNN
 	1    8750 3050
@@ -378,9 +371,9 @@ Wire Wire Line
 Wire Wire Line
 	10800 3650 10800 4000
 Wire Wire Line
-	9650 4000 9950 4000
+	9750 4000 9950 4000
 Wire Wire Line
-	9650 3050 9650 4000
+	9750 3050 9750 4000
 Wire Wire Line
 	10250 4000 10400 4000
 Wire Wire Line
@@ -388,8 +381,6 @@ Wire Wire Line
 Connection ~ 10800 4000
 Wire Wire Line
 	10800 4000 10800 6200
-Wire Wire Line
-	9450 6200 10800 6200
 Connection ~ 3700 2350
 Wire Wire Line
 	3450 2850 4000 2850
@@ -628,8 +619,6 @@ Wire Wire Line
 Connection ~ 8150 3650
 Wire Wire Line
 	8150 3650 8150 3750
-Wire Wire Line
-	8150 1900 8150 3550
 Connection ~ 8150 3550
 Wire Wire Line
 	8150 3550 8150 3650
@@ -841,4 +830,19 @@ Wire Wire Line
 	4100 2550 4100 2450
 Wire Wire Line
 	3450 2450 4100 2450
+NoConn ~ 9950 3450
+Wire Wire Line
+	8150 1900 8150 3550
+Wire Wire Line
+	9250 1900 9450 1900
+Wire Wire Line
+	9450 2550 9450 1900
+Connection ~ 9450 2550
+Connection ~ 9450 2850
+Wire Wire Line
+	9450 2850 9450 6200
+Wire Wire Line
+	9450 2850 9950 2850
+Wire Wire Line
+	9450 6200 10800 6200
 $EndSCHEMATC
