@@ -37,8 +37,8 @@ The top cover includes the NMEA bus connector (1) and three status
 LEDs (2). The cover is penetrated by two cable glands (3) which allow
 passage of switch and indicator connection cables.
 
-The top cover is released by pinching at points (A) and lifting away
-from the base.
+The top cover is released by pinching at points (A) and (B) and lifting
+away from the base.
 Removal of the cover reveals the module printed circuit board which
 includes connectors for switches (4) and indicators (5).
 A DIL switch (6) allows entry of windlass instance addresses and two
