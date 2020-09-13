@@ -166,6 +166,40 @@ windlass.
 You can repeat this procedure at any time to update a configuration or
 programme a second windlass.
 
+### Configuration issues
+
+Configuration problems are indicated by the status LEDs on the module top
+cover.
+After programming an instance number to a control channel, the corresponding
+channel status LED should turn off.
+
+### Status LED flashes twice and repeats.
+The module channel has not been programmed - i.e. a windlass instance number
+has not saved to module memory.
+
+1. Re-programme the instance number.
+   Make sure that you press and hold the relevant programme switch for one second.
+   
+### Status LED flashes once and repeats for more than ten seconds.
+No messages have been received from the windlass identified by the programmed
+instance number.
+
+1. Make sure the remote windlass interface module is powered.
+2. If you have more than one NMEA bus, make sure that both the windlass and
+   the control module are connected to the same bus or that the busses are
+   bridged.
+3. Check/replace the drop cables used at both the windlass and the control
+   module.
+4. Check the instance number of the windlass and programme it into the module
+   again.
+5. Use an NMEA monitor programme to confirm that the remote windlass is
+   transmitting PGN 128777 Windlass Operating Status messages.
+
+
+
+
+
+
 ## NMEA 2000 messages
 
 In addition to the usual N2K network management messages the module
