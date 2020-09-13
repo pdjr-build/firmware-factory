@@ -246,8 +246,6 @@ Wire Wire Line
 Connection ~ 8450 2550
 Wire Wire Line
 	9050 2550 9450 2550
-Wire Wire Line
-	9450 2550 9450 2850
 Connection ~ 9050 2550
 Connection ~ 7850 1500
 Wire Wire Line
@@ -834,15 +832,13 @@ NoConn ~ 9950 3450
 Wire Wire Line
 	8150 1900 8150 3550
 Wire Wire Line
-	9250 1900 9450 1900
-Wire Wire Line
-	9450 2550 9450 1900
-Connection ~ 9450 2550
-Connection ~ 9450 2850
-Wire Wire Line
-	9450 2850 9450 6200
-Wire Wire Line
-	9450 2850 9950 2850
-Wire Wire Line
 	9450 6200 10800 6200
+Wire Wire Line
+	9700 1900 9700 2850
+Wire Wire Line
+	9700 2850 9950 2850
+Wire Wire Line
+	9450 2550 9450 6200
+Wire Wire Line
+	9250 1900 9700 1900
 $EndSCHEMATC

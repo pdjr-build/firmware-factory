@@ -25,7 +25,7 @@
 }        
 \begin{document}
 
-\lstinputlisting[style=customasm]{src/main.cpp}
+\lstinputlisting[style=customasm]{FILENAME}
 
 \end{document}
 

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+TEMPLATE="utils/print.tex.template"
+TEXFILE="print.tex"
+PDFFILE="print.pdf"
+
+while [ "${1}" != "" ] ; do
+	if [ -f "${1}" ] ; then
+		echo "Processing ${1}"
+		sed "s!FILENAME!${1}!g" "${TEMPLATE}" > "${TEXFILE}"
+		if [ -f "${TEXFILE}" ] ; then
+			pdflatex "${TEXFILE}"
+			if [ -f "${PDFFILE}" ] ; then
+				lpr "${PDFFILE}"
+			fi
+		fi
+	fi
+	shift
+done
+
+rm print.*
+		

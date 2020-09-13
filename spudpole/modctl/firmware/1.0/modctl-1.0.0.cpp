@@ -23,9 +23,10 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <NMEA2000_CAN.h>
 #include <N2kTypes.h>
 #include <N2kMessages.h>
-#include <NMEA2000_teensy.h>
+//#include <NMEA2000_teensy.h>
 #include <LedManager.h>
 #include "arraymacros.h"
 #include "WindlassState.h"
@@ -83,7 +84,7 @@
  * automatically by the build system.
  */
 
-#define DEVICE_CLASS 25
+#define DEVICE_CLASS 30
 #define DEVICE_FUNCTION 130
 #define DEVICE_INDUSTRY_GROUP 4
 #define DEVICE_MANUFACTURER_CODE 2046
@@ -96,14 +97,14 @@
  * description to be shoe-horned into.
  */
 
-#define PRODUCT_CERTIFICATION_LEVEL 1
+#define PRODUCT_SERIAL_CODE "000849"
 #define PRODUCT_CODE 2
-#define PRODUCT_FIRMWARE_VERSION "1.0"
+#define PRODUCT_TYPE "MODCTL Windlass Control Interface"
+#define PRODUCT_FIRMWARE_VERSION "1.0 (September 2020)"
+#define PRODUCT_VERSION "1.0 (August 2020)"
+#define PRODUCT_CERTIFICATION_LEVEL 1
 #define PRODUCT_LEN 3
 #define PRODUCT_N2K_VERSION 2101
-#define PRODUCT_SERIAL_CODE "MODCTL-1.0"
-#define PRODUCT_TYPE "MODCTL"
-#define PRODUCT_VERSION "1.0"
 
 /**********************************************************************
  * Include the build.h header file which would normally be generated
@@ -111,7 +112,7 @@
  * some or all of the above #definitions.
  */
 
-#include "build.h"
+//#include "build.h"
 
 /**********************************************************************
  * Miscellaneous
@@ -173,7 +174,7 @@ void transmitWindlassControl(WindlassState *windlass, unsigned char up, unsigned
  * N2K PGNs of messages transmitted by this program.
  */
 
-const unsigned long TransmitMessages[] PROGMEM={ 126208UL, 0UL };
+const unsigned long TransmitMessages[] PROGMEM={ 126208L, 0 };
 
 /**********************************************************************
  * Some definitions for incoming message handling. PGNs which are
@@ -189,7 +190,7 @@ tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
  * GLOBAL VARIABLES
  */
 
-tNMEA2000_teensy NMEA2000;
+//tNMEA2000_teensy NMEA2000;
 
 // LED manager with long interval for status leds.
 LedManager *statusLedManager = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
@@ -240,14 +241,18 @@ void setup() {
   Windlass1->setLedManagers(statusLedManager, stateLedManager);
 
   statusLedManager->operate(GPIO_BOARD_LED, 0, 3);
-  
-  NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
-  NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
 
-  NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
+  NMEA2000.SetProductInformation("000849", 2, "MODCTL Windlass Control Interface", "1.0 (Sep 2020)", "1.0 (Oct 2020)");
+  NMEA2000.SetDeviceInformation(849, 130, 30, 2040);
+  
+//  NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION);
+//  NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE);
+
+  NMEA2000.SetMode(tNMEA2000::N2km_NodeOnly, 22); // Configure for sending and receiving.
+  //NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
-  NMEA2000.SetMsgHandler(messageHandler);
+  //NMEA2000.SetMsgHandler(messageHandler);
   NMEA2000.Open();  
 }
 
@@ -289,7 +294,7 @@ void loop() {
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
   debounceSwitches(DEBOUNCED_SWITCHES);
   if (!JUST_STARTED) processSwitches(DEBOUNCED_SWITCHES, Windlass0, Windlass1);
-  //NMEA2000.ParseMessages();
+  NMEA2000.ParseMessages();
   statusLedManager->loop();
   stateLedManager->loop();
 }
