@@ -48,7 +48,7 @@ programme switches (7) allow this number to be saved to module memory.
 The module uses an M12 circular female 5-pin industrial connector for
 NMEA connection.
 Any standard compliant N2K drop cable will allow the module to be connected
-to a host an NMEA bus through the usual T-connector.
+to a host NMEA bus through a T-connector.
 
 ### (2) Status LEDs 
 The three status LEDs labeled PWR/TX, W0 and W1 are modulated to provide
