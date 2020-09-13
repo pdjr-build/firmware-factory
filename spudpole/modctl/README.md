@@ -37,23 +37,22 @@ The top cover includes the NMEA bus connector (1) and three status
 LEDs (2). The cover is penetrated by two cable glands (3) which allow
 passage of switch and indicator connection cables.
 
-The top cover is released by pinching at points (A) and (B) and lifting
-away from the base.
-Removal of the cover reveals the module printed circuit board which
-includes connectors for switches (4) and indicators (5).
-A DIL switch (6) allows entry of windlass instance addresses and two
-programme switches (7) allow an address entered on the DIL switch to
-be saved to module memory.
+The top cover is released by pinching at points (A) and (B) after which
+it can be lifted away from the the base to reveal the printed circuit
+board (PCB).
+The PCB has connectors for switches (4) and indicators (5).
+A DIL switch (6) allows entry of a windlass instance number and two
+programme switches (7) allow this number to be saved to module memory.
 
 ### (1) NMEA bus connector
-The module uses an industry standard standard M12 circular industrial
-connector for NMEA connection. Any standard N2K drop cable will allow
-the module to connect to the host an NMEA bus through the usual
-T-connector.
+The module uses an M12 circular female 5-pin industrial connector for
+NMEA connection.
+Any standard compliant N2K drop cable will allow the module to be connected
+to a host an NMEA bus through the usual T-connector.
 
 ### (2) Status LEDs 
 The three status LEDs labeled PWR/TX, W0 and W1 are modulated to provide
-diagnostic feedback especially relevant to the installer.
+diagnostic feedback that is especially relevant to the installer.
 
 | LED    | Illumination state                | Meaning |
 |:------:|:----------------------------------|:--------|
@@ -109,6 +108,30 @@ EEPROM memory, associating the specified remote windlass with the selected
 module control channel (or disabling the control channel if the INSTANCE
 address is set to 127).
 
+## Installing the module
+
+1. Position the module close to the switches and indicators which you intend
+   to use for operation and feedback, ensuring that you are able to remove
+   the top cover for access to the PCB switches and that you have space to
+   route the various connecting cables.
+   Fix the module to its supporting surface with appropriate fasteners.
+
+2. Ensure that there is a T-connector or multi-drop connector available on
+   the NMEA bus you have chosen to host the module and connect an NMEA drop
+   cable to the module and route it to the bus connector.
+   If your host NMEA bus is poered, do not connect the drop cable to the bus
+   at this stage: the module must remain unpowered until installation is
+   complete.
+   
+3. Carefully remove the module cover.
+   Inside the module, the NMEA connector is wired to the PCB with a 150mm
+   long cable which should allow you to conveniantly position to one side
+   so that you can access the module connector blocks.
+   Do not place excessive strain on the internal NMEA connector cable.
+   
+4. Wire the module according to the following schematic.
+
+   
 ## Configuring the module
 
 To operate correctly the module must be configured with the NMEA instance
