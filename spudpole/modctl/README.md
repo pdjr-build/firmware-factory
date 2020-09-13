@@ -1,6 +1,6 @@
-# MODCTL - NMEA 2000 windlass control interface module.
+# WCTL01 - NMEA 2000 windlass control interface module.
 
-__MODCTL__ is an NMEA 2000 module which allows a physical control panel
+__WCTL01__ is an NMEA 2000 module which allows a physical control panel
 made up of switches and indicators to operate one or two NMEA 2000
 enabled windlasses.
 The module uses the N2K [Windlass Network Messages](
@@ -8,7 +8,7 @@ https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,
 protocol to transmit commands to and receive status information from
 associated windlasses.
 
-__MODCTL__ connects to the NMEA bus by a standard M12 5-pin circular
+__WCTL01__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module will accept supply voltages in the range 9VDC to 36VDC and
 has an NMEA LEN of 1.
@@ -17,7 +17,7 @@ Switch input signals in the range 12VDC to 24VDC nominal are used to
 command UP and DOWN windlass motion and zero-volt UP and DOWN output
 relays support the connection of panel indicators.
 
-__MODCTL__ is configured by a PCB mounted DIP switch which allows entry
+__WCTL01__ is configured by a PCB mounted DIP switch which allows entry
 of NMEA instance addresses which define the windlass or windlasses that
 are to be controlled.
 Status and diagnostic LEDs confirm NMEA connection and operating state
