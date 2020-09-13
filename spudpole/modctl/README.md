@@ -28,7 +28,7 @@ bus controlling the same or different windlasses as their peers.
 
 ## About the module
 
-![Fig 1: module schematic](module.png)
+![Fig 1: module schematic](overview.png)
 
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
@@ -37,12 +37,13 @@ The top cover includes the NMEA bus connector (1) and three status
 LEDs (2). The cover is penetrated by two cable glands (3) which allow
 passage of switch and indicator connection cables.
 
-The top cover is released by pinching at points (A) and (B) after which
-it can be lifted away from the the base to reveal the printed circuit
-board (PCB).
-The PCB has connectors for switches (4) and indicators (5).
-A DIL switch (6) allows entry of a windlass instance number and two
-programme switches (7) allow this number to be saved to module memory.
+The top cover is released by pinching at (A) after which it can be
+lifted away from the the base to reveal the base to expose the printed
+circuit board (PCB).
+The PCB has connectors for switches (4) and indicators (5) and four
+jumpers (6) which allow configuration of the indicator ground method.
+A DIL switch (7) allows entry of a windlass instance number and two
+programme switches (8) allow this number to be saved to module memory.
 
 ### (1) NMEA bus connector
 The module uses an M12 circular female 5-pin industrial connector for
