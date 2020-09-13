@@ -1,6 +1,6 @@
-# WCTL01 - NMEA 2000 windlass control interface module.
+# WCTL - NMEA 2000 windlass control interface module.
 
-__WCTL01__ is an NMEA 2000 module which allows a physical control panel
+__WCTL__ is an NMEA 2000 module which allows a physical control panel
 made up of switches and indicators to operate one or two NMEA 2000
 enabled windlasses.
 The module uses the N2K [Windlass Network Messages](
@@ -8,7 +8,7 @@ https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,
 protocol to transmit commands to and receive status information from
 associated windlasses.
 
-__WCTL01__ connects to the NMEA bus by a standard M12 5-pin circular
+__WCTL__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module will accept supply voltages in the range 9VDC to 36VDC and
 has an NMEA LEN of 1.
@@ -17,7 +17,7 @@ Switch input signals in the range 12VDC to 24VDC nominal are used to
 command UP and DOWN windlass motion and zero-volt UP and DOWN output
 relays support the connection of panel indicators.
 
-__WCTL01__ is configured by a PCB mounted DIP switch which allows entry
+__WCTL__ is configured by a PCB mounted DIP switch which allows entry
 of NMEA instance addresses which define the windlass or windlasses that
 are to be controlled.
 Status and diagnostic LEDs confirm NMEA connection and operating state
@@ -41,7 +41,7 @@ The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to reveal the base to expose the printed
 circuit board (PCB).
 The PCB has connectors for switches (4) and indicators (5) and four
-jumpers (6) which allow configuration of the indicator ground method.
+jumpers (6) which allow configuration of the indicator operating method.
 A DIL switch (7) allows entry of a windlass instance number and two
 programme switches (8) allow this number to be saved to module memory.
 
@@ -91,7 +91,17 @@ configured for the two module control channels.
 | *n*DN     | Steady                            | The tackle attached to windlass *n* is deployed.|
 |           | Isophase                          | Windlass *n* is deploying its associated tackle.|
 
-### (6) Instance DIL switch
+### (6) Indicator jumpers
+Four removable jumpers allow the use of separate or common connections for
+one side of each of the zero volt indicator connections.
+With the jumpers removed, each output channel is independent; placing a
+jumper for an output channel commons the even numbered terminal for that
+channel with PWR channel terminal 2.
+In this way, a single power or ground connection to PWR pin 2 can be shared
+by one or more other output channels, simplifying wiring to the module
+indicator outputs.
+
+### (7) Instance DIL switch
 The INSTANCE DIL switch allows the entry of instance numbers in the range
 0 through 127 using a binary representation. The value 127 has special
 significance to the module and if programmed will disable the associated
@@ -103,7 +113,7 @@ value and the sliders are active when in the right-hand position.
 For example, to enter the instance number 10, the swithces should be set
 LRLRLLL (top to bottom).
 
-### (7) Programme switches
+### (8) Programme switches
 The PRGW0 and PRGW1 switches save the address set up on (6) to the module's
 EEPROM memory, associating the specified remote windlass with the selected
 module control channel (or disabling the control channel if the INSTANCE
