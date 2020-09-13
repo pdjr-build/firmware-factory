@@ -85,10 +85,10 @@ configured for the two module control channels.
 | All       | Three rapid flashes               | The module has just been connected to power and is initialising.|
 | PWR       | Steady                            | The module has power.|
 |           | Occulting                         | The module is transmitting NMEA control messages.|
-| 0UP       | Steady                            | The tackle attached to the windlass (anchor, spudpole, etc.) is fully retrieved and docked.|
-|           | Isophase                          | The windlass is retrieving its associated tackle.|
-| 0DN       | Steady                            | The tackle attached to the windlass (anchor, spudpole, etc.) is deployed.|
-|           | Isophase                          | The windlass is deploying its associated tackle.|
+| *n*UP     | Steady                            | The tackle (anchor, spudpole, etc.) attached to windlass *n*  is fully retrieved and docked.|
+|           | Isophase                          | Windlass *n* is retrieving its associated tackle.|
+| *n*DN     | Steady                            | The tackle attached to windlass *n* is deployed.|
+|           | Isophase                          | Windlass *n* is deploying its associated tackle.|
 
 ### (6) Instance DIL switch
 The INSTANCE DIL switch allows the entry of instance numbers in the range
