@@ -4,9 +4,9 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "MODINT - spudpole interface module"
-Date "2020-07-24"
-Rev "V0.1"
+Title "WCTRL - windlass control interface module"
+Date "2020-09-14"
+Rev "V1.0"
 Comp "PDJR <preeve@pdjr.eu>"
 Comment1 ""
 Comment2 ""
@@ -291,7 +291,7 @@ U 1 1 5F399F8A
 P 10550 3050
 F 0 "J3" V 10489 2820 50  0000 R CNN
 F 1 "M12-5PIN" V 10580 2820 50  0000 R CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-4-2.54_1x04_P2.54mm_Horizontal" H 10550 3050 50  0001 C CNN
+F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-5-2.54_1x05_P2.54mm_Horizontal" H 10550 3050 50  0001 C CNN
 F 3 "https://www.omron.com/ecb/products/pdf/en-g6e.pdf" H 10550 3050 50  0001 C CNN
 	1    10550 3050
 	0    -1   1    0   
@@ -776,7 +776,7 @@ NoConn ~ 9950 3450
 Wire Wire Line
 	8150 1900 8150 3550
 Wire Wire Line
-	9450 6200 10800 6200
+	9450 6200 9600 6200
 Wire Wire Line
 	9700 1900 9700 2850
 Wire Wire Line
@@ -826,7 +826,7 @@ L Jumper:Jumper_2_Open JP4
 U 1 1 5F704253
 P 4150 5650
 F 0 "JP4" V 4150 5650 50  0000 C CNN
-F 1 "Jumper_2_Open" V 4195 5748 50  0001 L CNN
+F 1 "2-10" V 4195 5748 50  0001 L CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 4150 5650 50  0001 C CNN
 F 3 "~" H 4150 5650 50  0001 C CNN
 	1    4150 5650
@@ -839,7 +839,7 @@ L Jumper:Jumper_2_Open JP1
 U 1 1 5F72153A
 P 2800 5650
 F 0 "JP1" V 2800 5650 50  0000 C CNN
-F 1 "Jumper_2_Open" V 2845 5748 50  0001 L CNN
+F 1 "2-4" V 2845 5748 50  0001 L CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 2800 5650 50  0001 C CNN
 F 3 "~" H 2800 5650 50  0001 C CNN
 	1    2800 5650
@@ -857,7 +857,7 @@ L Jumper:Jumper_2_Open JP2
 U 1 1 5F72ED53
 P 3250 5650
 F 0 "JP2" V 3250 5650 50  0000 C CNN
-F 1 "Jumper_2_Open" V 3295 5748 50  0001 L CNN
+F 1 "2-6" V 3295 5748 50  0001 L CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 3250 5650 50  0001 C CNN
 F 3 "~" H 3250 5650 50  0001 C CNN
 	1    3250 5650
@@ -873,7 +873,7 @@ L Jumper:Jumper_2_Open JP3
 U 1 1 5F73C11E
 P 3700 5650
 F 0 "JP3" V 3700 5650 50  0000 C CNN
-F 1 "Jumper_2_Open" V 3745 5748 50  0001 L CNN
+F 1 "2-8" V 3745 5748 50  0001 L CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 3700 5650 50  0001 C CNN
 F 3 "~" H 3700 5650 50  0001 C CNN
 	1    3700 5650
@@ -915,4 +915,25 @@ Wire Wire Line
 Wire Wire Line
 	4050 5450 4150 5450
 Connection ~ 4150 5450
+NoConn ~ 5300 2450
+$Comp
+L Jumper:Jumper_2_Open JP5
+U 1 1 5F621E2C
+P 9600 3750
+F 0 "JP5" V 9600 3750 50  0000 C CNN
+F 1 "SCR" V 9645 3848 50  0001 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 9600 3750 50  0001 C CNN
+F 3 "~" H 9600 3750 50  0001 C CNN
+	1    9600 3750
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9950 3450 9600 3450
+Wire Wire Line
+	9600 3450 9600 3550
+Wire Wire Line
+	9600 3950 9600 6200
+Connection ~ 9600 6200
+Wire Wire Line
+	9600 6200 10800 6200
 $EndSCHEMATC
