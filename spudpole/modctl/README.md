@@ -140,8 +140,21 @@ address is set to 127).
    so that you can access the module connector blocks.
    Do not place excessive strain on the internal NMEA connector cable.
    
-4. Wire the module according to the following schematic.
-
+4. Wire the switches and indicators that constitute your chosen control
+   interface.
+   The minimum functional requirement for any channel is that U0 and D0
+   are connected to an operating switch of some form.
+   
+   Fig 2 gives an illustrative schematic for a simple wiring arrangement
+   that incorporates a SPDT switch and three indicators in support of
+   a single windlass channel.
+   Note the use of jumpers on the indicator outputs to allow the use of
+   the PWR GND connection for outputs 0UP and 0DN.
+  
+5. The power supply to the module should be fused at a level that supports
+   your chosen indicators (the switch input current requirement is
+   negligible at around 40mA).
+   .
 ![Fig 2: Wiring example](wiring.png)
    
 ## Configuring the module
