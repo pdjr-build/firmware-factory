@@ -121,6 +121,10 @@ EEPROM memory, associating the specified remote windlass with the selected
 module control channel (or disabling the control channel if the INSTANCE
 address is set to 127).
 
+### (9) SCR jumper
+With the jumper in place the NMEA cable shield is connected to the module
+ground plane.
+
 ## Installing the module
 
 1. Position the module close to the switches and indicators which you intend
