@@ -38,12 +38,14 @@ LEDs (2). The cover is penetrated by two cable glands (3) which allow
 passage of switch and indicator connection cables.
 
 The top cover is released by pinching at (A) after which it can be
-lifted away from the the base to reveal the base to expose the printed
-circuit board (PCB).
+lifted away from the the base to expose the printed circuit board (PCB).
 The PCB has connectors for switches (4) and indicators (5) and four
-jumpers (6) which allow configuration of the indicator operating method.
+jumpers (6) which allow one side of the control channel relays to be
+independently commoned with one side of the PWR indicator relay.
 A DIL switch (7) allows entry of a windlass instance number and two
 programme switches (8) allow this number to be saved to module memory.
+Finally, a jumper (9) determines whether or not to connext the NMEA
+cable shield to the module ground.
 
 ### (1) NMEA bus connector
 The module uses an M12 circular female 5-pin industrial connector for
@@ -118,6 +120,10 @@ The PRGW0 and PRGW1 switches save the address set up on (6) to the module's
 EEPROM memory, associating the specified remote windlass with the selected
 module control channel (or disabling the control channel if the INSTANCE
 address is set to 127).
+
+### (9) SCR jumper
+With the jumper in place the NMEA cable shield is connected to the module
+ground plane.
 
 ## Installing the module
 
