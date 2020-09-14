@@ -142,7 +142,7 @@ address is set to 127).
    
 4. Wire the module according to the following schematic.
 
-![Fig 2: Wiring example](wiring.png)
+![Fig 2: Wiring example](wiring2.png)
    
 ## Configuring the module
 
