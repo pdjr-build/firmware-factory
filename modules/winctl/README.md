@@ -72,32 +72,50 @@ Two 6mm cable glands allow passage of switch and indicator connection
 cables.
 
 ### (4) Switch connector
-The switch connector is a five-pole connector with a common GND 0VDC
-reference and inputs 0U, 0D, 1U and 1D for windlass switch inputs.
+This is a five-pole screw connector with a common GND 0VDC reference and
+inputs 0U, 0D, 1U and 1D for windlass switch inputs.
 
-| Terminal | Function                     | ON                           |
-|:--------:|:-----------------------------|------------------------------|
-| 1 (0U)   | Retrieve cable on Windlass 0 | 12 - 24VDC nominal, max 20mA |
-| 2 (0D)   | Deploy cable on Windlass 0   | 12 - 24VDC nominal, max 20mA |
-| 3 (1U)   | Windlass 1 UP    | 12 - 24VDC nominal, max 20mA |
-| 4 (1D)   | Windlass 1 DOWN  | 12 - 24VDC nominal, max 20mA |
-| 5 (GND)  | Ground reference | 0VDC                         |
+| Terminal | Function                     | Activate with                           |
+|:--------:|:-----------------------------|:------------------------------|
+| 1 (0U)   | Retrieve cable on Windlass 0 | 12 - 24VDC nominal (max 20mA) |
+| 2 (0D)   | Deploy cable on Windlass 0   | 12 - 24VDC nominal (max 20mA) |
+| 3 (1U)   | Retrieve cable on Windlass 1 | 12 - 24VDC nominal (max 20mA) |
+| 4 (1D)   | Deploy cable on Windlass 1   | 12 - 24VDC nominal (max 20mA) |
+| 5 (GND)  | Ground reference             | 0VDC                          |
+
+All inputs are opto-isolated and reverse polarity protected.
 
 ### (5) Indicator connector
-The indicator connector block is a zero-volt connection for PWR, 0UP, 0DN,
-1UP and 1DN indicators. The relays which support the connections are
-modulated dependent upon status data received from the remote windlasses
-configured for the two module control channels.
+This is a ten-pole screw connector supporting five zero-volt NO relay outputs
+intended for operating panel status indicators.
 
-| Indicator | Illumination state                | Meaning |
-|:---------:|:----------------------------------|:--------|
-| All       | Three rapid flashes               | The module has just been connected to power and is initialising.|
-| PWR       | Steady                            | The module has power.|
-|           | Occulting                         | The module is transmitting NMEA control messages.|
-| *n*UP     | Steady                            | The tackle (anchor, spudpole, etc.) attached to windlass *n*  is fully retrieved and docked.|
-|           | Isophase                          | Windlass *n* is retrieving its associated tackle.|
-| *n*DN     | Steady                            | The tackle attached to windlass *n* is deployed.|
-|           | Isophase                          | Windlass *n* is deploying its associated tackle.|
+| Terminal   | Function                         | Rating        |
+|:----------:|:---------------------------------|:--------------|
+| 1&2 (PWR)  | Module power/transmission status | 50VDC, 1A max | 
+| 3&4 (W0U)  | Windlass 0 retrieval status      | 50VDC, 1A max |                                |
+| 5&6 (W0D)  | Windlass 0 deployment status     | 50VDC, 1A max |
+| 7&8 (W1U)  | Windlass 1 retrieval status      | 50VDC, 1A max |
+| 9&10 (W1D) | Windlass 1 deployment status     | 50VDC, 1A max |
+
+Terminal 2 has a special status because it can be connected to other
+even-numbered terminals by the use of jumpers.
+When the indicators connected to the relay outputs have a low current
+rating, this simplifies wiring by reducing the required number of
+supply/return wires that are required.
+
+The relays which support the connections are modulated dependent upon status
+data received from the remote windlasses that have been configured for the
+two module control channels.
+
+| Indicator | Relay modulation state | Meaning |
+|:---------:|:-----------------------|:--------|
+| All       | Three rapid ON-OFF     | The module has just been connected to power and is initialising.|
+| PWR       | ON                     | The module has power.|
+|           | Rapid OFF (occulting)  | The module is transmitting NMEA control messages.|
+| *n*UP     | ON                     | The tackle (anchor, spudpole, etc.) attached to windlass *n*  is fully retrieved and docked.|
+|           | Isophase ON-OFF        | Windlass *n* is retrieving its associated tackle.|
+| *n*DN     | ON                     | The tackle attached to windlass *n* is deployed.|
+|           | Isophase ON-OFF        | Windlass *n* is deploying its associated tackle.|
 
 ### (6) Indicator jumpers
 Four removable jumpers allow the use of separate or common connections for
