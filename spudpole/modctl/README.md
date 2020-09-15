@@ -73,9 +73,15 @@ cables.
 
 ### (4) Switch connector
 The switch connector is a five-pole connector with a common GND 0VDC
-reference and inputs 0U, 0D, 1U and 1D for windlass switch inputs. All
-inputs are active high and the module will accept voltages at 12VDC and
-24VDC nominal relative to GND.
+reference and inputs 0U, 0D, 1U and 1D for windlass switch inputs.
+
+| Terminal | Function                     | ON                           |
+|:--------:|:-----------------------------|------------------------------|
+| 1 (0U)   | Retrieve cable on Windlass 0 | 12 - 24VDC nominal, max 20mA |
+| 2 (0D)   | Deploy cable on Windlass 0   | 12 - 24VDC nominal, max 20mA |
+| 3 (1U)   | Windlass 1 UP    | 12 - 24VDC nominal, max 20mA |
+| 4 (1D)   | Windlass 1 DOWN  | 12 - 24VDC nominal, max 20mA |
+| 5 (GND)  | Ground reference | 0VDC                         |
 
 ### (5) Indicator connector
 The indicator connector block is a zero-volt connection for PWR, 0UP, 0DN,
