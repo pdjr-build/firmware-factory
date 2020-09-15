@@ -10,9 +10,16 @@
   )
 
   (page A4)
+  (title_block
+    (title "WINCTL - windlass control interface module")
+    (date 2020-09-15)
+    (rev 1.0)
+    (company PDJR)
+  )
+
   (layers
-    (0 F.Cu signal)
-    (31 B.Cu signal)
+    (0 F.Cu signal hide)
+    (31 B.Cu signal hide)
     (33 F.Adhes user hide)
     (35 F.Paste user hide)
     (37 F.SilkS user)
@@ -210,8 +217,15 @@
     (add_net "Net-(U4-Pad3)")
     (add_net "Net-(U5-Pad3)")
     (add_net "Net-(U6-Pad3)")
+    (add_net "Net-(U7-Pad15)")
+    (add_net "Net-(U7-Pad26)")
+    (add_net "Net-(U7-Pad27)")
     (add_net "Net-(U7-Pad5)")
     (add_net "Net-(U7-Pad6)")
+    (add_net "Net-(U8-Pad3)")
+    (add_net "Net-(U8-Pad5)")
+    (add_net "Net-(U8-Pad8)")
+    (add_net "Net-(U9-Pad5)")
   )
 
   (module Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical (layer F.Cu) (tedit 59FED5CC) (tstamp 5F5FA660)
@@ -2535,7 +2549,7 @@
   (gr_text PDJR.EU (at -17.78 86.995) (layer F.SilkS)
     (effects (font (size 2 1.5) (thickness 0.3)) (justify left))
   )
-  (gr_text "WCTL 1.0" (at 38.735 86.36) (layer F.SilkS)
+  (gr_text "WINCTL 1.0" (at 35.56 86.36) (layer F.SilkS)
     (effects (font (size 3 2) (thickness 0.3)) (justify left))
   )
   (gr_text "NMEA 2000 Windlass Control Interface Module" (at -17.78 27.305) (layer Eco1.User) (tstamp 5F4553B3)

@@ -1,6 +1,6 @@
 (export (version D)
   (design
-    (source /home/preeve/Projects/ankreo/spudpole/modctl/hardware/1.0/kicad/modctl-v1.0.sch)
+    (source /home/preeve/Projects/ankreo/modules/winctl/hardware/1.0/kicad/winctl-1.0.sch)
     (date "Tue 15 Sep 2020 12:01:38 BST")
     (tool "Eeschema 5.1.5-1.fc31")
     (sheet (number 1) (name /) (tstamps /)
@@ -9,7 +9,7 @@
         (company "PDJR <preeve@pdjr.eu>")
         (rev V1.0)
         (date 2020-09-14)
-        (source modctl-v1.0.sch)
+        (source winctl-1.0.sch)
         (comment (number 1) (value ""))
         (comment (number 2) (value ""))
         (comment (number 3) (value ""))
@@ -579,7 +579,7 @@
     (library (logical Jumper)
       (uri /usr/share/kicad/library/Jumper.lib))
     (library (logical PDJR)
-      (uri /home/preeve/Projects/ankreo/spudpole/modctl/hardware/1.0/kicad/libraries/pdjr.lib))
+      (uri /home/preeve/Projects/ankreo/modules/winctl/hardware/1.0/kicad/libraries/pdjr.lib))
     (library (logical Switch)
       (uri /usr/share/kicad/library/Switch.lib)))
   (nets

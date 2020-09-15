@@ -4,9 +4,9 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "WCTRL - windlass control interface module"
+Title "WINCTL - windlass control interface module"
 Date "2020-09-14"
-Rev "V1.0"
+Rev "1.0"
 Comp "PDJR <preeve@pdjr.eu>"
 Comment1 ""
 Comment2 ""
@@ -245,7 +245,7 @@ Wire Wire Line
 	8450 2550 7850 2550
 Connection ~ 8450 2550
 Wire Wire Line
-	9050 2550 9450 2550
+	9050 2550 9400 2550
 Connection ~ 9050 2550
 Connection ~ 7850 1500
 Wire Wire Line
@@ -259,7 +259,7 @@ Wire Wire Line
 	8800 3850 8800 6200
 Connection ~ 8800 6200
 Wire Wire Line
-	8800 6200 9450 6200
+	8800 6200 9400 6200
 Wire Wire Line
 	8050 3050 8250 3050
 NoConn ~ 8700 3450
@@ -307,7 +307,7 @@ F 3 "http://ww1.microchip.com/downloads/en/devicedoc/21667d.pdf" H 8750 3050 50 
 	1    8750 3050
 	1    0    0    -1  
 $EndComp
-Connection ~ 9450 6200
+Connection ~ 9400 6200
 Wire Wire Line
 	8050 3050 8050 3350
 Wire Wire Line
@@ -773,13 +773,13 @@ Wire Wire Line
 Wire Wire Line
 	8150 1900 8150 3550
 Wire Wire Line
-	9450 6200 9600 6200
+	9400 6200 9600 6200
 Wire Wire Line
 	9700 1900 9700 2850
 Wire Wire Line
 	9700 2850 9950 2850
 Wire Wire Line
-	9450 2550 9450 6200
+	9400 2550 9400 6200
 Wire Wire Line
 	9250 1900 9700 1900
 Wire Wire Line
