@@ -1,6 +1,6 @@
 (export (version D)
   (design
-    (source /home/preeve/Projects/ankreo/spudpole/modint/hardware/1.0/kicad/modint-v1.0.sch)
+    (source /home/preeve/Projects/ankreo/modules/winint/hardware/1.0/kicad/winint-1.0.sch)
     (date "Mon 14 Sep 2020 16:06:22 BST")
     (tool "Eeschema 5.1.5-1.fc31")
     (sheet (number 1) (name /) (tstamps /)
@@ -9,7 +9,7 @@
         (company "PDJR <preeve@pdjr.eu>")
         (rev V0.1)
         (date 2020-07-24)
-        (source modint-v1.0.sch)
+        (source winint-1.0.sch)
         (comment (number 1) (value ""))
         (comment (number 2) (value ""))
         (comment (number 3) (value ""))
@@ -649,7 +649,7 @@
     (library (logical Transistor_BJT)
       (uri /usr/share/kicad/library/Transistor_BJT.lib))
     (library (logical pdjr)
-      (uri /home/preeve/Projects/ankreo/spudpole/modint/hardware/1.0/kicad/libraries/pdjr.lib)))
+      (uri /home/preeve/Projects/ankreo/modules/winint/hardware/1.0/kicad/libraries/pdjr.lib)))
   (nets
     (net (code 1) (name "Net-(J4-Pad1)")
       (node (ref J4) (pin 1))

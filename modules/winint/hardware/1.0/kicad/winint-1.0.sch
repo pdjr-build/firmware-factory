@@ -4,8 +4,8 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "WINT - windlass interface module"
-Date "2020-09-14"
+Title "WININT - windlass interface module"
+Date "2020-09-16"
 Rev "1.0"
 Comp "PDJR <preeve@pdjr.eu>"
 Comment1 ""

@@ -15,7 +15,7 @@ LibDir=
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=modint-v1.0.net
+LastNetListRead=winint-1.0.net
 CopperLayerCount=2
 BoardThickness=1.6
 AllowMicroVias=0

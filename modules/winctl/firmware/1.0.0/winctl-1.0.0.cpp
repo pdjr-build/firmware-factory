@@ -1,5 +1,5 @@
 /**********************************************************************
- * modctl-1.0.0.cpp - MODCTL firmware version 1.0.0.
+ * winctl-1.0.0.cpp - WINCTL firmware version 1.0.0.
  * Copyright (c) 2020 Paul Reeve, <preeve@pdjr.eu>
  *
  * This firmware provides a switch control interface for a maximum of
