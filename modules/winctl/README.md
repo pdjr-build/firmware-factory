@@ -15,15 +15,14 @@ The module has an NMEA LEN of 1.
 Switch input signals in the range 12VDC to 24VDC nominal are used to
 command UP and DOWN windlass motion and zero-volt output relays support
 the connection of panel indicators.
-
-__WINCTL__ is configured by a PCB mounted DIP switch which allows entry
-of NMEA instance addresses which define the windlass or windlasses that
-are to be controlled.
 Status and diagnostic LEDs confirm NMEA connection and module operating
 status.
+The module is configured by a PCB mounted DIP switch which allows entry
+of NMEA instance addresses which define the windlass or windlasses that
+are to be controlled.
 
-Multiple __WINCTL__ modules can be installed on a single NMEA
-bus controlling the same or different windlasses as their peers.
+Multiple __WINCTL__ modules can be installed on a single NMEA bus
+controlling the same or different windlasses as their peers.
 
 ## About the module
 
@@ -97,10 +96,10 @@ intended for operating panel status indicators.
 | 9&10 (W1D) | Windlass 1 deployment status     | 50VDC, 1A max |
 
 Terminal 2 has a special status because it can be connected to other
-even-numbered terminals by the use of jumpers.
-When the indicators connected to the relay outputs have a low current
-rating, this simplifies wiring by reducing the required number of
-supply/return wires that are required.
+even-numbered terminals by the use of jumpers: when the indicators
+connected to the relay outputs have a low current rating, this can
+simplify wiring by reducing the required number of supply/return
+wires that are needed.
 
 The relays which support the connections are modulated dependent upon status
 data received from the remote windlasses that have been configured for the
@@ -117,11 +116,12 @@ two module control channels.
 |           | Isophase ON-OFF        | Windlass *n* is deploying its associated tackle.|
 
 ### (6) Indicator jumpers
-Four removable jumpers allow the use of separate or common connections for
-one side of each of the zero volt indicator connections.
+Four removable jumpers (labelled __2-4__, __2-6__, __2-8__ and __2-10__)
+allow the use of separate or common connections for one side of each of the
+zero volt indicator connections.
 With the jumpers removed, each output channel is independent; placing a
 jumper for an output channel commons the even numbered terminal for that
-channel with PWR channel terminal 2.
+channel with terminal 2.
 In this way, a single power or ground connection to PWR pin 2 can be shared
 by one or more other output channels, simplifying wiring to the module
 indicator outputs.
