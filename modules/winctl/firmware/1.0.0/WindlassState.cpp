@@ -4,46 +4,25 @@
  */
 
 #include <cstddef>
-#include "WindlassState.h"
+#include <Arduino.h>
+#include <WindlassState.h>
 
-WindlassState::WindlassState(unsigned char instance, int gpioStatusLed, int gpioUpRelay, int gpioDownRelay) {
-  this->instance = instance;
+WindlassState::WindlassState() {
+  this->instance = 0xFF;
   this->address = 0xFF;
-  this->statusLedManager = NULL;
-  this->stateLedManager = NULL;
-  this->gpioStatusLed = gpioStatusLed;
-  this->gpioUpLed = gpioUpLed;
-  this->gpioDownLed = gpioDownLed;
   this->state = UNKNOWN;
-}
 
-void WindlassState::setLedManagers(LedManager *statusLedManager, LedManager *stateLedManager) {
-  this->statusLedManager = statusLedManager;
-  this->stateLedManager = stateLedManager;
-  this->updateStatusLed();
-}
+  this->programmeSwitchGPIO = -1;
+  this->upSwitchGPIO = -1;
+  this->downSwitchGPIO = -1;
+  this->statusLedGPIO = -1;
+  this->upLedGPIO = -1;
+  this->downLedGPIO = -1;
+  this->instanceStorageAddress = instanceStorageAddress;
 
-void WindlassState::setInstance(unsigned char instance) {
-  this->instance = instance;
-  this->updateStatusLed();
-}
-
-void WindlassState::setAddress(unsigned char address) {
-  this->address = address;
-  this->updateStatusLed();
-}
-
-void WindlassState::setState(WindlassState::State state) {
-  this->state = state;
-  this->updateStateLed();
-}
-
-unsigned char WindlassState::getInstance() {
-  return(this->instance);
-}
-
-unsigned char WindlassState::getAddress() {
-  return(this->address);
+  this->pDebouncer = NULL;
+  this->pStatusLedManager = NULL;
+  this->pStateLedManager = NULL;
 }
 
 bool WindlassState::isDisabled() {
@@ -59,17 +38,17 @@ bool WindlassState::isReady() {
 }
 
 void WindlassState::updateStatusLed() {
-  if (this->statusLedManager != NULL) {
+  if (this->pStatusLedManager != NULL) {
     if (this->instance == 0xFF) { // Instance not set, so two flashes
-      this->statusLedManager->operate(this->gpioStatusLed, 0, -2);
+      this->pStatusLedManager->operate(this->statusLedGPIO, 0, -2);
     } else {
       if (this->instance == WINDLASSSTATE_DISABLED_INSTANCE_VALUE) { // Disbled, so turn off
-        this->statusLedManager->operate(this->gpioStatusLed, 0, 0);
+        this->pStatusLedManager->operate(this->statusLedGPIO, 0, 0);
       } else {
         if (this->address == 255) { // No bus address, so one flash
-          this->statusLedManager->operate(this->gpioStatusLed, 0, -1);
+          this->pStatusLedManager->operate(this->statusLedGPIO, 0, -1);
         } else { // Ready to go, so LED on all the time
-          this->statusLedManager->operate(this->gpioStatusLed, 1, 0);
+          this->pStatusLedManager->operate(this->statusLedGPIO, 1, 0);
         }
       }
     }
@@ -77,27 +56,27 @@ void WindlassState::updateStatusLed() {
 }
 
 void WindlassState::updateStateLed() {
-  if (this->stateLedManager != NULL) {
+  if (this->pStateLedManager != NULL) {
     switch (this->state) {
       case DOCKED:
-        this->stateLedManager->operate(this->gpioUpLed, 1);
-        this->stateLedManager->operate(this->gpioDownLed, 0);
+        this->pStateLedManager->operate(this->upLedGPIO, 1);
+        this->pStateLedManager->operate(this->downLedGPIO, 0);
         break;
       case DEPLOYING:
-        this->stateLedManager->operate(this->gpioUpLed, 0);
-        this->stateLedManager->operate(this->gpioDownLed, 0, -1);
+        this->pStateLedManager->operate(this->upLedGPIO, 0);
+        this->pStateLedManager->operate(this->downLedGPIO, 0, -1);
         break;
       case DEPLOYED:
-        this->stateLedManager->operate(this->gpioUpLed, 0);
-        this->stateLedManager->operate(this->gpioDownLed, 1);
+        this->pStateLedManager->operate(this->upLedGPIO, 0);
+        this->pStateLedManager->operate(this->downLedGPIO, 1);
         break;
       case RETRIEVING:
-        this->stateLedManager->operate(this->gpioUpLed, 0, -1);
-        this->stateLedManager->operate(this->gpioDownLed, 0);
+        this->pStateLedManager->operate(this->upLedGPIO, 0, -1);
+        this->pStateLedManager->operate(this->downLedGPIO, 0);
         break;
       default:
-        this->stateLedManager->operate(this->gpioUpLed, 0, -1);
-        this->stateLedManager->operate(this->gpioDownLed, 0, -1);
+        this->pStateLedManager->operate(this->upLedGPIO, 0, -1);
+        this->pStateLedManager->operate(this->downLedGPIO, 0, -1);
         break;
     }
   }
