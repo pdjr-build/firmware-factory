@@ -184,6 +184,7 @@ void messageHandler(const tN2kMsg&);
 void PGN128777(const tN2kMsg&);
 void processSwitches(WindlassState **windlasses);
 void transmitWindlassControl(WindlassState *windlass);
+void operateOutputs(WindlassState *windlass);
 
 /**********************************************************************
  * PGNs of messages transmitted by this program.
@@ -456,8 +457,34 @@ void PGN128777(const tN2kMsg &N2kMsg) {
               break;
           }
         }
+        operateOutputs(windlass);
       }
     }
+  }
+}
+
+void operateOutputs(WindlassState *windlass) {
+  switch (windlass->state) {
+    case WindlassState::DOCKED:
+      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 1);
+      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
+      break;
+    case WindlassState::DEPLOYING:
+      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
+      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0, -1);
+      break;
+    case WindlassState::RETRIEVING:
+      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0, -1);
+      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
+      break;
+    case WindlassState::DEPLOYED:
+      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
+      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 1);
+      break;
+    case WindlassState::UNKNOWN:
+      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
+      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
+      break;
   }
 }
 
