@@ -47,29 +47,51 @@
 #include <WindlassState.h>
 #include <arraymacros.h>
 
-#define DEBUG_SERIAL                    // Write debug output to the USB port
-//#define DEBUG_USE_FAKE_INSTANCES        // Force use of the following INSTANCE values
-#define DEBUG_FAKE_W0_INSTANCE 0x22
-#define DEBUG_FAKE_W1_INSTANCE 0x23
-
 /**********************************************************************
- * MCU EEPROM STORAGE ADDRESSES
+ * DEBUG AND TESTING
+ * 
+ * Defining DEBUG_SERIAL includes the function debugDump() and arranges
+ * for it to be called from loop() every DEBUG_SERIAL_INTERVAL ms.
+ * 
+ * Defining DEBUG_USE_DEBUG_ADDRESSES disables normal instance number
+ * recovery from EEPROM and remote windlass address recovery from the
+ * network and instead forces the use of the values defined here. 
  */
 
-#define INSTANCE_UNDEFINED 255
-#define INSTANCE_DISABLED 127
+#define DEBUG_SERIAL
+#define DEBUG_USE_DEBUG_ADDRESSES
+
+#define DEBUG_SERIAL_START_DELAY 4000
+#define DEBUG_SERIAL_INTERVAL 1000UL
+#define DEBUG_W0_INSTANCE_VALUE 0x22
+#define DEBUG_W0_ADDRESS_VALUE 0x22
+#define DEBUG_W1_INSTANCE_VALUE 127
+#define DEBUG_W1_ADDRESS_VALUE 255
+
+/**********************************************************************
+ * MCU EEPROM STORAGE DEFINITIONS
+ */
+
 #define W0_INSTANCE_EEPROM_ADDRESS 0
 #define W1_INSTANCE_EEPROM_ADDRESS 1
 
 /**********************************************************************
- * MCU DIGITAL IO PIN ALLOCATION
+ * MCU DIGITAL IO PIN DEFINITIONS
  * 
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_INSTANCE_PINS { 12,11,10,9,8,7,6 }
-#define GPIO_W0_PRG_SWITCH 23
 #define GPIO_W1_PRG_SWITCH 0
+#define GPIO_W1_LED 1
+#define GPIO_W0_LED 2
+#define GPIO_POWER_LED 5
+#define GPIO_INSTANCE_BIT6 6
+#define GPIO_INSTANCE_BIT5 7
+#define GPIO_INSTANCE_BIT4 8
+#define GPIO_INSTANCE_BIT3 9
+#define GPIO_INSTANCE_BIT2 10
+#define GPIO_INSTANCE_BIT1 11
+#define GPIO_INSTANCE_BIT0 12
 #define GPIO_BOARD_LED 13
 #define GPIO_W0_UP_SWITCH 14
 #define GPIO_W0_DN_SWITCH 15
@@ -80,9 +102,10 @@
 #define GPIO_W1_UP_RELAY 20
 #define GPIO_W1_DN_RELAY 21
 #define GPIO_POWER_RELAY 22
-#define GPIO_POWER_LED 5
-#define GPIO_W0_LED 2
-#define GPIO_W1_LED 1
+#define GPIO_W0_PRG_SWITCH 23
+#define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6 }
+#define GPIO_INPUT_PINS { GPIO_W0_PRG_SWITCH, GPIO_W1_PRG_SWITCH, GPIO_W0_UP_SWITCH, GPIO_W0_DN_SWITCH, GPIO_W1_UP_SWITCH, GPIO_W1_DN_SWITCH, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6 }
+#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_W0_LED, GPIO_W1_LED, GPIO_POWER_RELAY, GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY, GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -118,14 +141,14 @@
  * description to be shoe-horned into.
  */
 
-#define PRODUCT_SERIAL_CODE "200-849" // PRODUCT_CODE + DEVICE_UNIQUE_NUMBER
-#define PRODUCT_CODE 200
-#define PRODUCT_TYPE "WINCTL"
-#define PRODUCT_FIRMWARE_VERSION "1.0.0 (Sep 2020)"
-#define PRODUCT_VERSION "1.0 (Sep 2020)"
 #define PRODUCT_CERTIFICATION_LEVEL 1
+#define PRODUCT_CODE 002
+#define PRODUCT_FIRMWARE_VERSION "1.0.0 (Sep 2020)"
 #define PRODUCT_LEN 1
 #define PRODUCT_N2K_VERSION 2101
+#define PRODUCT_SERIAL_CODE "002-849" // PRODUCT_CODE + DEVICE_UNIQUE_NUMBER
+#define PRODUCT_TYPE "WINCTL"
+#define PRODUCT_VERSION "1.0 (Sep 2020)"
 
 /**********************************************************************
  * Include the build.h header file which would normally be generated
@@ -133,35 +156,33 @@
  * some or all of the above #definitions.
  */
 
-//#include "build.h"
+#include "build.h"
 
 /**********************************************************************
  * Miscellaneous
  */
 
-#define STARTUP_SETTLE_PERIOD 5000
-#define STARTUP_CHECK_CYCLE_COUNT 3
-#define STARTUP_CHECK_CYCLE_ON_PERIOD 250 // miliseconds
-#define STARTUP_CHECK_CYCLE_OFF_PERIOD 250 // miliseconds
-#define POWER_LED_TIMEOUT 200 // milliseconds
-#define SWITCH_DEBOUNCE_INTERVAL 5 // milliseconds
-#define SWITCH_PROCESS_INTERVAL 250 // milliseconds
-#define RELAY_UPDATE_INTERVAL 330 // milliseconds
-#define CONFIGURATION_CHECK_INTERVAL 5000
-#define WINDLASS_INSTANCE_DISABLE_ADDRESS 127
-#define STATUS_LED_MANAGER_HEARTBEAT 300
-#define STATUS_LED_MANAGER_INTERVAL 10
-#define STATE_LED_MANAGER_HEARTBEAT 300
-#define STATE_LED_MANAGER_INTERVAL 1
+#define INSTANCE_UNDEFINED 255            // Flag value
+#define INSTANCE_DISABLED 127             // Flag value
+#define STARTUP_SETTLE_PERIOD 5000        // Wait this many ms before processing switch inputs
+#define SWITCH_PROCESS_INTERVAL 250       // Process switch inputs evety n ms
+#define RELAY_UPDATE_INTERVAL 330         // Update outputs every n ms
+#define STATUS_LED_MANAGER_HEARTBEAT 300  // Settings for LEDs on module case
+#define STATUS_LED_MANAGER_INTERVAL 10    //
+#define STATE_LED_MANAGER_HEARTBEAT 300   // Settings for relay output (LEDs)
+#define STATE_LED_MANAGER_INTERVAL 1      //
 
 /**********************************************************************
- * Declarations for local functions.
+ * Declarations of local functions.
  */
 
+#ifdef DEBUG_SERIAL
+void debugDump();
+#endif
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
 void PGN128777(const tN2kMsg&);
-void processSwitches(WindlassState **windlasses, unsigned int count);
+void processSwitches(WindlassState **windlasses);
 void transmitWindlassControl(WindlassState *windlass);
 
 /**********************************************************************
@@ -174,7 +195,7 @@ void transmitWindlassControl(WindlassState *windlass);
 const unsigned long TransmitMessages[] PROGMEM={ 126208L, 0 };
 
 /**********************************************************************
- * PGNs of messages handles by this program.
+ * PGNs of messages handled by this program.
  * 
  * PGN 128777 Windlass Operating Status is accepted and passed to the
  * function PGN128777 which will use received data to update the status
@@ -185,106 +206,89 @@ typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tN
 tNMEA2000Handler NMEA2000Handlers[]={ {128777L, &PGN128777}, {0, 0} };
 
 /**********************************************************************
- * Create state definitions for two windlass control channels and
- * parcel them up in the WINDLASSES array so that the array index is
- * the channel selector.
- */
-
-WindlassState* WINDLASSES[2] = {
-  new WindlassState(), // This is channel 0
-  new WindlassState()  // And this is channel 1
-};
-
-/**********************************************************************
  * Create a switch debouncer DEBOUNCER and associate with it the GPIO
  * pins that are connected to switches.
  */
 
-int SWITCHES[] = { GPIO_W0_PRG_SWITCH, GPIO_W0_UP_SWITCH, GPIO_W0_DN_SWITCH, GPIO_W1_PRG_SWITCH, GPIO_W1_UP_SWITCH, GPIO_W1_DN_SWITCH };
-Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
+int SWITCHES[DEBOUNCER_SIZE] = { GPIO_W0_PRG_SWITCH, GPIO_W0_UP_SWITCH, GPIO_W0_DN_SWITCH, GPIO_W1_PRG_SWITCH, GPIO_W1_UP_SWITCH, GPIO_W1_DN_SWITCH, -1, -1 };
+Debouncer DEBOUNCER (SWITCHES);
 
 /**********************************************************************
  * Create an LED manager STATUS_LED_MANAGER which can be used to manage
  * the status LEDS mounted on the module PCB.
  */
 
-LedManager *STATUS_LED_MANAGER = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
 /**********************************************************************
  * And create another LED manager with operating characteristics that
  * suit the module's state output relays.
  */
 
-LedManager *STATE_LED_MANAGER = new LedManager(STATE_LED_MANAGER_HEARTBEAT, STATE_LED_MANAGER_INTERVAL);
+LedManager STATE_LED_MANAGER (STATE_LED_MANAGER_HEARTBEAT, STATE_LED_MANAGER_INTERVAL);
+
+/**********************************************************************
+ * Create state definitions for two windlass control channels and
+ * parcel them up in the WINDLASSES array so that the array index is
+ * the channel selector.
+ */
+
+WindlassState WINDLASS0;
+WindlassState WINDLASS1;
+WindlassState *WINDLASSES[2] = { &WINDLASS0, &WINDLASS1 };
 
 /**********************************************************************
  * Keep track of whether this is a new boot, because we may want to do
  * some fancy stuff before we start work.
  */
 
-bool JUST_STARTED = true;
+
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
  */
 
 void setup() {
-  #ifdef SERIAL_DEBUG
+  #ifdef DEBUG_SERIAL
   Serial.begin(9600);
+  delay(DEBUG_SERIAL_START_DELAY);
   #endif
 
-  #ifdef DEBUG_USE_FAKE_INSTANCES
-    WINDLASSES[0]->instance = DEBUG_FAKE_W0_INSTANCE;
-    WINDLASSES[1]->instance = DEBUG_FAKE_W1_INSTANCE;
-  #else
-    WINDLASSES[0]->instance = EEPROM.read(W0_INSTANCE_EEPROM_ADDRESS);
-    WINDLASSES[1]->instance = EEPROM.read(W1_INSTANCE_EEPROM_ADDRESS);
-  #endif
-
-  WINDLASSES[0]->programmeSwitchGPIO = GPIO_W0_PRG_SWITCH;
-  WINDLASSES[0]->upSwitchGPIO = GPIO_W0_UP_SWITCH;
-  WINDLASSES[0]->downSwitchGPIO = GPIO_W0_DN_SWITCH;
-  WINDLASSES[0]->statusLedGPIO = GPIO_W0_LED;
-  WINDLASSES[0]->upLedGPIO = GPIO_W0_UP_RELAY;
-  WINDLASSES[0]->downLedGPIO = GPIO_W0_DN_RELAY;
-  WINDLASSES[1]->programmeSwitchGPIO = GPIO_W1_PRG_SWITCH;
-  WINDLASSES[1]->upSwitchGPIO = GPIO_W1_UP_SWITCH;
-  WINDLASSES[1]->downSwitchGPIO = GPIO_W1_DN_SWITCH;
-  WINDLASSES[1]->statusLedGPIO = GPIO_W1_LED;
-  WINDLASSES[1]->upLedGPIO = GPIO_W1_UP_RELAY;
-  WINDLASSES[1]->downLedGPIO = GPIO_W1_DN_RELAY;
-
-  WINDLASSES[0]->pDebouncer = DEBOUNCER;
-  WINDLASSES[1]->pDebouncer = DEBOUNCER;
-
-  WINDLASSES[0]->pStatusLedManager = STATUS_LED_MANAGER;
-  WINDLASSES[1]->pStatusLedManager = STATUS_LED_MANAGER;
-
-  WINDLASSES[0]->pStateLedManager = STATE_LED_MANAGER;
-  WINDLASSES[1]->pStateLedManager = STATE_LED_MANAGER;
-
-  // Set pin modes...
-  int ipins[] = GPIO_INSTANCE_PINS;
+  int ipins[] = GPIO_INPUT_PINS;
+  int opins[] = GPIO_OUTPUT_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
-  pinMode(GPIO_BOARD_LED, OUTPUT);
-  pinMode(GPIO_POWER_LED, OUTPUT);
-  pinMode(GPIO_POWER_RELAY, OUTPUT);
+  for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) { pinMode(opins[i], OUTPUT); }
 
-  pinMode(GPIO_W0_DN_RELAY, OUTPUT);
-  pinMode(GPIO_W0_DN_SWITCH, INPUT_PULLUP);
-  pinMode(GPIO_W0_LED, OUTPUT);
-  pinMode(GPIO_W0_PRG_SWITCH, INPUT_PULLUP);
-  pinMode(GPIO_W0_UP_RELAY, OUTPUT);
-  pinMode(GPIO_W0_UP_SWITCH, INPUT_PULLUP);
+  WINDLASS0.instance = EEPROM.read(W0_INSTANCE_EEPROM_ADDRESS);
+  WINDLASS0.programmeSwitchGPIO = GPIO_W0_PRG_SWITCH;
+  WINDLASS0.upSwitchGPIO = GPIO_W0_UP_SWITCH;
+  WINDLASS0.downSwitchGPIO = GPIO_W0_DN_SWITCH;
+  WINDLASS0.statusLedGPIO = GPIO_W0_LED;
+  WINDLASS0.upLedGPIO = GPIO_W0_UP_RELAY;
+  WINDLASS0.downLedGPIO = GPIO_W0_DN_RELAY;
+  WINDLASS0.pDebouncer = &DEBOUNCER;
+  WINDLASS0.pStatusLedManager = &STATUS_LED_MANAGER;
+  WINDLASS0.pStateLedManager = &STATE_LED_MANAGER;
 
-  pinMode(GPIO_W1_DN_RELAY, OUTPUT);
-  pinMode(GPIO_W1_DN_SWITCH, INPUT_PULLUP);
-  pinMode(GPIO_W1_LED, OUTPUT);
-  pinMode(GPIO_W1_PRG_SWITCH, INPUT_PULLUP);
-  pinMode(GPIO_W1_UP_RELAY, OUTPUT);
-  pinMode(GPIO_W1_UP_SWITCH, INPUT_PULLUP);
+  WINDLASS1.instance = EEPROM.read(W1_INSTANCE_EEPROM_ADDRESS);
+  WINDLASS1.programmeSwitchGPIO = GPIO_W1_PRG_SWITCH;
+  WINDLASS1.upSwitchGPIO = GPIO_W1_UP_SWITCH;
+  WINDLASS1.downSwitchGPIO = GPIO_W1_DN_SWITCH;
+  WINDLASS1.statusLedGPIO = GPIO_W1_LED;
+  WINDLASS1.upLedGPIO = GPIO_W1_UP_RELAY;
+  WINDLASS1.downLedGPIO = GPIO_W1_DN_RELAY;
+  WINDLASS1.pDebouncer = &DEBOUNCER;
+  WINDLASS1.pStatusLedManager = &STATUS_LED_MANAGER;
+  WINDLASS1.pStateLedManager = &STATE_LED_MANAGER;
 
-  STATUS_LED_MANAGER->operate(GPIO_BOARD_LED, 0, 3);
+  #ifdef DEBUG_USE_DEBUG_ADDRESSES
+    WINDLASS0.instance = DEBUG_W0_INSTANCE_VALUE;
+    WINDLASS0.address = DEBUG_W0_ADDRESS_VALUE;
+    WINDLASS1.instance = DEBUG_W1_INSTANCE_VALUE;
+    WINDLASS1.address = DEBUG_W1_ADDRESS_VALUE;
+  #endif
+  
+  STATUS_LED_MANAGER.operate(GPIO_BOARD_LED, 0, 3);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE);
@@ -292,7 +296,7 @@ void setup() {
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
-  NMEA2000.Open();  
+  NMEA2000.Open();
 }
 
 /**********************************************************************
@@ -301,41 +305,27 @@ void setup() {
  * With the exception of NMEA2000.parseMessages() all of the functions
  * called from loop() implement interval timers which ensure that they
  * will mostly return immediately, only performing their substantive
- * tasks when their globally defined interval timers expire.
+ * tasks at the defined intervals.
  * 
- * debounceSwitches() reads the MCU switch input pins and debounces
- * them. The interval defined in SWITCH_DEBOUNCE_INTERVAL needs to
- * ensure a fairly high sampling rate for the debounce to be effective
- * and a value around 5ms is recommended.
- * 
- * processSwitches() takes the debounced switch inputs and if an input
- * is active generates an appropriate N2K message to signal the switch
- * control. The windlass control protocol requires that control
- * messages are issued every 250ms and SWITCH_PROCESS_INTERVAL is set
- * to this value by default.  Typically windlass equipment will stop
- * if it does not receive a control message at least every half-second
- * or thereabouts (the standard defines a maximum of 1.2s), so setting
- * the process interval much higher could lead to control stuttering.
- * 
- * NMEA2000.parseMessages() arranges for any incoming N2K messages to
- * be processed into putative output state changes.
- * 
- * updateRelayOutput() updates the output channels using data received
- * by NMEA.parseMessages(). The frequency of update is set by
- * RELAY_UPDATE_INTERVAL which defaults to 330ms.
- * 
- * operatePowerLED() sets the state of the power LED which is occulted
- * each time a PGN128777 Windlass Operating Status message is received
- * from an associated windlass.
- */
+ * The global constant JUST_STARTED is used to delay acting on switch
+ * inputs until a newly started system has stabilised and the GPIO
+ * inputs have been debounced.
+ */ 
 
 void loop() {
+  static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
-  DEBOUNCER->debounce();
-  if (!JUST_STARTED) processSwitches(WINDLASSES, ELEMENTCOUNT(WINDLASSES));
+
+  DEBOUNCER.debounce();
+  if (!JUST_STARTED) processSwitches(WINDLASSES);
+
   NMEA2000.ParseMessages();
-  STATUS_LED_MANAGER->loop();
-  STATE_LED_MANAGER->loop();
+  STATUS_LED_MANAGER.loop();
+  STATE_LED_MANAGER.loop();
+  
+  #ifdef DEBUG_SERIAL
+  debugDump();
+  #endif
 }
 
 /**********************************************************************
@@ -343,11 +333,11 @@ void loop() {
  * of their associated switch input channels.
  */
 
-void processSwitches(WindlassState **windlasses, unsigned int count) {
-  static unsigned long deadline = 0L;
+void processSwitches(WindlassState **windlasses) {
+  static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {
-    for (unsigned int i = 0; i < count; i++) {
+    for (unsigned int i = 0; i < ELEMENTCOUNT(windlasses); i++) {
       if (!windlasses[i]->pDebouncer->channelState(windlasses[i]->programmeSwitchGPIO)) {
         windlasses[i]->instance = getPoleInstance();
         EEPROM.update(windlasses[i]->instanceStorageAddress, windlasses[i]->instance);
@@ -369,12 +359,17 @@ void processSwitches(WindlassState **windlasses, unsigned int count) {
  * transmitWindlassControl() sends a Group Function control message for
  * PGN128776 Windlass Control Status to the device identified by
  * <windlass>, setting the Windlass Direction Control property to
- * reflect the state of <up> and <down>.
+ * reflect the state of the <up> and <down> GPIO inputs.
  * 
  * transmitWindlassControl() will not operate if a status transmission
  * has not previously been received from the network node defined by
  * <windlass> since the CAN address of the target windlass will be
  * unknown.
+ * 
+ * The value of the global constant SWITCH_PROCESS_INTERVAL is
+ * important because it defines the frequency at which windlass control
+ * messages will be issued: this is defined by the NMEA standard as
+ * 250ms.
  */
 
 void transmitWindlassControl(WindlassState *windlass) {
@@ -465,3 +460,18 @@ void PGN128777(const tN2kMsg &N2kMsg) {
     }
   }
 }
+
+#ifdef DEBUG_SERIAL
+void debugDump() {
+  static unsigned long deadline = 0UL;
+  unsigned long now = millis();
+  if (now > deadline) {
+    Serial.print("DEBUG DUMP @ "); Serial.println(now);
+    Serial.print("W0 instance:  "); Serial.println(WINDLASS0.instance, HEX);
+    Serial.print("W0 address:   "); Serial.println(WINDLASS0.address, HEX);
+    Serial.print("W0 UP switch: "); Serial.println(WINDLASS0.pDebouncer->channelState(WINDLASS0.upSwitchGPIO));
+    Serial.print("W0 DN switch: "); Serial.println(WINDLASS0.pDebouncer->channelState(WINDLASS0.downSwitchGPIO));
+    deadline = (now + DEBUG_SERIAL_INTERVAL);
+  }
+}
+#endif

@@ -6,24 +6,20 @@
 #include <Debouncer.h>
 #include <Arduino.h>
 
-Debouncer::Debouncer(int* gpios, unsigned long interval) {
-  for (unsigned int i = 0; i < ARRAYSIZE(this->gpios); i++) this->gpios[i] = (i < ARRAYSIZE(gpios))?gpios[i]:-1;
+Debouncer::Debouncer(int gpios[DEBOUNCER_SIZE], unsigned long interval) {
+  for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) this->gpios[i] = gpios[i];
   this->interval = interval;
-  this->deadline = 0L;
+  this->deadline = 0UL;
 }
 
 void Debouncer::debounce() {
   unsigned long now = millis();
+  unsigned char sample = 0;
   if (now > this->deadline) {
-    this->switches.state.channel0 = (this->gpios[0] >= 0)?digitalRead(this->gpios[0]):0;
-    this->switches.state.channel1 = (this->gpios[1] >= 0)?digitalRead(this->gpios[1]):0;
-    this->switches.state.channel2 = (this->gpios[2] >= 0)?digitalRead(this->gpios[2]):0;
-    this->switches.state.channel3 = (this->gpios[3] >= 0)?digitalRead(this->gpios[3]):0;
-    this->switches.state.channel4 = (this->gpios[4] >= 0)?digitalRead(this->gpios[4]):0;
-    this->switches.state.channel5 = (this->gpios[5] >= 0)?digitalRead(this->gpios[5]):0;
-    this->switches.state.channel6 = (this->gpios[6] >= 0)?digitalRead(this->gpios[6]):0;
-    this->switches.state.channel7 = (this->gpios[7] >= 0)?digitalRead(this->gpios[7]):0;
-    this->switches.states = debounceStates(this->switches.states);
+    for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) {
+      sample = (sample | (((this->gpios[i] >= 0)?digitalRead(this->gpios[i]):0) << i));
+    }
+    this->switches.states = debounceStates(sample);
     this->deadline = (now + this->interval);
   }
 }
@@ -41,9 +37,11 @@ unsigned char Debouncer::debounceStates(unsigned char sample) {
 
 bool Debouncer::channelState(int gpio) {
   int index = -1;
-  for (unsigned int i = 0; i < ARRAYSIZE(this->gpios); i++) {
+  for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) {
     if (this->gpios[i] == gpio) { index = i; break; }
   }
+  return((index >= 0)?((this->switches.states >> index) & 0x01):0);
+  /*
   switch (index) {
     case 0: return((bool) this->switches.state.channel0); break;
     case 1: return((bool) this->switches.state.channel1); break;
@@ -55,5 +53,12 @@ bool Debouncer::channelState(int gpio) {
     case 7: return((bool) this->switches.state.channel7); break;
     default: return(false); break;
   }
+  */
 }
 
+void Debouncer::dumpConfiguration() {
+  for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) {
+    Serial.print("Debouncer channel "); Serial.print(i); Serial.print(": "); Serial.println(this->gpios[i]);
+  }
+  Serial.print("State: "); Serial.println(this->switches.states, BIN);
+}

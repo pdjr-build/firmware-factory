@@ -524,9 +524,7 @@ Wire Wire Line
 Wire Wire Line
 	5750 2800 5450 2800
 Wire Wire Line
-	5450 2800 5450 1550
-Wire Wire Line
-	5450 1550 5050 1550
+	5450 2800 5450 1750
 Connection ~ 5150 3000
 $Comp
 L Device:Polyfuse F2
@@ -674,13 +672,9 @@ Wire Wire Line
 Wire Wire Line
 	2450 850  2450 3350
 Wire Wire Line
-	5550 1750 5050 1750
+	5550 850  5550 1650
 Wire Wire Line
-	5550 850  5550 1750
-Wire Wire Line
-	5350 1650 5050 1650
-Wire Wire Line
-	5350 950  5350 1650
+	5350 950  5350 1550
 Wire Wire Line
 	5050 1450 5250 1450
 Wire Wire Line
@@ -994,4 +988,10 @@ Wire Wire Line
 	9500 5500 9500 4950
 Wire Wire Line
 	9500 4950 9600 4950
+Wire Wire Line
+	5050 1550 5350 1550
+Wire Wire Line
+	5050 1650 5550 1650
+Wire Wire Line
+	5050 1750 5450 1750
 $EndSCHEMATC

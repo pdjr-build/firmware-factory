@@ -1,21 +1,38 @@
 #!/bin/bash
 # NAME
+#
 #   get-config - generate #define statements from configuration files.
+#
 # SYNOPSIS
+#
 #   get-config dirname...
+#
 # DESCRIPTION
-#   get-config traverses the directory hierarchy identified by dirname,
-#   climbing up the directory structure until a directory is encountered
+#
+#   get-config climbs the directory hierarchy identified by ther leaf
+#   dirname, ascending the file system until a directory is encountered
 #   that contains a file called 'STOP'.
-#   In each directory, files with names that consist entirely of
-#   uppercase characters and underscores are considered to be
-#   configuration files and are processed into declarations of the
-#	  form "#define <configfile-name> <configfile-content>"
-#		When a directory is encountered that contains a file called 'STOP',
-#   a list of all generated declarations is writen to standard output.
+#
+#   In each directory (including the directory containing STOP) files
+#   with names that consist entirely of uppercase characters and under-
+#   scores are considered to be configuration files and are processed
+#   into declarations of the form:
+#
+#      #define <configuration-file-name> <configuration-file-content>
+#
+#   <configuration-file-content> man include a token referencing another
+#   configuration file name by enclosing the file name in braces in which
+#   case the token will be interpolated by the referenced file's content.
+#
+#   Files with integer content can have the content value automatically
+#   incremented after being processed by appending "++" to the file name.
+#   This allows a simple mechanism for maintaining serial numbers and so
+#   on.
 
 declare -a OUTPUT
 OUTPUT=()
+declare -A ASSARRAY
+ASSARRAY=()
 
 if [ "${1}" == "" ] ; then
  	${0} "."
@@ -29,10 +46,14 @@ else
         for rname in * ; do
           if [[ ( -f "${rname}" ) && ( "${rname}" == "${rname^^}" ) && ( "${rname}" == *"_"* ) ]] ; then
             NAME=${rname%++}
-            VALUE=$(cat "${rname}");
-            OUTPUT+=("#define ${NAME} ${VALUE}")
+            VALUE=$(head -1 "${rname}")
+            ASSARRAY+=([${NAME}]=${VALUE})
             # Increment the value of files whose name ends in ++
-            if [[ "${rname}" == *"++" ]] ; then echo "$((VALUE + 1))" > ${rname} ; fi
+            if [[ "${rname}" == *"++" ]] ; then
+              TAIL=$(tail -n +2 "${rname}")
+              echo "$((VALUE + 1))" > "${rname}"
+              echo "${TAIL}" >> "${rname}"
+            fi
           fi
         done
         if [[ ( "$(basename `pwd`)" == "/" ) || ( -f "STOP" ) ]] ; then break ; fi
@@ -40,6 +61,14 @@ else
       done
     fi
     shift
+  done
+  for key in "${!ASSARRAY[@]}" ; do
+      for kkey in "${!ASSARRAY[@]}" ; do
+          ASSARRAY+=([${kkey}]=${ASSARRAY[${kkey}]//\{${key}\}/${ASSARRAY[${key}]}})
+      done
+  done
+  for key in "${!ASSARRAY[@]}"; do
+      OUTPUT+=("#define ${key} ${ASSARRAY[${key}]}")
   done
   printf '%s\n' "${OUTPUT[@]}" | sort | uniq
 fi

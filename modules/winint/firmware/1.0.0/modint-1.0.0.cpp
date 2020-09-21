@@ -1,60 +1,41 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-#include <ActisenseReader.h>
-#include <N2kMsg.h>
-#include <N2kTypes.h>
-#include <N2kMaretron.h>
-#include <N2kGroupFunctionDefaultHandlers.h>
 #include <NMEA2000_CAN.h>
-#include <Seasmart.h>
-#include <NMEA2000.h>
-#include <NMEA2000_CompilerDefns.h>
-#include <N2kGroupFunction.h>
-#include <N2kDeviceList.h>
-#include <N2kCANMsg.h>
-#include <N2kStream.h>
-#include <N2kMessagesEnumToStr.h>
+#include <N2kTypes.h>
 #include <N2kMessages.h>
-#include <N2kDef.h>
 #include <string.h>
-#include <NMEA2000_teensy.h>
+#include <Debouncer.h>
+#include <LedManager.h>
 #include <N2kSpudpole.h>
-#include "../lib/arraymacros.h"
+#include <arraymacros.h>
 
-//*********************************************************************
-// START OF DEFINES WHICH MAY BE OVERWRITTEN BY THE BUILD SYSTEM
-//*********************************************************************
+#define DEBUG_SERIAL
+#define DEBUG_USE_FAKE_INSTANCES
+#define DEBUG_FAKE_INSTANCE 0x22
 
 /**********************************************************************
- * MCU GPIO digital pin numbers.
+ * MCU EEPROM STORAGE DEFINITIONS
  */
 
-#define GPIO_INSTANCE_PINS (20,19,18,17,16,15,14,13)
-#define GPIO_INSTANCE ARGN(7, GPIO_INSTANCE_PINS)
+#define INSTANCE_UNDEFINED 255
+#define OPERATING_TIME_EEPROM_ADDRESS 0
+
+/**********************************************************************
+ * MCU DIGITAL IO PIN DEFINITIONS
+ * 
+ * GPIO pin definitions for the Teensy 3.2 MCU
+ */
+
+#define GPIO_TRANSMIT_LED 8
+#define GPIO_RETRIEVING_SENSOR 9
+#define GPIO_DOCKED_SENSOR 10
+#define GPIO_DEPLOYING_SENSOR 11
+#define GPIO_DEPLOYED_SENSOR 12
+#define GPIO_BOARD_LED 13
+#define GPIO_INSTANCE_PINS { 20,19,18,17,16,15,14 }
+#define GPIO_ROTATION_SENSOR 21
 #define GPIO_UP_RELAY 22
 #define GPIO_DN_RELAY 23
-#define GPIO_ROTATION_SENSOR 21
-#define GPIO_DOCKED_SENSOR 9
-#define GPIO_DEPLOYED_SENSOR 12
-#define GPIO_DEPLOYING_SENSOR 11
-#define GPIO_RETRIEVING_SENSOR 8
-#define GPIO_TRANSMIT_LED 10
-
-/**********************************************************************
- * PRODUCT INFORMATION
- * 
- * This poorly structured set of values is what NMEA expects a product
- * description to be shoe-horned into.
- */
-
-#define PRODUCT_CERTIFICATION_LEVEL 1
-#define PRODUCT_CODE 1
-#define PRODUCT_FIRMWARE_VERSION "1.0"
-#define PRODUCT_LEN 3
-#define PRODUCT_N2K_VERSION 2101
-#define PRODUCT_SERIAL_CODE "390"
-#define PRODUCT_TYPE "MODINT"
-#define PRODUCT_VERSION "1.0"
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -77,11 +58,28 @@
  * automatically by the build system.
  */
 
-#define DEVICE_CLASS 25
+#define DEVICE_CLASS 30
 #define DEVICE_FUNCTION 130
 #define DEVICE_INDUSTRY_GROUP 4
 #define DEVICE_MANUFACTURER_CODE 2046
 #define DEVICE_UNIQUE_NUMBER 565
+
+/**********************************************************************
+ * PRODUCT INFORMATION
+ * 
+ * This poorly structured set of values is what NMEA expects a product
+ * description to be shoe-horned into.
+ */
+
+#define PRODUCT_CERTIFICATION_LEVEL 1
+#define PRODUCT_CODE 001
+#define PRODUCT_FIRMWARE_VERSION "1.0.0 (Sep 2020)"
+#define PRODUCT_LEN 3
+#define PRODUCT_N2K_VERSION 2101
+#define PRODUCT_SERIAL_CODE "001-390"
+#define PRODUCT_TYPE "WININT"
+#define PRODUCT_VERSION "1.0 (Sep 2020)"
+
 
 /**********************************************************************
  * SPUDPOLE_INFORMATION
@@ -98,31 +96,28 @@
 #define SPUDPOLE_TURNS_PER_LAYER 10
 #define SPUDPOLE_USABLE_LINE_LENGTH 60.0
 
-//*********************************************************************
-// END OF DEFINES WHICH MAY BE OVERWRITTEN BY THE BUILD SYSTEM
-//*********************************************************************
-
-#include "build.h"
-
 /**********************************************************************
- * EEPROMADDR permanent storage addresses
- * 
- * EEPROMADDR_OPERATING_TIME (double) windlass total operating time.
+ * Include the build.h header file which would normally be generated
+ * by the firmware build system. Note that this file may well override
+ * some or all of the above #definitions.
  */
 
-#define EEPROMADDR_OPERATING_TIME 0
+#include "build.h"
 
 /**********************************************************************
  * Miscelaneous
  */
 
-#define TRANSMIT_LED_TIMEOUT 200 // milliseconds
 #define N2K_COMMAND_TIMEOUT 0.4 // seconds
 #define N2K_DYNAMIC_UPDATE_INTERVAL 0.25 // seconds
 #define N2K_STATIC_UPDATE_INTERVAL 5.0 // seconds
+#define STARTUP_SETTLE_PERIOD 5000
+#define STATUS_LED_MANAGER_HEARTBEAT 300
+#define STATUS_LED_MANAGER_INTERVAL 10
+#define TRANSMIT_LED_TIMEOUT 200 // milliseconds
 
 /**********************************************************************
- * Declarations for local functions.
+ * Declarations of local functions.
  */
 
 unsigned char getPoleInstance();
@@ -132,6 +127,7 @@ void onDockedSensor();
 void onDeployedSensor();
 void onRetrievingSensor();
 void onDeployingSensor();
+void PGN128776(const tN2kMsg &N2kMsg);
 void messageHandler(const tN2kMsg&);
 void transmitStatus();
 void commandTimeout(long timeout = 0L);
@@ -142,20 +138,23 @@ void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
 double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func);
 void operateTransmitLED(unsigned long timeout = 0L);
 
-
 /**********************************************************************
- * N2K PGNs of messages transmitted by this program.
+ * PGNs of messages transmitted by this program.
+ * 
+ * PGN 128776 Windlass Control Status
+ * PGN 128777 Windlass Operating Status
+ * PGN 128778 Windlass ????????? Status
  */
 
 const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L };
 
-//*********************************************************************************
-// Some definitions for incoming message handling.   PGNs which are processed and
-// the functions which process them must be declared here and registered in the
-// NMEA2000Handlers jump vector.
-//
+/**********************************************************************
+ * PGNs of messages handled by this program.
+ * 
+ * PGN 126602 Group Function Thing.
+ */
+
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
-void PGN128776(const tN2kMsg &N2kMsg);
 tNMEA2000Handler NMEA2000Handlers[]={ {128776L, &PGN128776}, {0, 0} };
 
 //*************************************************************************
@@ -188,9 +187,38 @@ N2kSpudpole::Settings settings = {
  */
 
 N2kSpudpole spudpole(settings);
+
 tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
+int SWITCHES[] = { GPIO_ROTATION_SENSOR, GPIO_DOCKED_SENSOR, GPIO_DEPLOYED_SENSOR, GPIO_DEPLOYING_SENSOR, GPIO_RETRIEVING_SENSOR };
+Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
+
+/**********************************************************************
+ * Create an LED manager STATUS_LED_MANAGER which can be used to manage
+ * the status LEDS mounted on the module PCB.
+ */
+
+LedManager *STATUS_LED_MANAGER = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+
+/**********************************************************************
+ * Keep track of whether this is a new boot, because we may want to do
+ * some fancy stuff before we start work.
+ */
+
+bool JUST_STARTED = true;
+
+/**********************************************************************
+ * MAIN PROGRAM - setup()
+ */
+
 void setup() {
+  #ifdef SERIAL_DEBUG
+  Serial.begin(9600);
+  #endif
+  
+  #ifdef DEBUG_USE_FAKE_INSTANCE
+  #endif
+
   // Set pin modes...
   int  ipins[GPIO_INSTANCE];
   for (int i = 0 ; i < 8; i++) { pinMode(ipins[i], INPUT_PULLUP); }
@@ -216,9 +244,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(GPIO_RETRIEVING_SENSOR), onRetrievingSensor, CHANGE);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
-  
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
-
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
@@ -227,7 +253,7 @@ void setup() {
 }
 
 /**********************************************************************
- * The process loop's work is fairly constrained.
+ * MAIN PROGRAM - loop()
  *
  * commandTimeout() ensures that any active UP or DOWN commands that
  *     have been received over N2K (and will have operated the output
@@ -243,12 +269,37 @@ void setup() {
  */
 
 void loop() {
+  if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
+  DEBOUNCER->debounce();
+  if (!JUST_STARTED) processSwitches(WINDLASSES, ELEMENTCOUNT(WINDLASSES));
   commandTimeout();
   transmitStatus();
   operateTransmitLED();
   NMEA2000.ParseMessages();
 }
 
+void processSwitches() {
+  static unsigned long deadline = 0UL;
+  unsigned long now = millis();
+  static bool rotationSensorProcessed = false;
+  switch (!DEBOUNCER->channelState(GPIO_ROTATION_SENSOR)) {
+    case true:
+      if (!rotationSensorProcessed) {
+        // DO IT
+      }
+      break;
+    case false:
+      rotationSensorProcessed = false;
+      break;
+  }
+  
+   && (!rotationSensorProcesses)) {
+    // Do it
+    rotationSensorProcessed = true;
+  }
+  
+   GPIO_DOCKED_SENSOR, GPIO_DEPLOYED_SENSOR, GPIO_DEPLOYING_SENSOR, GPIO_RETRIEVING_SENSOR };
+}
 /**********************************************************************
  * getPoleInstance() returns the module instance address set by the
  * hardware DIP switches defined in GPIO_INSTANCE (the pin sequence
