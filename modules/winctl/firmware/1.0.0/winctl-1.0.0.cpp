@@ -70,6 +70,9 @@
 
 /**********************************************************************
  * MCU EEPROM STORAGE DEFINITIONS
+ * 
+ * These two addresses specify the persistent storage address that
+ * should be used to store the 1-byte remote windlass instance numbers. 
  */
 
 #define W0_INSTANCE_EEPROM_ADDRESS 0
@@ -124,7 +127,7 @@
  * 
  * MANUFACTURER_CODE and UNIQUE_NUMBER together must make a unique
  * value on any N2K bus and an easy way to achieve this is just to
- * bump the device number for every software build and this is done
+ * bump the unique number for every software build and this is done
  * automatically by the build system.
  */
 
@@ -151,9 +154,8 @@
 #define PRODUCT_VERSION "1.0 (Sep 2020)"
 
 /**********************************************************************
- * Include the build.h header file which would normally be generated
- * by the firmware build system. Note that this file may well override
- * some or all of the above #definitions.
+ * Include the build.h header file which can be used to override any or
+ * all of the above  constant definitions.
  */
 
 #include "build.h"
@@ -215,8 +217,8 @@ int SWITCHES[DEBOUNCER_SIZE] = { GPIO_W0_PRG_SWITCH, GPIO_W0_UP_SWITCH, GPIO_W0_
 Debouncer DEBOUNCER (SWITCHES);
 
 /**********************************************************************
- * Create an LED manager STATUS_LED_MANAGER which can be used to manage
- * the status LEDS mounted on the module PCB.
+ * Create an LED manager with operating characteristics that suit the
+ * status LEDS mounted on the module PCB.
  */
 
 LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
@@ -462,6 +464,11 @@ void PGN128777(const tN2kMsg &N2kMsg) {
     }
   }
 }
+
+/**********************************************************************
+ * Operates the UP and DOWN LED relays associated with the specified
+ * <windlass> in responce to the value of the windlass state property.
+ */
 
 void operateOutputs(WindlassState *windlass) {
   switch (windlass->state) {
