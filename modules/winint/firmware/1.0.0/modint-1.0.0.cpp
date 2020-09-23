@@ -9,16 +9,31 @@
 #include <N2kSpudpole.h>
 #include <arraymacros.h>
 
+/**********************************************************************
+ * DEBUG & TESTING
+ * 
+ * Defining DEBUG_SERIAL includes the function debugDump() and arranges
+ * for it to be called from loop() every DEBUG_SERIAL_INTERVAL
+ * milliseconds after an intial start delay of DEBUG_SERIAL_START_DELAY
+ * milliseconds.
+ * 
+ * Defining DEBUG_USE_DEBUG_ADDRESSES disables normal instance number
+ * recovery from hardware and instead forces the use of the instance
+ * number defined here.
+ */
+
 #define DEBUG_SERIAL
-#define DEBUG_USE_FAKE_INSTANCES
-#define DEBUG_FAKE_INSTANCE 0x22
+#define DEBUG_USE_DEBUG_ADDRESSES
+
+#define DEBUG_SERIAL_START_DELEAY 4000UL
+#define DEBUG_SERIAL_INTERVAL 1000UL
+#define DEBUG_INSTANCE_VALUE 0x33
 
 /**********************************************************************
  * MCU EEPROM STORAGE DEFINITIONS
  */
 
-#define INSTANCE_UNDEFINED 255
-#define OPERATING_TIME_EEPROM_ADDRESS 0
+#define EEPROM_OPERATING_TIME_STORAGE_ADDRESS 0
 
 /**********************************************************************
  * MCU DIGITAL IO PIN DEFINITIONS
@@ -32,10 +47,19 @@
 #define GPIO_DEPLOYING_SENSOR 11
 #define GPIO_DEPLOYED_SENSOR 12
 #define GPIO_BOARD_LED 13
-#define GPIO_INSTANCE_PINS { 20,19,18,17,16,15,14 }
+#define GPIO_INSTANCE_BIT6 14
+#define GPIO_INSTANCE_BIT5 15
+#define GPIO_INSTANCE_BIT4 16
+#define GPIO_INSTANCE_BIT3 17
+#define GPIO_INSTANCE_BIT2 18
+#define GPIO_INSTANCE_BIT1 19
+#define GPIO_INSTANCE_BIT0 20
 #define GPIO_ROTATION_SENSOR 21
 #define GPIO_UP_RELAY 22
 #define GPIO_DN_RELAY 23
+#define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6 }
+#define GPIO_INPUT_PINS { GPIO_RETRIEVING_SENSOR, GPIO_DOCKED_SENSOR, GPIO_DEPLOYING_SENSOR, GPIO_DEPLOYED_SENSOR, GPIO_ROTATION_SENSOR }
+#define GPIO_OUTPUT_PINS { GPIO_TRANSMIT_LED, GPIO_BOARD_LED, GPIO_UP_RELAY, GPIO_DN_RELAY }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -74,12 +98,11 @@
 #define PRODUCT_CERTIFICATION_LEVEL 1
 #define PRODUCT_CODE 001
 #define PRODUCT_FIRMWARE_VERSION "1.0.0 (Sep 2020)"
-#define PRODUCT_LEN 3
+#define PRODUCT_LEN 2
 #define PRODUCT_N2K_VERSION 2101
-#define PRODUCT_SERIAL_CODE "001-390"
+#define PRODUCT_SERIAL_CODE "001-565"
 #define PRODUCT_TYPE "WININT"
 #define PRODUCT_VERSION "1.0 (Sep 2020)"
-
 
 /**********************************************************************
  * SPUDPOLE_INFORMATION
@@ -99,7 +122,7 @@
 /**********************************************************************
  * Include the build.h header file which would normally be generated
  * by the firmware build system. Note that this file may well override
- * some or all of the above #definitions.
+ * some or all of the above constant definitions.
  */
 
 #include "build.h"
@@ -108,6 +131,7 @@
  * Miscelaneous
  */
 
+#define INSTANCE_UNDEFINED 255
 #define N2K_COMMAND_TIMEOUT 0.4 // seconds
 #define N2K_DYNAMIC_UPDATE_INTERVAL 0.25 // seconds
 #define N2K_STATIC_UPDATE_INTERVAL 5.0 // seconds
@@ -120,15 +144,13 @@
  * Declarations of local functions.
  */
 
+#ifdef DEBUG_SERIAL
+void debugDump();
+#endif
 unsigned char getPoleInstance();
-double readTotalOperatingTime();
-void onRotationSensor();
-void onDockedSensor();
-void onDeployedSensor();
-void onRetrievingSensor();
-void onDeployingSensor();
-void PGN128776(const tN2kMsg &N2kMsg);
 void messageHandler(const tN2kMsg&);
+void PGN128776(const tN2kMsg &N2kMsg);
+double readTotalOperatingTime();
 void transmitStatus();
 void commandTimeout(long timeout = 0L);
 void setRelayOutput(int action = 0, long timeout = 0L);
@@ -136,7 +158,6 @@ void provisionPGN128776(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128777(tN2kMsg &msg, byte sed = 0);
 void provisionPGN128778(tN2kMsg &msg, byte sed = 0);
 double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func);
-void operateTransmitLED(unsigned long timeout = 0L);
 
 /**********************************************************************
  * PGNs of messages transmitted by this program.
@@ -151,7 +172,8 @@ const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L }
 /**********************************************************************
  * PGNs of messages handled by this program.
  * 
- * PGN 126602 Group Function Thing.
+ * PGN 126602 Request Group Function contains the windlass operating
+ * commands.
  */
 
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
@@ -200,12 +222,7 @@ Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
 
 LedManager *STATUS_LED_MANAGER = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
-/**********************************************************************
- * Keep track of whether this is a new boot, because we may want to do
- * some fancy stuff before we start work.
- */
 
-bool JUST_STARTED = true;
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -214,35 +231,14 @@ bool JUST_STARTED = true;
 void setup() {
   #ifdef SERIAL_DEBUG
   Serial.begin(9600);
+  delay(DEBUG_SERIAL_START_DELAY);
   #endif
   
-  #ifdef DEBUG_USE_FAKE_INSTANCE
-  #endif
-
-  // Set pin modes...
-  int  ipins[GPIO_INSTANCE];
-  for (int i = 0 ; i < 8; i++) { pinMode(ipins[i], INPUT_PULLUP); }
-  pinMode(GPIO_ROTATION_SENSOR, INPUT);
-  pinMode(GPIO_DOCKED_SENSOR, INPUT_PULLUP);
-  pinMode(GPIO_DEPLOYED_SENSOR, INPUT_PULLUP);
-  pinMode(GPIO_DEPLOYING_SENSOR, INPUT_PULLUP);
-  pinMode(GPIO_RETRIEVING_SENSOR, INPUT_PULLUP);
-  pinMode(GPIO_DN_RELAY, OUTPUT);
-  pinMode(GPIO_UP_RELAY, OUTPUT);
-  pinMode(GPIO_TRANSMIT_LED, OUTPUT);
+  int ipins[] = GPIO_INPUT_PINS;
+  int opins[] = GPIO_OUTPUT_PINS;
+  for (unsigned int i = 0 ; i < ARRAYSIZE(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
+  for (unsigned int i = 0 ; i < ARRAYSIZE(opins); i++) { pinMode(opins[i], OUTPUT); digitalWrite(opins[i], LOW); }
   
-  // Set default pin states...
-  digitalWrite(GPIO_DN_RELAY, LOW);
-  digitalWrite(GPIO_UP_RELAY, LOW);
-  digitalWrite(GPIO_TRANSMIT_LED, LOW); // Low switches on the LED for power indication
-
-  // Attach interrupts...
-  attachInterrupt(digitalPinToInterrupt(GPIO_ROTATION_SENSOR), onRotationSensor, FALLING);
-  attachInterrupt(digitalPinToInterrupt(GPIO_DOCKED_SENSOR), onDockedSensor, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(GPIO_DEPLOYED_SENSOR), onDeployedSensor, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(GPIO_DEPLOYING_SENSOR), onDeployingSensor, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(GPIO_RETRIEVING_SENSOR), onRetrievingSensor, CHANGE);
-
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
@@ -269,37 +265,53 @@ void setup() {
  */
 
 void loop() {
+  static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
+
   DEBOUNCER->debounce();
-  if (!JUST_STARTED) processSwitches(WINDLASSES, ELEMENTCOUNT(WINDLASSES));
+  if (!JUST_STARTED) processSwitches();
+  
   commandTimeout();
   transmitStatus();
   operateTransmitLED();
+
   NMEA2000.ParseMessages();
-}
+
+  #ifdef DEBUG_SERIAL
+  debugDump();
+  #endif
+} 
+
+/**********************************************************************
+ * Processes sensor inputs every SWITCH_PROCESS_INTERVAL milliseconds.
+ * Must be called directly from loop(). The defined time interval must
+ * be less than the rotation period of the windlass being monitored.
+ */
 
 void processSwitches() {
+  static bool rotationSensorProcessed = false;
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
-  static bool rotationSensorProcessed = false;
-  switch (!DEBOUNCER->channelState(GPIO_ROTATION_SENSOR)) {
-    case true:
-      if (!rotationSensorProcessed) {
-        // DO IT
-      }
-      break;
-    case false:
-      rotationSensorProcessed = false;
-      break;
+  if (now > deadline) {  
+    switch (!DEBOUNCER->channelState(GPIO_ROTATION_SENSOR)) {
+      case true:
+        if (!rotationSensorProcessed) {
+          spudpole.bumpRotationCount();
+          rotationSensorProcessed = true;
+        }
+        break;
+      case false:
+        rotationSensorProcessed = false;
+        break;
+    }
+    spudpole.setDockedStatus((!DEBOUNCER->channelState(GPIO_DOCKED_SENSOR))?Spudpole::YES:Spudpole::NO);
+    spudpole.setDeployedStatus((!DEBOUNCER->channelState(GPIO_DEPLOYED_SENSOR))?Spudpole::YES:Spudpole::NO);
+    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_DEPLOYING_SENSOR))?Windlass::DEPLOYING:Windlass::STOPPED);
+    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_RETRIEVING_SENSOR))?Windlass::RETRIEVING:Windlass::STOPPED);
+    deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
-  
-   && (!rotationSensorProcesses)) {
-    // Do it
-    rotationSensorProcessed = true;
-  }
-  
-   GPIO_DOCKED_SENSOR, GPIO_DEPLOYED_SENSOR, GPIO_DEPLOYING_SENSOR, GPIO_RETRIEVING_SENSOR };
 }
+
 /**********************************************************************
  * getPoleInstance() returns the module instance address set by the
  * hardware DIP switches defined in GPIO_INSTANCE (the pin sequence
@@ -531,39 +543,6 @@ void commandTimeout(long timeout) {
   }
 }
 
-/**********************************************************************
- * Interrupt service routines triggered directly from disgital I/O pin
- * state changes
- */
-
-void onDockedSensor() {
-  spudpole.setDockedStatus(digitalRead(GPIO_DOCKED_SENSOR)?Spudpole::YES:Spudpole::NO);
-}
-
-void onDeployedSensor() {
-  spudpole.setDeployedStatus(digitalRead(GPIO_DEPLOYED_SENSOR)?Spudpole::YES:Spudpole::NO);
-}
-
-void onDeployingSensor() {
-  spudpole.setOperatingState(digitalRead(GPIO_DEPLOYING_SENSOR)?Windlass::DEPLOYING:Windlass::STOPPED);
-}
-
-void onRetrievingSensor() {
-  spudpole.setOperatingState(digitalRead(GPIO_RETRIEVING_SENSOR)?Windlass::RETRIEVING:Windlass::STOPPED);
-}
-
-void onRotationSensor() {
-  spudpole.bumpRotationCount();
-}
-
-/**********************************************************************
- * windlassOperatingTimer is a callback function for use by the
- * Windlass class in support of operating time accounting. Support is
- * provided for both NORMAL and STORAGE operating modes, but note that
- * STORAGE mode is only supported if the global EEPROM_OPERATING_TIME
- * is defined with a EEPROM storage address. See Windlass.h for more
- * information.
- */
 double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::OperatingTimerFunction func) {
   static unsigned long startMillis = 0L;
   double retval = 0.0;
@@ -586,33 +565,3 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
   return(retval);
 }
 
-/**********************************************************************
- * The transmit LED is illuminated to indicate that the device has
- * power and occults on each NMEA transmit. operateTransmitLED()
- * switches the LED off and arranges to switch it on after a short,
- * defined, period.  The function requires the definition of
- * GPIO_TRANSMIT_LED and GPIO_TRANSMIT_LED_TITMEOUT.
- * 
- * A call to operateTransmitLED() should be made from loop() in order
- * to manage switching the LED.  A call to operateTransmitLED(timeout)
- *  will switch the LED off and arrange for it to be turned on after
- * <timeout> milliseconds.
- */
-
-void operateTransmitLED(unsigned long timeout) {
-  static unsigned long _end = 0L;
-  #ifdef GPIO_TRANSMIT_LED
-  switch (timeout) {
-    case 0L:
-      if ((_end) && (_end < millis())) {
-        digitalWrite(GPIO_TRANSMIT_LED, LOW);
-        _end = 0L;
-      }
-      break;
-    default:
-      digitalWrite(GPIO_TRANSMIT_LED, HIGH);
-      _end = (millis() + timeout);
-      break;      
-  }
-  #endif
-}

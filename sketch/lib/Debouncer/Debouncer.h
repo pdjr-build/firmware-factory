@@ -12,11 +12,11 @@
  *   }
  * }
  */
-
 #ifndef DEBOUNCER_H
 #define DEBOUNCER_H
 
 #define DEBOUNCER_SIZE 8
+#define ARRAYSIZE(x) (sizeof(x) / sizeof(x[0]))
 
 // Number of milliseconds between debounce samplings.
 //
@@ -24,7 +24,7 @@
 
 class Debouncer {
   public:
-    Debouncer(int gpios[DEBOUNCER_SIZE], unsigned long interval = DEBOUNCER_INTERVAL);
+    Debouncer(int gpios[], unsigned long interval = DEBOUNCER_INTERVAL);
     void debounce();
     bool channelState(int gpio);
     void dumpConfiguration();
