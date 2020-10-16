@@ -77,6 +77,7 @@
 
 #define W0_INSTANCE_EEPROM_ADDRESS 0
 #define W1_INSTANCE_EEPROM_ADDRESS 1
+#define SOURCE_ADDRESS_EEPROM_ADDRESS 2
 
 /**********************************************************************
  * MCU DIGITAL IO PIN DEFINITIONS
@@ -160,10 +161,7 @@
 
 #include "build.h"
 
-/**********************************************************************
- * Miscellaneous
- */
-
+#define DEFAULT_SOURCE_ADDRESS 22         // Seed value for address claim
 #define INSTANCE_UNDEFINED 255            // Flag value
 #define INSTANCE_DISABLED 127             // Flag value
 #define STARTUP_SETTLE_PERIOD 5000        // Wait this many ms before processing switch inputs
@@ -291,11 +289,17 @@ void setup() {
     WINDLASS1.address = DEBUG_W1_ADDRESS_VALUE;
   #endif
   
+  // The first time this thing runs, there will be no previously used
+  // source address saved in EEPROM - in fact an EEPROM read will likely
+  // return the network broadcast address, so if this is the case, then
+  // we write an arbitrary, non-broadcast, address to EEPROM.
+  if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 255) EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
+
   STATUS_LED_MANAGER.operate(GPIO_BOARD_LED, 0, 3);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE);
-  NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
+  NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS)); // Configure for sending and receiving.
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
@@ -322,7 +326,13 @@ void loop() {
   DEBOUNCER.debounce();
   if (!JUST_STARTED) processSwitches(WINDLASSES);
 
+  // Process any received messages.
   NMEA2000.ParseMessages();
+  // The above may have resulted in acquisition of a new source
+  // address, so we check if there has been a change and if so save the
+  // new address to EEPROM for future re-use.
+  if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, NMEA2000.GetN2kSource());
+
   STATUS_LED_MANAGER.loop();
   STATE_LED_MANAGER.loop();
   
