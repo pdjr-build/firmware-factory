@@ -27,7 +27,7 @@ sketch/report.*
 *.lai
 *.la
 *.a
-*.lib
+#*.lib
 
 # Executables
 *.exe
