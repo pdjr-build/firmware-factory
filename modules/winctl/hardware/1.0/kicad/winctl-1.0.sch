@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "WINCTL - windlass control interface module"
-Date "2020-09-14"
-Rev "1.0"
+Date "2020-10-17"
+Rev "1.1"
 Comp "PDJR <preeve@pdjr.eu>"
 Comment1 ""
 Comment2 ""
@@ -69,7 +69,7 @@ F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2280 2650 50
 F 3 "~" H 2350 2650 50  0001 C CNN
 F 4 "1W" V 2350 2650 50  0001 C CNN "Power"
 	1    2350 2650
-	0    1    1    0   
+	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:R R6
@@ -451,7 +451,7 @@ Wire Wire Line
 	4900 4750 4900 4850
 Connection ~ 4900 4850
 Wire Wire Line
-	4900 4850 6500 4850
+	4900 4850 5100 4850
 Wire Wire Line
 	6700 3650 6900 3650
 $Comp
@@ -502,7 +502,6 @@ Wire Wire Line
 	7200 3650 7500 3650
 Wire Wire Line
 	7200 3750 7500 3750
-NoConn ~ 5300 3650
 Connection ~ 8150 3650
 Wire Wire Line
 	8150 3650 8150 3750
@@ -1065,66 +1064,6 @@ Wire Wire Line
 	3950 4600 3950 4950
 Wire Wire Line
 	3800 4750 4250 4750
-Wire Wire Line
-	3050 5950 3850 5950
-Wire Wire Line
-	3850 5950 3850 5450
-Wire Wire Line
-	2950 5850 3400 5850
-Wire Wire Line
-	3400 5850 3400 5450
-Wire Wire Line
-	2850 5750 2950 5750
-Wire Wire Line
-	2950 5750 2950 5450
-Wire Wire Line
-	2750 5850 2500 5850
-Wire Wire Line
-	2500 5850 2500 5450
-Wire Wire Line
-	2650 6900 2650 5950
-Wire Wire Line
-	2650 5950 2050 5950
-Wire Wire Line
-	2050 5950 2050 5450
-Wire Wire Line
-	3150 6900 3150 6050
-Wire Wire Line
-	3150 6050 2350 6050
-Wire Wire Line
-	2350 6050 2350 5450
-Wire Wire Line
-	3250 6900 3250 5650
-Wire Wire Line
-	3250 5650 2800 5650
-Wire Wire Line
-	2800 5650 2800 5450
-Wire Wire Line
-	3350 6900 3350 5550
-Wire Wire Line
-	3350 5550 3250 5550
-Wire Wire Line
-	3250 5550 3250 5450
-Wire Wire Line
-	3450 6900 3450 6050
-Wire Wire Line
-	3700 6050 3700 5450
-Wire Wire Line
-	3450 6050 3700 6050
-Wire Wire Line
-	3550 6900 3550 6150
-Wire Wire Line
-	3550 6150 4150 6150
-Wire Wire Line
-	4150 6150 4150 5450
-Wire Wire Line
-	2750 5850 2750 6900
-Wire Wire Line
-	2850 5750 2850 6900
-Wire Wire Line
-	2950 5850 2950 6900
-Wire Wire Line
-	3050 5950 3050 6900
 $Comp
 L PDJR:SW_Push SW1
 U 1 1 60036801
@@ -1147,4 +1086,71 @@ F 3 "~" H 4900 4750 50  0001 C CNN
 	1    4900 4550
 	0    1    -1   0   
 $EndComp
+Wire Wire Line
+	3050 6900 3050 6050
+Wire Wire Line
+	3050 6050 2950 6050
+Wire Wire Line
+	2950 6050 2950 5450
+Wire Wire Line
+	3150 6900 3150 6050
+Wire Wire Line
+	3150 6050 3250 6050
+Wire Wire Line
+	3250 6050 3250 5450
+Wire Wire Line
+	3250 6900 3250 6150
+Wire Wire Line
+	3250 6150 3400 6150
+Wire Wire Line
+	3400 6150 3400 5450
+Wire Wire Line
+	3350 6900 3350 6250
+Wire Wire Line
+	3350 6250 3700 6250
+Wire Wire Line
+	3700 6250 3700 5450
+Wire Wire Line
+	3450 6900 3450 6350
+Wire Wire Line
+	3450 6350 3850 6350
+Wire Wire Line
+	3850 6350 3850 5450
+Wire Wire Line
+	3550 6900 3550 6450
+Wire Wire Line
+	3550 6450 4150 6450
+Wire Wire Line
+	4150 6450 4150 5450
+Wire Wire Line
+	2950 6900 2950 6150
+Wire Wire Line
+	2950 6150 2800 6150
+Wire Wire Line
+	2800 6150 2800 5450
+Wire Wire Line
+	2850 6900 2850 6250
+Wire Wire Line
+	2850 6250 2500 6250
+Wire Wire Line
+	2500 6250 2500 5450
+Wire Wire Line
+	2750 6900 2750 6350
+Wire Wire Line
+	2750 6350 2350 6350
+Wire Wire Line
+	2350 6350 2350 5450
+Wire Wire Line
+	2650 6900 2650 6450
+Wire Wire Line
+	2650 6450 2050 6450
+Wire Wire Line
+	2050 6450 2050 5450
+Wire Wire Line
+	5300 3650 5100 3650
+Wire Wire Line
+	5100 3650 5100 4850
+Connection ~ 5100 4850
+Wire Wire Line
+	5100 4850 6500 4850
 $EndSCHEMATC
