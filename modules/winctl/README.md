@@ -26,7 +26,7 @@ controlling the same or different windlasses as their peers.
 
 ## About the module
 
-![Fig 1: module schematic](winctl.png)
+![Fig 1: module schematic](winctl.svg)
 
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
