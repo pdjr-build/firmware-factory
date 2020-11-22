@@ -19,7 +19,7 @@
 
   (layers
     (0 F.Cu signal hide)
-    (31 B.Cu signal hide)
+    (31 B.Cu signal)
     (33 F.Adhes user hide)
     (35 F.Paste user hide)
     (37 F.SilkS user)
@@ -37,7 +37,7 @@
   )
 
   (setup
-    (last_trace_width 0.5)
+    (last_trace_width 0.25)
     (user_trace_width 0.5)
     (user_trace_width 1)
     (user_trace_width 1.5)
@@ -1898,7 +1898,7 @@
     (descr "Resistor, Axial_DIN0204 series, Axial, Vertical, pin pitch=2.54mm, 0.167W, length*diameter=3.6*1.6mm^2, http://cdn-reichelt.de/documents/datenblatt/B400/1_4W%23YAG.pdf")
     (tags "Resistor Axial_DIN0204 series Axial Vertical pin pitch 2.54mm 0.167W length 3.6mm diameter 1.6mm")
     (path /5F1E6C5E)
-    (fp_text reference R16 (at 1.905 -1.905) (layer F.SilkS)
+    (fp_text reference R16 (at 5.08 0.635) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value 4K7 (at 1.27 1.92) (layer F.Fab)
@@ -3453,7 +3453,7 @@
   (gr_text 2 (at 148.895 106.045) (layer F.SilkS) (tstamp 5F2B446C)
     (effects (font (size 1.5 1) (thickness 0.2)))
   )
-  (gr_text "MODINT 1.0\n" (at 137.465 90.17) (layer F.SilkS)
+  (gr_text "WININT 1.0\n" (at 137.465 90.17) (layer F.SilkS)
     (effects (font (size 2 1.5) (thickness 0.3)) (justify left))
   )
   (gr_text L (at 155.88 88.9) (layer F.SilkS)

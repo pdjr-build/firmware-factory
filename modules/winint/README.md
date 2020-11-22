@@ -80,22 +80,33 @@ cables.
 
 This 18-pole screw connector supports six optically isolated sensor input channels.
 
-| Terminals | Label |                   
-|:----------|:------|:------------------
-| 1-3       | ROT   | Rotation sensor (1-pulse per revolution). 
-| 4-6       | DOK   | Docked sensor (active when anchor fully retracted).
-| 7-9       | STP   | Stopped sensor (active when anchor fully deployed).
-| 10-12     | RET   | Retrieving sensor (active when windlass is pulling in).
-| 13-15     | DEP   | Deploying sensor (active when windlass is letting out).
-| 16-18     | OVL   | Overload sensor (active when ground tackle is stuck).
+| Terminals | Label |                                                         |
+|:----------|:------|:--------------------------------------------------------|
+| 1-3       | ROT   | Rotation sensor (1-pulse per revolution).               |
+| 4-6       | DOK   | Docked sensor (active when anchor fully retracted).     |
+| 7-9       | STP   | Stopped sensor (active when anchor fully deployed).     |
+| 10-12     | RET   | Retrieving sensor (active when windlass is pulling in). |
+| 13-15     | DEP   | Deploying sensor (active when windlass is letting out). |
+| 16-18     | OVL   | Overload sensor (active when ground tackle is stuck).   |
 
 Each sensor input consists of three terminals:
 
 * P - positive connection
 * G - ground connection
-* N - negative connection
+* N - negative connection / reference
 
+If you intend using a mechanical/microswitch sensor then the switched
+sensor output should be connected to P and the ground reference to N.
 
+If you intend using a solid-state proximity sensor, then the positive
+connection should be connected to P, the negative connection to G and
+the switched output to N.
+In this case a jumper should be placed on the corresponding power
+supply jumper (see (5) below).
+
+### (5) Sensor power supply
+
+### (6) 
 
 
 
