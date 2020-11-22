@@ -25,6 +25,14 @@ allows multiple __WININT__ modules to co-exist on the same network.
 
 ## About the module
 
+![Fig 1: module schematic](winint.png.svg)
+
+Figure 1 illustrates the appearance of the module with the cover in
+place and with the cover removed.
+
+The top cover includes the NMEA bus connector (1) and three status
+LEDs (2). The cover is penetrated by two cable glands (3) which allow
+passage of switch and indicator connection cables.
 
 This project implements __MODINT__, an N2K interface for spudpoles which uses
 the Windlass Network Messages interface described in this
