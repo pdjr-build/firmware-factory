@@ -1,15 +1,36 @@
-# MODINT
+# WININT - NMEA 2000 windlass interface module
 
-NMEA 2000 (N2K) spudpole interface module.
+__WININT__ is an NMEA 2000 module which implements a windlass operating
+interface.
+The module was developed to support pole anchors built by the manufacturer
+ANKREO, but it may well be useful with other windlass-based hardware that
+has similar control and monitoring requirements.
+The module uses the N2K Windlass Network Messages protocol to receive
+commands from a remote windlass controller and to transmit reports on the
+current hardware state.
+
+__WININT__ connects to the NMEA bus by a standard M12 5-pin circular
+connector and is powered directly from the NMEA bus.
+The module has an NMEA LEN of 1.5.
+
+Two control output channels, UP and DOWN are implemented as volt free
+relays rated at 5A suitable for winch relay or solenoid operation.
+Six sensor input channels can be connected to 12/24V external signals
+or to solid state proximity NPN proximity sensors.
+Power for each sensor channel can be supplied by the module.
+Diagnostic LEDS confirm NMEA connection and module operating status.
+The module is configured by a PCB mounted DIP switch which allows entry
+of an NMEA instance address that defines the windlass installation and
+allows multiple __WININT__ modules to co-exist on the same network.
+
+## About the module
+
 
 This project implements __MODINT__, an N2K interface for spudpoles which uses
 the Windlass Network Messages interface described in this
 [Technical Bulletin(
 https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
 
-The module was developed to support spudpoles from the manufacturer ANKREO,
-but it may well be useful with other windlass-based hardware that can supply the
-required physical inputs.
 
 __MODINT__ accepts physical inputs from a range of spudpole sensors and
 reports the current spudpole state over N2K.
