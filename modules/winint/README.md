@@ -2,21 +2,23 @@
 
 __WININT__ is an NMEA 2000 module which implements a windlass operating
 interface.
-The module was developed to support pole anchors built by the manufacturer
-ANKREO, but it may well be useful with other windlass-based hardware that
-has similar control and monitoring requirements.
+The module was developed to support pole anchors built by the
+manufacturer ANKREO, but it may well be useful with other
+windlass-based hardware that has similar control and monitoring 
+characteristics.
 The module uses the N2K Windlass Network Messages protocol to receive
-commands from a remote windlass controller and to transmit reports on the
-current hardware state.
+commands from a remote windlass controller and to transmit reports on
+the current hardware state.
 
 __WININT__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module has an NMEA LEN of 1.5.
 
 Two control output channels, UP and DOWN are implemented as volt free
-relays rated at 5A suitable for winch relay or solenoid operation.
-Six sensor input channels can be connected to 12/24V external signals
-or to solid state proximity NPN proximity sensors.
+relays with flyback protection rated at 5A and suitable for winch relay
+or solenoid operation.
+Six optically isolated sensor input channels can be connected to 12/24V
+external signals or to solid state proximity NPN proximity sensors.
 Power for each sensor channel can be supplied by the module.
 Diagnostic LEDS confirm NMEA connection and module operating status.
 The module is configured by a PCB mounted DIP switch which allows entry
@@ -30,9 +32,74 @@ allows multiple __WININT__ modules to co-exist on the same network.
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
 
-The top cover includes the NMEA bus connector (1) and three status
-LEDs (2). The cover is penetrated by two cable glands (3) which allow
-passage of switch and indicator connection cables.
+The top cover includes the NMEA bus connector (1) and three status LEDs
+(2).
+The cover is penetrated by two cable glands (3) which allow passage of
+switch and indicator connection cables.
+
+The top cover is released by pinching at (A) after which it can be
+lifted away from the the base to expose the printed circuit board
+(PCB).
+The PCB has connectors for sensors (4) and relay outputs (6).
+Jumpers (5) enable 12VDC power to the corresponding sensor positive
+terminal.
+A DIL switch (7) allows entry of a windlass instance number and
+finally, a jumper (8) allows connection of the NMEA cable shield to the
+module ground.
+
+### (1) NMEA bus connector
+
+The module uses an M12 circular female 5-pin industrial connector for
+NMEA connection.
+Any standard compliant N2K drop cable will allow the module to be
+connected to a host NMEA bus through a T-connector.
+
+### (2) Status LEDs
+
+The three status LEDs labeled PWR/TX, UP and DOWN are modulated to
+provide diagnostic feedback that is especially relevant to the
+installer.
+
+| LED       | Illumination state  | Meaning                                                          |
+|:---------:|:--------------------|:-----------------------------------------------------------------|
+| All       | Three rapid flashes | The module has just been connected to power and is initialising. |
+| PWR/RX    | Steady              | The module has power.                                            |
+|           | Occulting           | The module is receiving NMEA data from a configured windlass.    |
+| UP        | Steady              | The spudpole docked sensor is active.                            |
+|           | Flashing            | The spudpole UP relay is on.                                     |
+| DOWN      | Steady              | The spudpole stopped sensor is active.                           |
+|           | Flashing            | The spudpole DOWN relay is active.                               |
+| UP & DOWN | Flashing            | The overload sensor is active.                                   |
+
+### (3) Cable glands
+
+Two 6mm cable glands allow passage of switch and indicator connection
+cables.
+
+### (4) Sensor connector
+
+This 18-pole screw connector supports six optically isolated sensor input channels.
+
+| Terminals | Label |                   
+|:----------|:------|:------------------
+| 1-3       | ROT   | Rotation sensor (1-pulse per revolution). 
+| 4-6       | DOK   | Docked sensor (active when anchor fully retracted).
+| 7-9       | STP   | Stopped sensor (active when anchor fully deployed).
+| 10-12     | RET   | Retrieving sensor (active when windlass is pulling in).
+| 13-15     | DEP   | Deploying sensor (active when windlass is letting out).
+| 16-18     | OVL   | Overload sensor (active when ground tackle is stuck).
+
+Each sensor input consists of three terminals:
+
+* P - positive connection
+* G - ground connection
+* N - negative connection
+
+
+
+
+
+
 
 This project implements __MODINT__, an N2K interface for spudpoles which uses
 the Windlass Network Messages interface described in this
