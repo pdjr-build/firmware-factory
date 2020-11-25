@@ -14,8 +14,8 @@ __WININT__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module has an NMEA LEN of 1.5.
 
-Two control output channels, UP and DOWN are implemented as volt free
-relays with flyback protection rated at 5A and suitable for winch relay
+Two control output channels, UP and DOWN are implemented as volt free,
+snubber protected, relays with rated at 5A and suitable for winch relay
 or solenoid operation.
 Six optically isolated sensor input channels can be connected to 12/24V
 external signals or to solid state proximity NPN proximity sensors.
@@ -106,29 +106,40 @@ supply jumper (see (5) below).
 
 ### (5) Sensor power supply
 
-### (6) 
+### (6) Relay outputs
+
+Two reley output channels, UP and DOWN are provided for controlling an
+electric windlass winch motor or solenoid operated hydraulic valves.
+
+### (7) Instance DIL switch
+
+The INSTANCE DIL switch allows the entry of instance numbers in the range
+0 through 127 using a binary representation.
+The value 127 has special significance to the module and if programmed
+will prevent the module responding to NMEA control messages although it
+will continue to issue status reports.
+Normally, the INSTANCE switch is used to enter the instance number of the
+windlasses installation.
+The seven slide switches are each labelled with their corresponding decimal
+value and the sliders are active when in the right-hand position.
+For example, to enter the instance number 10, the swithces should be set
+LRLRLLL (top to bottom).
+
+### (9) SCR jumper
+
+## Installing the module
+
+With the jumper in place the NMEA cable shield is connected to the module ground plane.
+
+Installing the module
 
 
 
 
 
-This project implements __MODINT__, an N2K interface for spudpoles which uses
-the Windlass Network Messages interface described in this
-[Technical Bulletin(
-https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf)
-
-
-__MODINT__ accepts physical inputs from a range of spudpole sensors and
-reports the current spudpole state over N2K.
-
-The module also accepts spudpole operating commands over N2K and modulates
-UP and DOWN relays in response - these relays will be usually be connected
-to the spudpole winch control inputs. Operating commands are subject to a
-failsafe timeout: if a command is not repeated within a specified timeout
-period (typically 1s), then the module will switch its output relays off.
-
-
-## MODINT release history
+### (7) 
+The relays are rated 63V 5A and the NO contacts are snubber protected.
+ 
 
 | Version | MCU                   | Released  | Comment                   |
 |:--------|:----------------------|:----------|:--------------------------|
