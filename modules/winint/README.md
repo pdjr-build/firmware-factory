@@ -18,8 +18,7 @@ Two control output channels, UP and DOWN are implemented as volt free,
 snubber protected, relays with rated at 5A and suitable for winch relay
 or solenoid operation.
 Six optically isolated sensor input channels can be connected to 12/24V
-external signals or to solid state proximity NPN proximity sensors.
-Power for each sensor channel can be supplied by the module.
+external signals.
 Diagnostic LEDS confirm NMEA connection and module operating status.
 The module is configured by a PCB mounted DIP switch which allows entry
 of an NMEA instance address that defines the windlass installation and
@@ -40,11 +39,9 @@ switch and indicator connection cables.
 The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to expose the printed circuit board
 (PCB).
-The PCB has connectors for sensors (4) and relay outputs (6).
-Jumpers (5) enable 12VDC power to the corresponding sensor positive
-terminal.
-A DIL switch (7) allows entry of a windlass instance number and
-finally, a jumper (8) allows connection of the NMEA cable shield to the
+The PCB has connectors for sensors (4) and relay outputs (5).
+A DIL switch (6) allows entry of a windlass instance number and
+finally, a jumper (7) allows connection of the NMEA cable shield to the
 module ground.
 
 ### (1) NMEA bus connector
@@ -76,62 +73,44 @@ installer.
 Two 6mm cable glands allow passage of switch and indicator connection
 cables.
 
-### (4) Sensor connector
+### (4) Sensor connection
 
-This 18-pole screw connector supports six optically isolated sensor input channels.
+These 2-pole screw connectors supports six optically isolated sensor
+input channels.
 
 | Terminals | Label |                                                         |
 |:----------|:------|:--------------------------------------------------------|
-| 1-3       | ROT   | Rotation sensor (1-pulse per revolution).               |
-| 4-6       | DOK   | Docked sensor (active when anchor fully retracted).     |
-| 7-9       | STP   | Stopped sensor (active when anchor fully deployed).     |
-| 10-12     | RET   | Retrieving sensor (active when windlass is pulling in). |
-| 13-15     | DEP   | Deploying sensor (active when windlass is letting out). |
-| 16-18     | OVL   | Overload sensor (active when ground tackle is stuck).   |
+| P/N       | ROT   | Rotation sensor (1-pulse per revolution).               |
+| P/N       | DOK   | Docked sensor (active when anchor fully retracted).     |
+| P/N       | STP   | Stopped sensor (active when anchor fully deployed).     |
+| P/N       | RET   | Retrieving sensor (active when windlass is pulling in). |
+| P/N       | DEP   | Deploying sensor (active when windlass is letting out). |
+| P/N       | OVL   | Overload sensor (active when ground tackle is stuck).   |
 
-Each sensor input consists of three terminals:
+Each sensor input consists of a P-terminal which accepts plus 12/24VDC
+relative to the N-terminal.
 
-* P - positive connection
-* G - ground connection
-* N - negative connection / reference
+### (5) Relay outputs
 
-If you intend using a mechanical/microswitch sensor then the switched
-sensor output should be connected to P and the ground reference to N.
-
-If you intend using a solid-state proximity sensor, then the positive
-connection should be connected to P, the negative connection to G and
-the switched output to N.
-In this case a jumper should be placed on the corresponding power
-supply jumper (see (5) below).
-
-### (5) Sensor power supply
-
-### (6) Relay outputs
-
-Two reley output channels, UP and DOWN are provided for controlling an
+Two relay output channels, UP and DOWN are provided for controlling an
 electric windlass winch motor or solenoid operated hydraulic valves.
 
-### (7) Instance DIL switch
+The NO terminal on each channel is snubbed.
 
-The INSTANCE DIL switch allows the entry of instance numbers in the range
-0 through 127 using a binary representation.
-The value 127 has special significance to the module and if programmed
-will prevent the module responding to NMEA control messages although it
-will continue to issue status reports.
-Normally, the INSTANCE switch is used to enter the instance number of the
-windlasses installation.
+### (6) Instance DIL switch
+
+The INSTANCE DIL switch allows the installation to be assigned an NMEA instance
+number in the range 0 through 127.
 The seven slide switches are each labelled with their corresponding decimal
 value and the sliders are active when in the right-hand position.
-For example, to enter the instance number 10, the swithces should be set
+For example, to enter the instance number 10, the switches should be set
 LRLRLLL (top to bottom).
 
-### (9) SCR jumper
-
-## Installing the module
+### (7) SCR jumper
 
 With the jumper in place the NMEA cable shield is connected to the module ground plane.
 
-Installing the module
+### Installing the module
 
 
 
