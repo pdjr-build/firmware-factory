@@ -130,6 +130,16 @@ and tested without operating the connected windlass.
 
 ## Installing the module
 
+### Step 1: Posiion the module
+
+### Step 6: Enable output relays
+
+When you are confident that the module is responding to control inputs
+and issuing appropriate status reports you can enable the output relays
+by placing jumper (8) ENABLE.
+
+
+
 ## Configuring the module
 
 To operate correctly the module must be configured with an NMEA
