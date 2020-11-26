@@ -39,21 +39,21 @@ place and with the cover removed.
 The top cover includes the NMEA bus connector (1) and three status LEDs
 (2).
 The cover is penetrated by two cable glands (3) which allow passage of
-switch and indicator connection cables.
+sensor and relay connection cables.
 
 The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to expose the printed circuit board
 (PCB).
-The PCB has connectors for sensors (4) and relay outputs (5).
-A DIL switch (6) allows entry of a windlass instance number and
-finally, a jumper (7) allows connection of the NMEA cable shield to the
-module ground.
+The PCB has connectors for sensor inputs (4) and relay outputs (5).
+A DIL switch (6) allows entry of a windlass instance number and a
+jumper (7) optionally connects the NMEA cable shield to the module
+ground plane.
 
 ### (1) NMEA bus connector
 
-The module uses an M12 circular female 5-pin industrial connector for
-NMEA connection.
-Any standard compliant N2K drop cable will allow the module to be
+Connection to the host NMEA bus is implemented by an M12 female,
+5-pin, industrial connector.
+Any N2K standard compliant drop-cable will allow the module to be
 connected to a host NMEA bus through a T-connector.
 
 ### (2) Status LEDs
@@ -66,12 +66,12 @@ installer.
 |:---------:|:--------------------|:-----------------------------------------------------------------|
 | All       | Three rapid flashes | The module has just been connected to power and is initialising. |
 | PWR/RX    | Steady              | The module has power.                                            |
-|           | Occulting           | The module is receiving NMEA data from a configured windlass.    |
-| UP        | Steady              | The spudpole docked sensor is active.                            |
-|           | Flashing            | The spudpole UP relay is on.                                     |
-| DOWN      | Steady              | The spudpole stopped sensor is active.                           |
-|           | Flashing            | The spudpole DOWN relay is active.                               |
-| UP & DOWN | Flashing            | The overload sensor is active.                                   |
+|           | Occulting           | The module is receiving NMEA control messages.                   |
+| UP        | Steady              | The spudpole docked (DOK) sensor is active.                      |
+|           | Flashing            | The spudpole retrieving (RET) sensor is active.                  |
+| DOWN      | Steady              | The spudpole stopped (STP) sensor is active.                     |
+|           | Flashing            | The spudpole deploying (DEP) sensor is active.                   |
+| UP & DOWN | Flashing            | The overload sensor (OVL) is active.                             |
 
 ### (3) Cable glands
 
@@ -83,14 +83,14 @@ cables.
 These 2-pole screw connectors supports six optically isolated sensor
 input channels.
 
-| Terminals | Label |                                                         |
-|:----------|:------|:--------------------------------------------------------|
-| P & N     | ROT   | Rotation sensor (1-pulse per revolution).               |
-| P & N     | DOK   | Docked sensor (active when anchor fully retracted).     |
-| P & N     | STP   | Stopped sensor (active when anchor fully deployed).     |
-| P & N     | RET   | Retrieving sensor (active when windlass is pulling in). |
-| P & N     | DEP   | Deploying sensor (active when windlass is letting out). |
-| P & N     | OVL   | Overload sensor (active when ground tackle is stuck).   |
+| Terminals | Label |                                                               |
+|:----------|:------|:--------------------------------------------------------------|
+| P & N     | ROT   | Rotation sensor (1-pulse per revolution).                     |
+| P & N     | DOK   | Docked sensor (active when ground tackle is fully retracted). |
+| P & N     | STP   | Stopped sensor (active when ground tackle is fully deployed). |
+| P & N     | RET   | Retrieving sensor (active when windlass is pulling in).       |
+| P & N     | DEP   | Deploying sensor (active when windlass is letting out).       |
+| P & N     | OVL   | Overload sensor (active when ground tackle is stuck).         |
 
 Each sensor input consists of a P-terminal which accepts a +12VDC or
 +24VDC signal relative to the N-terminal.
