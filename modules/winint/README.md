@@ -9,8 +9,8 @@ Windlass Network Messages protocol described in this
 
 __WININT__'s hardware interface was developed to support pole anchors
 built by the manufacturer ANKREO, but it may well be useful with other
-windlass-based hardware that can provide similar sensor inputs and that
-can be operate by simple UP and DOWN outputs.
+windlass-based hardware that can provide similar sensor inputs and can
+be operated by simple UP and DOWN control signals.
 
 __WININT__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
