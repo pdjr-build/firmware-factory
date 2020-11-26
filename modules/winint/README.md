@@ -100,12 +100,14 @@ Each sensor input consists of a P-terminal which accepts a +12VDC or
 Two relay output channels, UP and DOWN are provided for controlling an
 electric windlass winch motor or solenoid operated hydraulic valves.
 
-The NO terminal on each channel is snubbed.
+The NO terminal on each channel is snubbed and a status LED indicates
+when NO is closed.
 
 ### (6) Instance DIL switch
 
 The INSTANCE DIL switch allows the installation to be assigned an NMEA
 instance number in the range 0 through 127.
+An instance value of 127 
 The seven slide switches are each labelled with their corresponding
 decimal value and the sliders are active when in the right-hand
 position.
@@ -117,21 +119,29 @@ set LRLRLLL (top to bottom).
 With the jumper in place the NMEA cable shield is connected to the
 module ground plane.
 
-### Installing the module
+### (8) ENABLE jumper
+
+With this jumper in place the module operates normally.
+With the jumper removed the output relays are disabled: this is useful
+for installation since it allows the module to be installed, configured
+and tested without operating the connected windlass.
+
+## Installing the module
+
+## Configuring the module
+
+To operate correctly the module must be configured with an NMEA
+instance number that uniquely identifies the installation.
+
+Enter your chosen instance number using the DIP switch on the module
+PCB.
+
+### Configuration issues
+
+Configuration problems are indicated by the status LEDs on the module
+top cover.
 
 
-
-
-
-### (7) 
-The relays are rated 63V 5A and the NO contacts are snubber protected.
- 
-
-| Version | MCU                   | Released  | Comment                   |
-|:--------|:----------------------|:----------|:--------------------------|
-| 1.0     | Teensy 3.2            | July 2020 | First release.            |
-
-## N2K interface
 
 __MODINT__ connects to the host N2K bus through a standard M12 5-pin male
 connector.  The module includes a selectable bus termination resistor

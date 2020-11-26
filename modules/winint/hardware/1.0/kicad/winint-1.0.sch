@@ -579,7 +579,6 @@ F 3 "" H 6500 5600 50  0001 C CNN
 	1    6500 5600
 	1    0    0    -1  
 $EndComp
-NoConn ~ 4900 2700
 NoConn ~ 4900 2800
 NoConn ~ 4900 2900
 NoConn ~ 4900 3000
@@ -1036,7 +1035,7 @@ Wire Wire Line
 Wire Wire Line
 	6500 5450 7550 5450
 Wire Wire Line
-	6500 2800 6500 1600
+	6500 2800 6500 2700
 Wire Wire Line
 	6500 1600 7300 1600
 Connection ~ 3700 800 
@@ -1047,7 +1046,7 @@ CAN_POWER
 Wire Wire Line
 	5100 2400 5100 3300
 Wire Wire Line
-	3700 800  6600 800 
+	3700 800  5200 800 
 Text Label 10000 1800 2    50   Italic 0
 RELAY
 Text Label 10000 3000 2    50   Italic 0
@@ -1452,4 +1451,44 @@ Wire Wire Line
 	7950 2800 8150 2800
 Wire Wire Line
 	7950 2450 7950 2350
+$Comp
+L Device:Jumper_NO_Small JP2
+U 1 1 5FC163D4
+P 5200 1750
+F 0 "JP2" V 5200 1650 50  0000 C CNN
+F 1 "ENABLE" V 5100 1700 39  0000 R CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 5200 1750 50  0001 C CNN
+F 3 "~" H 5200 1750 50  0001 C CNN
+	1    5200 1750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R27
+U 1 1 5FC1A576
+P 5400 2700
+F 0 "R27" V 5300 2700 50  0000 C CNN
+F 1 "10K" V 5400 2700 39  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 5330 2700 50  0001 C CNN
+F 3 "~" H 5400 2700 50  0001 C CNN
+F 4 "1W" V 5400 2700 50  0001 C CNN "Power"
+	1    5400 2700
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5250 2700 5200 2700
+Connection ~ 6500 2700
+Wire Wire Line
+	6500 2700 6500 1600
+Wire Wire Line
+	5550 2700 6500 2700
+Wire Wire Line
+	5200 2700 5200 1850
+Connection ~ 5200 2700
+Wire Wire Line
+	5200 2700 4900 2700
+Wire Wire Line
+	5200 1650 5200 800 
+Connection ~ 5200 800 
+Wire Wire Line
+	5200 800  6600 800 
 $EndSCHEMATC
