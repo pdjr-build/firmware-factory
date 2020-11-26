@@ -1168,13 +1168,13 @@ Connection ~ 8150 5450
 Wire Wire Line
 	8150 5450 8750 5450
 Wire Wire Line
-	6600 800  8150 800 
+	6600 800  7950 800 
 Wire Wire Line
-	7750 1600 8150 1600
+	7750 1600 7950 1600
 Wire Wire Line
-	6600 2000 8150 2000
+	6600 2000 7950 2000
 Wire Wire Line
-	7750 2800 8150 2800
+	7750 2800 7950 2800
 $Comp
 L Connector:Screw_Terminal_01x03 J2
 U 1 1 5FBEC238
@@ -1382,4 +1382,74 @@ Wire Wire Line
 	1350 6650 1350 6750
 Wire Wire Line
 	1300 6150 1300 6650
+$Comp
+L Device:R R25
+U 1 1 5FC0AF39
+P 7950 1000
+F 0 "R25" H 8050 1000 50  0000 C CNN
+F 1 "200R" V 7950 1000 39  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 7880 1000 50  0001 C CNN
+F 3 "~" H 7950 1000 50  0001 C CNN
+F 4 "0.125W" V 8050 1000 50  0001 C CNN "Power"
+	1    7950 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED D8
+U 1 1 5FC0E9ED
+P 7950 1400
+F 0 "D8" V 7950 1350 50  0000 R CNN
+F 1 "DOWN" H 7650 1350 39  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7950 1400 50  0001 C CNN
+F 3 "~" H 7950 1400 50  0001 C CNN
+	1    7950 1400
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7950 850  7950 800 
+Connection ~ 7950 800 
+Wire Wire Line
+	7950 800  8150 800 
+Wire Wire Line
+	7950 1550 7950 1600
+Connection ~ 7950 1600
+Wire Wire Line
+	7950 1600 8150 1600
+Wire Wire Line
+	7950 1250 7950 1150
+$Comp
+L Device:R R26
+U 1 1 5FC4BE6B
+P 7950 2200
+F 0 "R26" H 8050 2200 50  0000 C CNN
+F 1 "200R" V 7950 2200 39  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal" V 7880 2200 50  0001 C CNN
+F 3 "~" H 7950 2200 50  0001 C CNN
+F 4 "0.125W" V 8050 2200 50  0001 C CNN "Power"
+	1    7950 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED D9
+U 1 1 5FC4C6ED
+P 7950 2600
+F 0 "D9" V 7950 2550 50  0000 R CNN
+F 1 "DOWN" H 7650 2550 39  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7950 2600 50  0001 C CNN
+F 3 "~" H 7950 2600 50  0001 C CNN
+	1    7950 2600
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7950 2050 7950 2000
+Connection ~ 7950 2000
+Wire Wire Line
+	7950 2000 8150 2000
+Wire Wire Line
+	7950 2750 7950 2800
+Connection ~ 7950 2800
+Wire Wire Line
+	7950 2800 8150 2800
+Wire Wire Line
+	7950 2450 7950 2350
 $EndSCHEMATC
