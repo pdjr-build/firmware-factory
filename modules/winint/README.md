@@ -44,10 +44,12 @@ sensor and relay connection cables.
 The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to expose the printed circuit board
 (PCB).
+
 The PCB has connectors for sensor inputs (4) and relay outputs (5).
-A DIL switch (6) allows entry of a windlass instance number and a
-jumper (7) optionally connects the NMEA cable shield to the module
-ground plane.
+A DIL switch (6) allows entry of a windlass instance number.
+Jumper (7) allows connection of the NMEA cable shield to the module
+ground plane and jumper (8) enables and disables operation of the
+output relays.
 
 ### (1) NMEA bus connector
 
