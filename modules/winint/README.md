@@ -3,14 +3,14 @@
 __WININT__ is an NMEA 2000 module which implements a windlass operating
 interface.
 
-The module was developed to support pole anchors built by the
-manufacturer ANKREO, but it may well be useful with other
-windlass-based hardware that has similar control and monitoring
-characteristics.
 The module accepts commands and issues status reports using the N2K
 Windlass Network Messages protocol described in this
 [Technical Bulletin]( https://www.nmea.org/Assets/20190613%20windlass%20amendment,%20128776,%20128777,%20128778.pdf).
-characteristics.
+
+__WININT__'s hardware interface was developed to support pole anchors
+built by the manufacturer ANKREO, but it may well be useful with other
+windlass-based hardware that can provide similar sensor inputs and that
+can be operate by simple UP and DOWN outputs.
 
 __WININT__ connects to the NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
@@ -24,6 +24,7 @@ solenoids.
 Six optically isolated sensor input channels can be connected to 12/24V
 external signals.
 Diagnostic LEDS confirm NMEA connection and module operating status.
+
 The module is configured by a PCB mounted DIP switch which allows entry
 of an NMEA instance address that identifies the installation and
 allows multiple __WININT__ modules to co-exist on the same network.
@@ -84,15 +85,15 @@ input channels.
 
 | Terminals | Label |                                                         |
 |:----------|:------|:--------------------------------------------------------|
-| P/N       | ROT   | Rotation sensor (1-pulse per revolution).               |
-| P/N       | DOK   | Docked sensor (active when anchor fully retracted).     |
-| P/N       | STP   | Stopped sensor (active when anchor fully deployed).     |
-| P/N       | RET   | Retrieving sensor (active when windlass is pulling in). |
-| P/N       | DEP   | Deploying sensor (active when windlass is letting out). |
-| P/N       | OVL   | Overload sensor (active when ground tackle is stuck).   |
+| P & N     | ROT   | Rotation sensor (1-pulse per revolution).               |
+| P & N     | DOK   | Docked sensor (active when anchor fully retracted).     |
+| P & N     | STP   | Stopped sensor (active when anchor fully deployed).     |
+| P & N     | RET   | Retrieving sensor (active when windlass is pulling in). |
+| P & N     | DEP   | Deploying sensor (active when windlass is letting out). |
+| P & N     | OVL   | Overload sensor (active when ground tackle is stuck).   |
 
-Each sensor input consists of a P-terminal which accepts plus 12/24VDC
-relative to the N-terminal.
+Each sensor input consists of a P-terminal which accepts a +12VDC or
++24VDC signal relative to the N-terminal.
 
 ### (5) Relay outputs
 
@@ -103,16 +104,18 @@ The NO terminal on each channel is snubbed.
 
 ### (6) Instance DIL switch
 
-The INSTANCE DIL switch allows the installation to be assigned an NMEA instance
-number in the range 0 through 127.
-The seven slide switches are each labelled with their corresponding decimal
-value and the sliders are active when in the right-hand position.
-For example, to enter the instance number 10, the switches should be set
-LRLRLLL (top to bottom).
+The INSTANCE DIL switch allows the installation to be assigned an NMEA
+instance number in the range 0 through 127.
+The seven slide switches are each labelled with their corresponding
+decimal value and the sliders are active when in the right-hand
+position.
+For example, to enter the instance number 10, the switches should be
+set LRLRLLL (top to bottom).
 
 ### (7) SCR jumper
 
-With the jumper in place the NMEA cable shield is connected to the module ground plane.
+With the jumper in place the NMEA cable shield is connected to the
+module ground plane.
 
 ### Installing the module
 
