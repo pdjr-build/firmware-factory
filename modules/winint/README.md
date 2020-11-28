@@ -105,32 +105,33 @@ electric windlass winch motor or solenoid operated hydraulic valves.
 The NO terminal on each channel is snubbed and a status LED indicates
 when NO is closed.
 
-### (6) Instance DIL switch
+### (6) INSTANCE DIL switch
 
 The INSTANCE DIL switch allows the installation to be assigned an NMEA
 instance number in the range 0 through 127.
-An instance value of 127 
 The seven slide switches are each labelled with their corresponding
 decimal value and the sliders are active when in the right-hand
 position.
 For example, to enter the instance number 10, the switches should be
 set LRLRLLL (top to bottom).
 
-### (7) SCR jumper
+### (7) MODE DIL switch
 
-With the jumper in place the NMEA cable shield is connected to the
+Switch [1] when CLOSED allows the module to operate normally.
+When OPEN, the relay outputs are disabled: this is useful for
+installation and maintenance since it allows the module to be
+installed, configured and tested without the risk of actually
+operating a connected windlass.
+
+Switch [2] when CLOSED connects the NMEA cable shield to the
 module ground plane.
 
 ### (8) ENABLE jumper
 
-With this jumper in place the module operates normally.
-With the jumper removed the output relays are disabled: this is useful
-for installation since it allows the module to be installed, configured
-and tested without operating the connected windlass.
 
 ## Installing the module
 
-### Step 1: Posiion the module
+### Step 1: Position the module
 
 ### Step 6: Enable output relays
 
