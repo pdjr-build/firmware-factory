@@ -1,19 +1,25 @@
 # MODINT v1.0
 
-This module design includes a [circuit schematic](schematic.pdf),
-[pcb layout](pcb.pdf) and [enclosure proposal](enclosure.pdf) for an
-NMEA 2000 compatible spudpole interface built around a Teensy 3.2 MCU.
-The module is designed to be powered directly from the host NMEA 2000
-bus.
+This module design includes a [circuit schematic](schematic.pdf) and
+[pcb layout](pcb.pdf) for an NMEA 2000 compatible spudpole interface
+built around a Teensy 3.2 MCU.
 
-## Packaging proposal
+The interface is designed to be powered directly from the host NMEA
+2000 bus and has full electrical isolation of all external inputs
+and outputs.
 
-The protoype PCB design is configured for an 80x80x23 flanged ABS
+## PCB and packaging proposal
+
+This first-generation design exclusively uses through-hole components
+and is implemented as an 80mm by 80mm x 1.6mm two-layer 1oz copper PCB.
+
+The PCB is installed in a 25mm deep, flanged, ABS
 [enclosure](https://docs.rs-online.com/960c/0900766b814af9a1.pdf)
 with grommeted cable entry for sensor connections and an industry
 standard female
 [M12 5-pin connector](https://docs.rs-online.com/e3ad/0900766b8152901f.pdf)
 for NMEA bus connection.
+
 The enclosure is drilled to expose PCB mounted status LEDs.
 
 ## Circuit design
@@ -24,31 +30,34 @@ The enclosure is drilled to expose PCB mounted status LEDs.
 
 ### Power supply
 
-The module is powered at 5VDC by the output of a DC-DC converter which
-is connected directly to the S and C connections of the host CAN bus.
+The module is powered directly from 12VDC NMEA 2000 power
+on CAN lines S and C.
+An integrated DC-DC converter provides a regulated 5VDC 2A
+supply for all board components and will tolerate input
+voltage in the range 9VDC through 32VDC.
 
-The module draws approximately 100mA from the bus power supply giving
-an NMEA LEN of 2.
+The module draws approximately 100mA from the NMEA bus giving
+an NMEA LEN of 1.
 The NMEA bus is protected by a self-resetting 500mA polyfuse.
 
-### CAN interface
+### CAN data interface
 
 The module interfaces to the host CAN bus through an
 [MCP2551 high-speed CAN transceiver](https://docs.rs-online.com/f763/0900766b8140ba57.pdf).
-The CAN H and L signals are fed to the transceiver inputs through 
-simple RC input filtering.
-A switch on the module allows the installer to select whether or not to
-connect the CAN screen to the module ground plane.
+The CAN H and L signals are cleaned through simple RC input
+filtering.
+A switch on the module allows the installer to select whether
+or not to connect the CAN screen to the module ground plane.
 
 ### Sensor inputs 
 
-Six optically isolated inputs rated at 12/24VDC allow connection of up
-to six physical sensors.
+Six optically isolated screw connector inputs rated at 12/24VDC
+allow connection of up to six physical sensors.
 All sensor inputs are active high.
 
-Three sensor inputs (ROT, RTD and DPD) are essential for module
-operation, whilst the other three inputs allow improved fault detection
-and better control.
+Three sensor inputs (SENSOR_ROT, SENSOR_RTD and SENSOR_DPD) are
+essential for module operation, whilst the other three inputs allow
+improved fault detection and refined control.
 
 #### SENSOR_ROT
 This input should be fed from a rotation sensor directly monitoring the
@@ -60,7 +69,6 @@ is fully ReTrieveD and / or docked.
 
 #### SENSOR_DPD
 This input should be high when the ground tackle is fully DePloyeD.
-
 
 #### SENSOR_RTG
 This input should be high when the windlass is ReTrievinG its cable.
@@ -75,21 +83,23 @@ windlass actuator.
 #### SENSOR_OVL
 This input should be high when the windlass is experiencing or about to
 experience an overload condition (for example, when the ground tackle
-is partially fouled.
+is partially fouled).
+This signal could come from a motor current sensor or some form of strain
+sensor monitoring the physical structure of the windlass installation.
 
 ### Relay outputs
 
 The module provides two zero-volt SPDT relay outputs for connection of
 UP and DOWN actuators.
-The relays are rated at 50VDC 2A and  CO, NO and NC contacts ares
- available.
-The NO contact is snubber protected against damage by inductive loads
-making the relays suitable for driving heavy duty relay coils and
-solenoids.
+The relays are rated at 50VDC 2A and CO, NO and NC contacts are
+available through screw connection terminals.
+The NO contact on each relay is snubber protected against damage by
+inductive loads making the relays suitable for driving heavy duty relay
+coils and solenoids.
 
 ### PCB switches
 
-The PCB has two DIL switch units CONFIG and INSTANCE.
+The PCB has two DIL switch modules CONFIG and INSTANCE.
 
 | Switch   | Pole | Description |
 |:---------|:----:|:------------|
@@ -105,11 +115,9 @@ The PCB has two DIL switch units CONFIG and INSTANCE.
 
 ### LED indicators
 
-The module has six LED indicators: an operating LED on the module
-controller, two LEDs indicating output relay control state and three
-status LEDs (PWR, UP and DOWN) which are visible from outside the
-module enclosure and are modulated to reflect the module operating
-state.
+The module has six LED indicators: one on the MCU, two adjacent to
+the output relays and three status LEDs (PWR, UP and DOWN) which
+are visible from outside the module enclosure.
 
 | LED        | Description | 
 |:-----------|:------------|
