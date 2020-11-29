@@ -26,7 +26,7 @@ controlling the same or different windlasses as their peers.
 
 ## About the module
 
-![Fig 1: module schematic](winctl.png)
+![Fig 1: module schematic](winctl.png.svg)
 
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
@@ -37,21 +37,21 @@ passage of switch and indicator connection cables.
 
 The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to expose the printed circuit board (PCB).
-The PCB has connectors for switches (4) and indicators (5) and four
-jumpers (6) which allow one side of the control channel relays to be
-independently commoned with one side of the PWR indicator relay.
-A DIL switch (7) allows entry of a windlass instance number and two
-programme switches (8) allow this number to be saved to module memory.
-Finally, a jumper (9) determines whether or not to connext the NMEA
-cable shield to the module ground.
+The PCB has connectors for switches (4) and indicators (5).
+A DIL switch (6) allows entry of a windlass instance number and two
+programme switches (7) allow this number to be saved to module memory.
+Finally, a jumper (8) allows connection of the NMEA cable shield to the
+module ground.
 
 ### (1) NMEA bus connector
+
 The module uses an M12 circular female 5-pin industrial connector for
 NMEA connection.
 Any standard compliant N2K drop cable will allow the module to be connected
 to a host NMEA bus through a T-connector.
 
-### (2) Status LEDs 
+### (2) Status LEDs
+
 The three status LEDs labeled PWR/TX, W0 and W1 are modulated to provide
 diagnostic feedback that is especially relevant to the installer.
 
@@ -66,10 +66,12 @@ diagnostic feedback that is especially relevant to the installer.
 |        | Steady                            | Control channel W*n* is active (input *n*U or *n*D is high). |
 
 ### (3) Cable glands
+
 Two 6mm cable glands allow passage of switch and indicator connection
 cables.
 
 ### (4) Switch connector
+
 This is a five-pole screw connector with a common GND 0VDC reference and
 inputs 0U, 0D, 1U and 1D for windlass switch inputs.
 
@@ -84,6 +86,7 @@ inputs 0U, 0D, 1U and 1D for windlass switch inputs.
 All inputs are opto-isolated and reverse polarity protected.
 
 ### (5) Indicator connector
+
 This is a ten-pole screw connector supporting five zero-volt NO relay outputs
 intended for operating panel status indicators.
 
@@ -94,12 +97,6 @@ intended for operating panel status indicators.
 | 5&6 (W0D)  | Windlass 0 deployment status     | 50VDC, 1A max |
 | 7&8 (W1U)  | Windlass 1 retrieval status      | 50VDC, 1A max |
 | 9&10 (W1D) | Windlass 1 deployment status     | 50VDC, 1A max |
-
-Terminal 2 has a special status because it can be connected to other
-even-numbered terminals by the use of jumpers: when the indicators
-connected to the relay outputs have a low current rating, this can
-simplify wiring by reducing the required number of supply/return
-wires that are needed.
 
 The relays which support the connections are modulated dependent upon status
 data received from the remote windlasses that have been configured for the
@@ -115,22 +112,12 @@ two module control channels.
 | *n*DN     | ON                     | The tackle attached to windlass *n* is deployed.|
 |           | Isophase ON-OFF        | Windlass *n* is deploying its associated tackle.|
 
-### (6) Indicator jumpers
-Four removable jumpers (labelled __2-4__, __2-6__, __2-8__ and __2-10__)
-allow the use of separate or common connections for one side of each of the
-zero volt indicator connections.
-With the jumpers removed, each output channel is independent; placing a
-jumper for an output channel commons the even numbered terminal for that
-channel with terminal 2.
-In this way, a single power or ground connection to PWR pin 2 can be shared
-by one or more other output channels, simplifying wiring to the module
-indicator outputs.
+### (6) Instance DIL switch
 
-### (7) Instance DIL switch
 The INSTANCE DIL switch allows the entry of instance numbers in the range
-0 through 127 using a binary representation. The value 127 has special
-significance to the module and if programmed will disable the associated
-control channel.
+0 through 127 using a binary representation.
+The value 127 has special significance to the module and if programmed
+will disable the associated control channel.
 Normally, the INSTANCE switch is used to enter the instance numbers of the
 windlasses that are controlled by the module.
 The seven slide switches are each labelled with their corresponding decimal
@@ -138,13 +125,15 @@ value and the sliders are active when in the right-hand position.
 For example, to enter the instance number 10, the swithces should be set
 LRLRLLL (top to bottom).
 
-### (8) Programme switches
+### (7) Programme switches
+
 The PRGW0 and PRGW1 switches save the address set up on (6) to the module's
 EEPROM memory, associating the specified remote windlass with the selected
 module control channel (or disabling the control channel if the INSTANCE
 address is set to 127).
 
-### (9) SCR jumper
+### (8) SCR jumper
+
 With the jumper in place the NMEA cable shield is connected to the module
 ground plane.
 

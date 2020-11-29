@@ -580,9 +580,9 @@ Wire Wire Line
 	8150 3900 8150 4000
 Connection ~ 7350 3900
 Text Label 10000 4300 2    50   ~ 0
-CAN_H
+CANH
 Text Label 10000 4500 2    50   ~ 0
-CAN_L
+CANL
 Wire Notes Line
 	6800 3800 10000 3800
 Wire Notes Line
@@ -789,7 +789,7 @@ F 3 "~" H 2600 4450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Text Label 2900 4350 0    50   ~ 0
-CAN_SCR
+CANSCR
 Wire Wire Line
 	8650 5500 9150 5500
 Wire Wire Line
@@ -1722,7 +1722,7 @@ RELAY_UP
 Text Label 4500 5550 0    50   ~ 0
 RELAY_DOWN
 Text Label 10000 4950 2    50   ~ 0
-CAN_SCR
+CANSCR
 Wire Wire Line
 	2300 4450 2300 4350
 Connection ~ 2300 4450
