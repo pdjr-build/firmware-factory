@@ -2,7 +2,7 @@
 
 ## Circuit design
 
-![Circuit schematic](schematic.pdf)\
+[Circuit schematic](schematic.pdf)\
 
 [PCB layout](pcb.pdf)
 
