@@ -23,9 +23,11 @@ filtering.
 A switch allows the installer to select whether or not to
 connect the host bus screen to the module ground plane.
 
-Six active-high optically isolated sensor input channels
-will accept signals at either 12VDC or 24VDC nominal.
-
+Six active-high sensor input channels will accept signals at either
+12VDC or 24VDC.
+Each input channel is protected by a
+[PC817](http://www.soselectronic.cz/a_info/resource/d/pc817.pdf)
+opto-isolator.
 
 
 The interface is designed to be powered directly from the host NMEA
