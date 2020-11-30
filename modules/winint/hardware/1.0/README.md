@@ -8,9 +8,20 @@
 
 The module circuit is based on a
 [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)
-MCU and is powered from the NMEA 2000 bus via an isolated
+MCU.
+
+Power is drawn directly from the host NMEA 2000 bus via a
+[TEC2-2411WI](https://www.tracopower.com/products/tec2wi.pdf)
 DC-DC converter delivering 5VDC at maximumum 2A.
 The NMEA power tap is fused at 500mA.
+
+The module interfaces to the host bus through an
+[MCP2551](https://docs.rs-online.com/f763/0900766b8140ba57.pdf)
+high-speed CAN transceiver.
+The CAN H and L signals are cleaned through simple RC input
+filtering.
+A switch allows the installer to select whether or not to
+connect the host bus screen to the module ground plane.
 
 Six active-high optically isolated sensor input channels
 will accept signals at either 12VDC or 24VDC nominal.
@@ -55,12 +66,6 @@ The NMEA bus is protected by a self-resetting 500mA polyfuse.
 
 ### CAN data interface
 
-The module interfaces to the host CAN bus through an
-[MCP2551 high-speed CAN transceiver](https://docs.rs-online.com/f763/0900766b8140ba57.pdf).
-The CAN H and L signals are cleaned through simple RC input
-filtering.
-A switch on the module allows the installer to select whether
-or not to connect the CAN screen to the module ground plane.
 
 ### Sensor inputs 
 
