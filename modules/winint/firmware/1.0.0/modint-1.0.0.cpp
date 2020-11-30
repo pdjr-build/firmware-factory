@@ -498,15 +498,23 @@ void setRelayOutput(int action, long timeout) {
       N2K_LAST_COMMAND = N2kDD484_Off;
       break;
     case -1: // Set relays for RETRIEVE
-      commandTimeout(timeout);
-      digitalWrite(GPIO_UP_RELAY, HIGH);
-      digitalWrite(GPIO_DN_RELAY, LOW);
+      if (!digitalRead(GPIO_SWITCH_ENABLE)) {
+        if (!digitalRead(GPIO_SENSOR_OVL)) {
+          commandTimeout(timeout);
+          digitalWrite(GPIO_UP_RELAY, HIGH);
+          digitalWrite(GPIO_DN_RELAY, LOW);
+        }
+      }
       N2K_LAST_COMMAND = N2kDD484_Up;
       break;
     case +1: // Set relays for DEPLOY
-      commandTimeout(timeout);
-      digitalWrite(GPIO_UP_RELAY, LOW);
-      digitalWrite(GPIO_DN_RELAY, HIGH);
+      if (!digitalRead(GPIO_SWITCH_ENABLE)) {
+        if (!digitalRead(GPIO_SENSOR_OVL)) {
+          commandTimeout(timeout);
+          digitalWrite(GPIO_UP_RELAY, LOW);
+          digitalWrite(GPIO_DN_RELAY, HIGH);
+        }
+      }
       N2K_LAST_COMMAND = N2kDD484_Down;
       break;
     default:
