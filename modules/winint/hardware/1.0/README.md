@@ -2,7 +2,7 @@
 
 ## Circuit design
 
-![Circuit schematic](schematic.svg)
+<img align="left" width="400" src="schematic.svg">
 
 for an NMEA 2000 compatible spudpole interface
 built around a Teensy 3.2 MCU.
