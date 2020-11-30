@@ -1,4 +1,4 @@
-# WININT - Windlass Interface Module (1.0)
+# WININT - windlass interface module (1.0)
 
 This module design includes a [circuit schematic](schematic.pdf) and
 [pcb layout](pcb.pdf) for an NMEA 2000 compatible windlass interface.
