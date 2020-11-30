@@ -1,7 +1,9 @@
 # WININT - windlass interface module (1.0)
 
-This module design includes a [circuit schematic](schematic.pdf) and
-[pcb layout](pcb.pdf) for an NMEA 2000 compatible spudpole interface
+[Circuit schematic](schematic.pdf)\
+[PCB layout](pcb.pdf)
+
+for an NMEA 2000 compatible spudpole interface
 built around a Teensy 3.2 MCU.
 
 The interface is designed to be powered directly from the host NMEA
