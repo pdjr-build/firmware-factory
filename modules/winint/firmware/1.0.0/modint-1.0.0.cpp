@@ -171,7 +171,7 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
  * PGN 128778 Windlass ????????? Status
  */
 
-const unsigned long TransmitMessages[] PROGMEM={ 128776L, 128777L, 128778L, 0L };
+const unsigned long TransmitMessages[] PROGMEM = { 128776L, 128777L, 128778L, 0L };
 
 /**********************************************************************
  * PGNs of messages handled by this program.
@@ -216,7 +216,7 @@ N2kSpudpole spudpole(settings);
 
 tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
-int SWITCHES[] = { GPIO_ROTATION_SENSOR, GPIO_DOCKED_SENSOR, GPIO_DEPLOYED_SENSOR, GPIO_DEPLOYING_SENSOR, GPIO_RETRIEVING_SENSOR };
+int SWITCHES[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG };
 Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
 
 /**********************************************************************
@@ -238,8 +238,8 @@ void setup() {
   delay(DEBUG_SERIAL_START_DELAY);
   #endif
   
-  int ipins[] = GPIO_INPUT_PINS;
-  int opins[] = GPIO_OUTPUT_PINS;
+  int ipins[] = GPIO_PINS_INPUT;
+  int opins[] = GPIO_PINS_OUTPUT;
   for (unsigned int i = 0 ; i < ARRAYSIZE(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
   for (unsigned int i = 0 ; i < ARRAYSIZE(opins); i++) { pinMode(opins[i], OUTPUT); digitalWrite(opins[i], LOW); }
   
@@ -273,11 +273,10 @@ void loop() {
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
 
   DEBOUNCER->debounce();
-  if (!JUST_STARTED) processSwitches();
+  if (!JUST_STARTED) processSensors();
   
   commandTimeout();
   transmitStatus();
-  operateTransmitLED();
 
   NMEA2000.ParseMessages();
 
@@ -292,7 +291,7 @@ void loop() {
  * be less than the rotation period of the windlass being monitored.
  */
 
-void processSwitches() {
+void processSensors() {
   static bool rotationSensorProcessed = false;
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
@@ -308,10 +307,10 @@ void processSwitches() {
         rotationSensorProcessed = false;
         break;
     }
-    spudpole.setDockedStatus((!DEBOUNCER->channelState(GPIO_DOCKED_SENSOR))?Spudpole::YES:Spudpole::NO);
-    spudpole.setDeployedStatus((!DEBOUNCER->channelState(GPIO_DEPLOYED_SENSOR))?Spudpole::YES:Spudpole::NO);
-    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_DEPLOYING_SENSOR))?Windlass::DEPLOYING:Windlass::STOPPED);
-    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_RETRIEVING_SENSOR))?Windlass::RETRIEVING:Windlass::STOPPED);
+    spudpole.setDockedStatus((!DEBOUNCER->channelState(GPIO_SENSOR_RTD))?Spudpole::YES:Spudpole::NO);
+    spudpole.setDeployedStatus((!DEBOUNCER->channelState(GPIO_SENSOR_DPD))?Spudpole::YES:Spudpole::NO);
+    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_DPG))?Windlass::DEPLOYING:Windlass::STOPPED);
+    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_RTG))?Windlass::RETRIEVING:Windlass::STOPPED);
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
 }
@@ -326,7 +325,7 @@ void processSwitches() {
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
   #ifdef GPIO_INSTANCE
-  int ipins[GPIO_INSTANCE]; 
+  int ipins[GPIO_INSTANCE_PINS]; 
   for (byte i = 0; i < 8; i++) {
     instance = instance + (digitalRead(ipins[i]) << i);
   }
