@@ -2,7 +2,9 @@
 
 ## Circuit design
 
+<a href="schematic.pdf">
 <img align="right" width="400" src="schematic.svg">
+</a>
 
 The module circuit is based on a
 [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)
