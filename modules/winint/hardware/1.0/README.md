@@ -2,10 +2,18 @@
 
 ## Circuit design
 
-<img align="left" width="400" src="schematic.svg">
+<img align="right" width="400" src="schematic.svg">
 
-for an NMEA 2000 compatible spudpole interface
-built around a Teensy 3.2 MCU.
+The module circuit is based on a
+[Teensy 3.2](https://www.pjrc.com/store/teensy32.html)
+MCU and is powered from the NMEA 2000 bus via an isolated
+DC-DC converter delivering 5VDC at maximumum 2A.
+The NMEA power tap is fused at 500mA.
+
+Six active-high optically isolated sensor input channels
+will accept signals at either 12VDC or 24VDC nominal.
+
+
 
 The interface is designed to be powered directly from the host NMEA
 2000 bus and has full electrical isolation of all external inputs
