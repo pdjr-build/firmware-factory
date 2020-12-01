@@ -46,6 +46,8 @@ accommodate an 80x80 PCB.
 The module will be drilled to accommodate a standard NMEA cable
 connector, two 6mm cable grommets and three 3mm LED indicators.
 
+<br clear="right"/>
+
 ### PCB
 
 <a href="pcb.pdf">
