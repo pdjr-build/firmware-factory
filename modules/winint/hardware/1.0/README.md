@@ -42,7 +42,7 @@ outputs offer status information.
 ### Sensor input channels
 
 | Channel | Required | Input characteristic |
-|:--------|:---------|:------------|--------|
+|:--------|:---------|:---------------------|
 | ROT     | Yes      | One high pulse per windlass spool revolution. |
 | RTD     | Yes      | High when the ground tackle operated by the windlass is fully retrieved. |
 | DPD     | Yes      | High when the ground tackle is fully deployed. |
