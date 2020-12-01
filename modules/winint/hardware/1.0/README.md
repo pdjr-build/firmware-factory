@@ -54,7 +54,7 @@ connector, two 6mm cable grommets and three 3mm LED indicators.
 
 This first-generation design exclusively uses through-hole components
 and is implemented as an 80mm by 80mm x 1.6mm two-layer 1oz copper PCB.
-
+<br clear="right"/>
 ### Parts list
 
 | Part | Proposal |
