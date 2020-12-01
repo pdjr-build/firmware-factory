@@ -7,7 +7,7 @@
 #include <Arduino.h>
 
 Debouncer::Debouncer(int gpios[], unsigned long interval) {
-  for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) this->gpios[i] = ((i < ARRAYSIZE(gpios))?gpios[i]:-1);
+  for (unsigned int i = 0; i < DEBOUNCER_SIZE; i++) this->gpios[i] = gpios[i];
   this->interval = interval;
   this->deadline = 0UL;
 }
