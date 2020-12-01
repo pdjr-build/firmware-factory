@@ -6,33 +6,32 @@
 <img align="right" width="400" src="schematic.svg">
 </a>
 
-The module circuit is based on a
+This design is based on a
 [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)
 MCU.
 
-Module power at a regulated 5VDC is supplied by an isolated DC-DC
-converter supplied by the host NMEA 2000 bus S & C lines.
-The NMEA power tap is fused at 500mA and has a nominal draw of
-100mA or 1LEN (in NMEA parlance).
+Module power at 5VDC is supplied by an isolated DC-DC converter fed
+directly by the NMEA 2000 bus S & C lines through a 500mA self-resetting
+fuse.
+The module has a nominal draw of 100mA or, in NMEA parlance, 1LEN.
 
 The module data interface is implemented using a high-speed CAN
 transceiver.
-The CAN H and L signals are conditioned through simple RC input
+CAN H and L signals are conditioned through simple RC input
 filtering.
 A switch allows the installer to select whether or not to connect
 the host bus screen to the module ground plane.
 
-Six optically isolated sensor input channels will accept signals
+Six optically isolated sensor input channels accept signals
 at either 12VDC or 24VDC.
 
 Two zero-volt SPDT relay output channels are provided for the
 connection of UP and DOWN actuators.
 The CO, NO and NC contacts of each relay are available to the
-installer.
-The NO ccircuit on each relay is snubber protected making it
-suitable for driving inductive loads.
+installer and the NO circuit on each relay is snubber protected making
+it suitable for driving inductive loads.
 
-The module is configured through DIP switch setting and a range of LED
+The module is configured through DIP switch settings and a range of LED
 outputs offer status information.
 
 ## Physical design
@@ -43,10 +42,9 @@ outputs offer status information.
 
 The proposed enclosure is a shallow flanged ABS module designed to
 accommodate an 80x80 PCB.
-The module will be drilled to accommodate a standard NMEA cable
-connector, two 6mm cable grommets and three 3mm LED indicators.
-
-<br clear="right"/>
+The enclosure is drilled to accommodate a standard NMEA cable connector,
+two 6mm cable grommets and three 3mm LED indicators.
+<br clear="both"/>
 
 ### PCB
 
