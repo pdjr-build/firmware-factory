@@ -43,7 +43,7 @@
 
 #define GPIO_LED_BOARD 13
 #define GPIO_LED_DOWN 9
-#define GPIO_LED_POWER 7
+#define GPIO_LED_PWR 7
 #define GPIO_LED_UP 8
 #define GPIO_PINS_INPUT { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, GPIO_SWITCH_ENABLE, GPIO_SWITCH_INSTANCE0, GPIO_SWITCH_INSTANCE1, GPIO_SWITCH_INSTANCE2, GPIO_SWITCH_INSTANCE3, GPIO_SWITCH_INSTANCE4, GPIO_SWITCH_INSTANCE5, GPIO_SWITCH_INSTANCE6 }
 #define GPIO_PINS_INSTANCE { GPIO_SWITCH_INSTANCE0, GPIO_SWITCH_INSTANCE1, GPIO_SWITCH_INSTANCE2, GPIO_SWITCH_INSTANCE3, GPIO_SWITCH_INSTANCE4, GPIO_SWITCH_INSTANCE5, GPIO_SWITCH_INSTANCE6, GPIO_SWITCH_INSTANCE7 }
@@ -143,6 +143,7 @@
 #define STATUS_LED_MANAGER_HEARTBEAT 300
 #define STATUS_LED_MANAGER_INTERVAL 10
 #define TRANSMIT_LED_TIMEOUT 200 // milliseconds
+#define SENSOR_PROCESS_INTERVAL 250 // milliseconds
 
 /**********************************************************************
  * Declarations of local functions.
@@ -151,6 +152,7 @@
 #ifdef DEBUG_SERIAL
 void debugDump();
 #endif
+void processSensors();
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
 void PGN128776(const tN2kMsg &N2kMsg);
@@ -216,7 +218,7 @@ N2kSpudpole spudpole(settings);
 
 tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
-int SWITCHES[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG };
+int SWITCHES[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, -1, -1 };
 Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
 
 /**********************************************************************
@@ -311,7 +313,7 @@ void processSensors() {
     spudpole.setDeployedStatus((!DEBOUNCER->channelState(GPIO_SENSOR_DPD))?Spudpole::YES:Spudpole::NO);
     spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_DPG))?Windlass::DEPLOYING:Windlass::STOPPED);
     spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_RTG))?Windlass::RETRIEVING:Windlass::STOPPED);
-    deadline = (now + SWITCH_PROCESS_INTERVAL);
+    deadline = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
 
@@ -377,7 +379,6 @@ void messageHandler(const tN2kMsg &N2kMsg) {
     tN2kMsg m776; provisionPGN128776(m776, sed); NMEA2000.SendMsg(m776);
     tN2kMsg m777; provisionPGN128777(m777, sed); NMEA2000.SendMsg(m777);
     tN2kMsg m778; provisionPGN128778(m778, sed); NMEA2000.SendMsg(m778);
-    operateTransmitLED(TRANSMIT_LED_TIMEOUT);
     sed++;
   }
 }
@@ -576,3 +577,6 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
   return(retval);
 }
 
+void debugDump() {
+  
+}
