@@ -39,7 +39,7 @@ outputs offer status information.
 
 ### Enclosure
 
-<img align="right" width="400" src="enclosure.svg">
+<img align="right" width="400" src="enclosure.png">
 
 The proposed enclosure is a shallow flanged ABS module designed to
 accommodate an 80x80 PCB.
@@ -51,7 +51,7 @@ connector, two 6mm cable grommets and three 3mm LED indicators.
 ### PCB
 
 <a href="pcb.pdf">
-<img align="right" width="400" src="pcb.svg">
+<img align="right" width="400" src="pcb.png">
 </a>
 
 This first-generation design exclusively uses through-hole components
