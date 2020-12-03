@@ -11,14 +11,13 @@ This design is based on a
 MCU.
 
 Module power at 5VDC is supplied by an isolated DC-DC converter fed
-directly by the NMEA 2000 bus S & C lines through a 500mA self-resetting
+directly by the NMEA 2000 power bus through a 500mA self-resetting
 fuse.
-The module has a nominal draw of 100mA or, in NMEA parlance, 1LEN.
+The module has a nominal current draw of 100mA (1 LEN).
 
 The module data interface is implemented using a high-speed CAN
 transceiver.
-CAN H and L signals are conditioned through simple RC input
-filtering.
+CAN H and L signals are conditioned through simple RC filtering.
 A switch allows the installer to select whether or not to connect
 the host bus screen to the module ground plane.
 
@@ -26,13 +25,13 @@ Six optically isolated sensor input channels accept signals
 at either 12VDC or 24VDC.
 
 Two zero-volt SPDT relay output channels are provided for the
-connection of UP and DOWN actuators.
+operation of external UP and DOWN actuators.
 The CO, NO and NC contacts of each relay are available to the
 installer and the NO circuit on each relay is snubber protected making
 it suitable for driving inductive loads.
 
-The module is configured through DIP switch settings and a range of LED
-outputs offer status information.
+Two DIP switch modules offer configuration and installation settings
+and a range of LED outputs offer status information.
 
 ## Physical design
 
@@ -42,7 +41,8 @@ outputs offer status information.
 
 The proposed enclosure is a shallow flanged ABS module designed to
 accommodate an 80x80 PCB.
-The enclosure is drilled to accommodate a standard NMEA cable connector,
+
+The enclosure must be machined to accommodate a standard NMEA cable connector,
 two 6mm cable grommets and three 3mm LED indicators.
 <br clear="both"/>
 
@@ -52,14 +52,15 @@ two 6mm cable grommets and three 3mm LED indicators.
 <img align="right" width="300" src="pcb.png">
 </a>
 
-This first-generation design exclusively uses through-hole components
-and is implemented as an 80mm by 80mm x 1.6mm two-layer 1oz copper PCB.
-<br clear="right"/>
+This first-generation design uses through-hole components and is
+implemented as an 80mm by 80mm x 1.6mm two-layer 1oz copper PCB.
+<br clear="both"/>
+
 ### Parts list
 
-| Part | Proposal |
-|:-----|:---------|
-| MCU  | [Teensy 3.2](https://www.pjrc.com/store/teensy32.html) |
+| Part            | Proposal |
+|:----------------|:---------|
+| MCU             | [Teensy 3.2](https://www.pjrc.com/store/teensy32.html) |
 | DC-DC converter | [TEC2-2411WI](https://www.tracopower.com/products/tec2wi.pdf) |
 | CAN transceiver | [MCP2551](https://docs.rs-online.com/f763/0900766b8140ba57.pdf) |
 | Opto-isolator   | [PC817](http://www.soselectronic.cz/a_info/resource/d/pc817.pdf) |
@@ -68,14 +69,18 @@ and is implemented as an 80mm by 80mm x 1.6mm two-layer 1oz copper PCB.
 | NMEA connector  | [M12 5-pin connector](https://docs.rs-online.com/e3ad/0900766b8152901f.pdf) |
 
 
-## Connection and configuration
+## Connections
+
+### NMEA
+
+The module's female NMEA connector will directly accept an NMEA
+standard drop cable.
 
 ### Sensor input channels
 
 Each input channel is presented as P (positive) & N (neutral) terminals
 and will accept input signals in the range 9VDC through 32VDC.
-At 12VDC the input channel opto-isolator will draw 9mA from the signal
-supply.
+At 12VDC each input channel will draw 9mA from the signal supply.
 
 | Channel | Required | Input characteristic |
 |:--------|:---------|:---------------------|
@@ -86,20 +91,28 @@ supply.
 | DPG     | No       | On when the windlass is deploying its cable. |
 | OVL     | No       | On when the windlass is experiencing or about to experience an overload condition |
 
+The module will operate with just three external inputs.
+Providing the RTG and DPG inputs improves fault-detection and status reporting.
+Providing the OVL input allows more refined windlass control.
+
 ### Relay output channels
 
 Each output channel is presented as CO, NO and NC terminals rated at
 50VDC 2A.
-The CO-NO circuit is snubbed.
+The CO-NO circuit on each channel is snubbed.
 
 | Channel | Output characteristic |
 |:--------|:----------------------|
 | RUP     | CO-NO closed when windlass should retrieve its cable. |
 | RDN     | CO-NO closed when windlass should deploy its cable. |
 
+### Switches and indicators
+
 ### Switch inputs
 
-| Switch   | Pole | Description |
+Switch inputs are provided through two DIL switch modules.
+
+| Module   | Pole | Description |
 |:---------|:----:|:------------|
 | CONFIG   | 1    | Close to enable relay output. |
 | CONFIG   | 2    | Close to connect NMEA cable shield to module ground. |
@@ -113,9 +126,12 @@ The CO-NO circuit is snubbed.
 
 ### Indicator outputs
 
+There is a single LED indicator on the MCU and five LED indicators
+on the PCB, three of which are visible through the module enclosure.
+
 | LED        | Description | 
 |:-----------|:------------|
-| MCU        | No module specific use (see MCU documentation). |
+| MCU        | Modulated on a successful firmware boot, otherwise no module specific use (see MCU documentation). |
 | UP relay   | Illuminates when the UP relay NO contact is closed. |
 | DOWN relay | Illuminates when the DOWN relay NO contact is closed. |
 | PWR        | Shows power state and is modulated when NMEA operating commands are being received. | 
