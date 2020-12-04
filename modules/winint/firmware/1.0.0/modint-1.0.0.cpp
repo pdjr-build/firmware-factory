@@ -25,7 +25,7 @@
 #define DEBUG_SERIAL
 #define DEBUG_USE_DEBUG_ADDRESSES
 
-#define DEBUG_SERIAL_START_DELEAY 4000UL
+#define DEBUG_SERIAL_START_DELAY 4000UL
 #define DEBUG_SERIAL_INTERVAL 1000UL
 #define DEBUG_INSTANCE_VALUE 0x33
 
@@ -33,7 +33,8 @@
  * MCU EEPROM STORAGE DEFINITIONS
  */
 
-#define EEPROM_OPERATING_TIME_STORAGE_ADDRESS 0
+#define EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS 0
+#define EEPROM_OPERATING_TIME_STORAGE_ADDRESS 1
 
 /**********************************************************************
  * MCU DIGITAL IO PIN DEFINITIONS
@@ -46,7 +47,7 @@
 #define GPIO_LED_PWR 7
 #define GPIO_LED_UP 8
 #define GPIO_PINS_INPUT { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, GPIO_SWITCH_ENABLE, GPIO_SWITCH_INSTANCE0, GPIO_SWITCH_INSTANCE1, GPIO_SWITCH_INSTANCE2, GPIO_SWITCH_INSTANCE3, GPIO_SWITCH_INSTANCE4, GPIO_SWITCH_INSTANCE5, GPIO_SWITCH_INSTANCE6 }
-#define GPIO_PINS_INSTANCE { GPIO_SWITCH_INSTANCE0, GPIO_SWITCH_INSTANCE1, GPIO_SWITCH_INSTANCE2, GPIO_SWITCH_INSTANCE3, GPIO_SWITCH_INSTANCE4, GPIO_SWITCH_INSTANCE5, GPIO_SWITCH_INSTANCE6, GPIO_SWITCH_INSTANCE7 }
+#define GPIO_PINS_INSTANCE { GPIO_SWITCH_INSTANCE0, GPIO_SWITCH_INSTANCE1, GPIO_SWITCH_INSTANCE2, GPIO_SWITCH_INSTANCE3, GPIO_SWITCH_INSTANCE4, GPIO_SWITCH_INSTANCE5, GPIO_SWITCH_INSTANCE6 }
 #define GPIO_PINS_OUTPUT { GPIO_RELAY_DOWN, GPIO_RELAY_UP, GPIO_LED_BOARD, GPIO_LED_DOWN, GPIO_LED_PWR, GPIO_LED_UP }
 #define GPIO_RELAY_DOWN 6
 #define GPIO_RELAY_UP 5
@@ -135,6 +136,7 @@
  * Miscelaneous
  */
 
+#define DEFAULT_SOURCE_ADDRESS 22
 #define INSTANCE_UNDEFINED 255
 #define N2K_COMMAND_TIMEOUT 0.4 // seconds
 #define N2K_DYNAMIC_UPDATE_INTERVAL 0.25 // seconds
@@ -218,15 +220,15 @@ N2kSpudpole spudpole(settings);
 
 tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
-int SWITCHES[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, -1, -1 };
-Debouncer *DEBOUNCER = new Debouncer(SWITCHES);
+int SENSORS[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, -1, -1 };
+Debouncer DEBOUNCER (SENSORS);
 
 /**********************************************************************
  * Create an LED manager STATUS_LED_MANAGER which can be used to manage
  * the status LEDS mounted on the module PCB.
  */
 
-LedManager *STATUS_LED_MANAGER = new LedManager(STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
 
 
@@ -245,13 +247,29 @@ void setup() {
   for (unsigned int i = 0 ; i < ARRAYSIZE(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
   for (unsigned int i = 0 ; i < ARRAYSIZE(opins); i++) { pinMode(opins[i], OUTPUT); digitalWrite(opins[i], LOW); }
   
+  // The very first time this code runs, there will be no previously
+  // assigned source address in EEPROM and a read will most likely
+  // return the default memory initialisation value (0xFF) which
+  // happens to be the CAN network broadcast address. To stop this
+  // silly thing happening we write and arbitrary, non-broadcast
+  // address to EEPROM.
+  //
+  if (EEPROM.read(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS) == 255) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, DEFAULT_SOURCE_ADDRESS);
+
+  // Flash MPU LED three times to show that execution has started.
+  //
+  STATUS_LED_MANAGER.operate(GPIO_LED_BOARD, 0, 3);
+
+
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
-  NMEA2000.Open();                             
+  //NMEA2000.Open();        
+
+  Serial.println(getPoleInstance());                   
 }
 
 /**********************************************************************
@@ -274,13 +292,21 @@ void loop() {
   static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
 
-  DEBOUNCER->debounce();
+  DEBOUNCER.debounce();
   if (!JUST_STARTED) processSensors();
   
   commandTimeout();
-  transmitStatus();
+  //transmitStatus();
 
-  NMEA2000.ParseMessages();
+  //NMEA2000.ParseMessages();
+  // The above may have resulted in acquisition of a new source
+  // address, so we check if there has been a change and if so save the
+  // new address to EEPROM for future re-use.
+  //if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, NMEA2000.GetN2kSource());
+
+  // Let the LED manager update the status LEDs.
+  //
+  STATUS_LED_MANAGER.loop();
 
   #ifdef DEBUG_SERIAL
   debugDump();
@@ -298,7 +324,7 @@ void processSensors() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {  
-    switch (!DEBOUNCER->channelState(GPIO_ROTATION_SENSOR)) {
+    switch (!DEBOUNCER.channelState(GPIO_ROTATION_SENSOR)) {
       case true:
         if (!rotationSensorProcessed) {
           spudpole.bumpRotationCount();
@@ -309,10 +335,10 @@ void processSensors() {
         rotationSensorProcessed = false;
         break;
     }
-    spudpole.setDockedStatus((!DEBOUNCER->channelState(GPIO_SENSOR_RTD))?Spudpole::YES:Spudpole::NO);
-    spudpole.setDeployedStatus((!DEBOUNCER->channelState(GPIO_SENSOR_DPD))?Spudpole::YES:Spudpole::NO);
-    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_DPG))?Windlass::DEPLOYING:Windlass::STOPPED);
-    spudpole.setOperatingState((!DEBOUNCER->channelState(GPIO_SENSOR_RTG))?Windlass::RETRIEVING:Windlass::STOPPED);
+    spudpole.setDockedStatus((!DEBOUNCER.channelState(GPIO_SENSOR_RTD))?Spudpole::YES:Spudpole::NO);
+    spudpole.setDeployedStatus((!DEBOUNCER.channelState(GPIO_SENSOR_DPD))?Spudpole::YES:Spudpole::NO);
+    spudpole.setOperatingState((!DEBOUNCER.channelState(GPIO_SENSOR_DPG))?Windlass::DEPLOYING:Windlass::STOPPED);
+    spudpole.setOperatingState((!DEBOUNCER.channelState(GPIO_SENSOR_RTG))?Windlass::RETRIEVING:Windlass::STOPPED);
     deadline = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
@@ -326,9 +352,9 @@ void processSensors() {
 
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
-  #ifdef GPIO_INSTANCE
-  int ipins[GPIO_INSTANCE_PINS]; 
-  for (byte i = 0; i < 8; i++) {
+  #ifdef GPIO_INSTANCE_PINS
+  int ipins[GPIO_INSTANCE_PINS];
+  for (byte i = 7; i >= 0; i--) {
     instance = instance + (digitalRead(ipins[i]) << i);
   }
   #endif
@@ -563,8 +589,8 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
       if (startMillis != 0L) {
         retval = (double) ((millis() - startMillis) * 1000);
         startMillis = 0L;
-        #ifdef EEPROM_OPERATING_TIME_ADDRESS
-        if (mode == Windlass::STORAGE) EEPROM.put(EEPROM_OPERATING_TIME_ADDRESS, retval);
+        #ifdef EEPROM_OPERATING_TIME_STORAGE_ADDRESS
+        if (mode == Windlass::STORAGE) EEPROM.put(EEPROM_OPERATING_TIME_STORAGE_ADDRESS, retval);
         #endif
       }
       break;
@@ -577,6 +603,24 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
   return(retval);
 }
 
+#ifdef DEBUG_SERIAL
 void debugDump() {
-  
+  Serial.println("debugDump()...");
+  static unsigned deadline = 0L;
+  unsigned now = millis();
+  if (now > deadline) {
+    Serial.print(now); Serial.print(": ");
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE6));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE5));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE4));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE3));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE2));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE1));
+    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE0));
+    Serial.print(" ");
+    Serial.print(getPoleInstance());
+    Serial.println();
+    deadline = (now + DEBUG_SERIAL_INTERVAL);
+  }
 }
+#endif
