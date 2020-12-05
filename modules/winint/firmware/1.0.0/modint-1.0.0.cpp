@@ -22,12 +22,12 @@
  * number defined here.
  */
 
-#define DEBUG_SERIAL
+#define DEBUG_SERIAL 1
 #define DEBUG_USE_DEBUG_ADDRESSES
 
 #define DEBUG_SERIAL_START_DELAY 4000UL
 #define DEBUG_SERIAL_INTERVAL 1000UL
-#define DEBUG_INSTANCE_VALUE 0x33
+#define DEBUG_INSTANCE_VALUE 0x22
 
 /**********************************************************************
  * MCU EEPROM STORAGE DEFINITIONS
@@ -103,7 +103,7 @@
 #define PRODUCT_CERTIFICATION_LEVEL 1
 #define PRODUCT_CODE 001
 #define PRODUCT_FIRMWARE_VERSION "1.0.0 (Sep 2020)"
-#define PRODUCT_LEN 2
+#define PRODUCT_LEN 1
 #define PRODUCT_N2K_VERSION 2101
 #define PRODUCT_SERIAL_CODE "001-565"
 #define PRODUCT_TYPE "WININT"
@@ -137,14 +137,12 @@
  */
 
 #define DEFAULT_SOURCE_ADDRESS 22
-#define INSTANCE_UNDEFINED 255
 #define N2K_COMMAND_TIMEOUT 0.4 // seconds
 #define N2K_DYNAMIC_UPDATE_INTERVAL 0.25 // seconds
 #define N2K_STATIC_UPDATE_INTERVAL 5.0 // seconds
 #define STARTUP_SETTLE_PERIOD 5000
 #define STATUS_LED_MANAGER_HEARTBEAT 300
 #define STATUS_LED_MANAGER_INTERVAL 10
-#define TRANSMIT_LED_TIMEOUT 200 // milliseconds
 #define SENSOR_PROCESS_INTERVAL 250 // milliseconds
 
 /**********************************************************************
@@ -157,7 +155,7 @@ void debugDump();
 void processSensors();
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
-void PGN128776(const tN2kMsg &N2kMsg);
+void PGN126208(const tN2kMsg &N2kMsg);
 double readTotalOperatingTime();
 void transmitStatus();
 void commandTimeout(long timeout = 0L);
@@ -185,7 +183,7 @@ const unsigned long TransmitMessages[] PROGMEM = { 128776L, 128777L, 128778L, 0L
  */
 
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
-tNMEA2000Handler NMEA2000Handlers[]={ {128776L, &PGN128776}, {0, 0} };
+tNMEA2000Handler NMEA2000Handlers[]={ {126208L, &PGN126208 }, {0, 0} };
 
 //*************************************************************************
 // Spudpole configuration
@@ -230,8 +228,6 @@ Debouncer DEBOUNCER (SENSORS);
 
 LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
-
-
 /**********************************************************************
  * MAIN PROGRAM - setup()
  */
@@ -260,16 +256,13 @@ void setup() {
   //
   STATUS_LED_MANAGER.operate(GPIO_LED_BOARD, 0, 3);
 
-
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, 22); // Configure for sending and receiving.
   NMEA2000.EnableForward(false); // Disable all msg forwarding to USB (=Serial)
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
-  //NMEA2000.Open();        
-
-  Serial.println(getPoleInstance());                   
+  NMEA2000.Open();
 }
 
 /**********************************************************************
@@ -289,20 +282,31 @@ void setup() {
  */
 
 void loop() {
+  // We need to debounce the sensor inputs before we process them, so
+  // we let debounce() run a number of times immediately after startup
+  // before processing the stabilised inputs.
+  //
   static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
 
   DEBOUNCER.debounce();
   if (!JUST_STARTED) processSensors();
   
+  // Operating commands have to be continuously received over the NMEA
+  // bus for relay outputs to be maintained or we time them out.
+  //
   commandTimeout();
-  //transmitStatus();
 
-  //NMEA2000.ParseMessages();
+  // And we report the current status me transmitting some NMEA
+  // messages every so often.
+  //
+  transmitStatus();
+
+  NMEA2000.ParseMessages();
   // The above may have resulted in acquisition of a new source
   // address, so we check if there has been a change and if so save the
   // new address to EEPROM for future re-use.
-  //if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, NMEA2000.GetN2kSource());
+  if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, NMEA2000.GetN2kSource());
 
   // Let the LED manager update the status LEDs.
   //
@@ -324,7 +328,7 @@ void processSensors() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {  
-    switch (!DEBOUNCER.channelState(GPIO_ROTATION_SENSOR)) {
+    switch (!DEBOUNCER.channelState(GPIO_SENSOR_ROT)) {
       case true:
         if (!rotationSensorProcessed) {
           spudpole.bumpRotationCount();
@@ -352,8 +356,8 @@ void processSensors() {
 
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
-  #ifdef GPIO_INSTANCE_PINS
-  int ipins[GPIO_INSTANCE_PINS];
+  #ifdef GPIO_PINS_INSTANCE
+  int ipins[] = GPIO_PINS_INSTANCE;
   for (byte i = 7; i >= 0; i--) {
     instance = instance + (digitalRead(ipins[i]) << i);
   }
@@ -368,16 +372,16 @@ unsigned char getPoleInstance() {
 
 double readTotalOperatingTime() {
   double retval = 0.0;
-  #ifdef EEPROMADDR_OPERATING_TIME
-  EEPROM.get(EEPROMADDR_OPERATING_TIME, retval);
+  #ifdef EEPROM_OPERATING_TIME_STORAGE_ADDRESS
+  EEPROM.get(EEPROM_OPERATING_TIME_STORAGE_ADDRESS, retval);
   #endif
   return(retval);
 }
 
 void messageHandler(const tN2kMsg &N2kMsg) {
   int iHandler;
-  for (iHandler=0; NMEA2000Handlers[iHandler].PGN!=0 && !(N2kMsg.PGN==NMEA2000Handlers[iHandler].PGN); iHandler++);
-  if (NMEA2000Handlers[iHandler].PGN!=0) {
+  for (iHandler = 0 ; NMEA2000Handlers[iHandler].PGN != 0 && !(N2kMsg.PGN == NMEA2000Handlers[iHandler].PGN) ; iHandler++);
+  if (NMEA2000Handlers[iHandler].PGN != 0) {
     NMEA2000Handlers[iHandler].Handler(N2kMsg); 
   }
 }
@@ -474,8 +478,8 @@ void provisionPGN128778(tN2kMsg &msg, byte sed) {
  * response to values in the WindlassDirectionControl field.  All other
  * command fields and options are ignored.
  */
-void PGN128776(const tN2kMsg &N2kMsg) {  
-  unsigned char SID;
+void PGN126208(const tN2kMsg &N2kMsg) {  
+  /*unsigned char SID;
   unsigned char instance;
   tN2kWindlassDirectionControl WindlassDirectionControl;
   tN2kGenericStatusPair AnchorDockingControl;
@@ -504,7 +508,7 @@ void PGN128776(const tN2kMsg &N2kMsg) {
           break;
       }
     }
-  }
+  }*/
 }
 
 /**********************************************************************
@@ -520,16 +524,16 @@ void setRelayOutput(int action, long timeout) {
   switch (action) {
     case 0: // Set relays OFF
       commandTimeout(-1); // cancel any operating timeout
-      digitalWrite(GPIO_UP_RELAY, LOW);
-      digitalWrite(GPIO_DN_RELAY, LOW);
+      digitalWrite(GPIO_RELAY_UP, LOW);
+      digitalWrite(GPIO_RELAY_DOWN, LOW);
       N2K_LAST_COMMAND = N2kDD484_Off;
       break;
     case -1: // Set relays for RETRIEVE
       if (!digitalRead(GPIO_SWITCH_ENABLE)) {
         if (!digitalRead(GPIO_SENSOR_OVL)) {
           commandTimeout(timeout);
-          digitalWrite(GPIO_UP_RELAY, HIGH);
-          digitalWrite(GPIO_DN_RELAY, LOW);
+          digitalWrite(GPIO_RELAY_UP, HIGH);
+          digitalWrite(GPIO_RELAY_DOWN, LOW);
         }
       }
       N2K_LAST_COMMAND = N2kDD484_Up;
@@ -538,8 +542,8 @@ void setRelayOutput(int action, long timeout) {
       if (!digitalRead(GPIO_SWITCH_ENABLE)) {
         if (!digitalRead(GPIO_SENSOR_OVL)) {
           commandTimeout(timeout);
-          digitalWrite(GPIO_UP_RELAY, LOW);
-          digitalWrite(GPIO_DN_RELAY, HIGH);
+          digitalWrite(GPIO_RELAY_UP, LOW);
+          digitalWrite(GPIO_RELAY_DOWN, HIGH);
         }
       }
       N2K_LAST_COMMAND = N2kDD484_Down;
@@ -563,17 +567,17 @@ void setRelayOutput(int action, long timeout) {
  */
 
 void commandTimeout(long timeout) {
-  static unsigned long _end = 0L;
+  static unsigned long _end = 0UL;
 
   switch (timeout) {
     case 0L: // Normal loop tick
-      if ((_end > 0L) && (_end < millis())) {
+      if ((_end > 0UL) && (_end < millis())) {
         setRelayOutput(0);
-        _end = 0L;
+        _end = 0UL;
       }
       break;
     case -1L: // Cancel timeout
-      _end = 0L;
+      _end = 0UL;
       break;
     default: // Start new timeout
       _end = (millis() + timeout);
@@ -605,8 +609,7 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
 
 #ifdef DEBUG_SERIAL
 void debugDump() {
-  Serial.println("debugDump()...");
-  static unsigned deadline = 0L;
+  static unsigned deadline = 0UL;
   unsigned now = millis();
   if (now > deadline) {
     Serial.print(now); Serial.print(": ");
@@ -617,7 +620,7 @@ void debugDump() {
     Serial.print(digitalRead(GPIO_SWITCH_INSTANCE2));
     Serial.print(digitalRead(GPIO_SWITCH_INSTANCE1));
     Serial.print(digitalRead(GPIO_SWITCH_INSTANCE0));
-    Serial.print(" ");
+    Serial.print(" -> ");
     Serial.print(getPoleInstance());
     Serial.println();
     deadline = (now + DEBUG_SERIAL_INTERVAL);

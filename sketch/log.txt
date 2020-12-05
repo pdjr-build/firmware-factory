@@ -1,0 +1,552 @@
+14:50:47.149 (post_compile 1): Begin, version=1.52
+14:50:47.283 (loader): Teensy Loader 1.52, begin program
+14:50:47.361 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:50:47.373 (loader): Listening for remote control on port 3149
+14:50:47.373 (loader): initialized, showing main window
+14:50:47.452 (loader): remote connection 11 opened
+14:50:47.453 (post_compile 1): Sending command: comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)
+14:50:47.453 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)"
+14:50:47.455 (loader): remote cmd from 11: "status"
+14:50:47.611 (post_compile 1): Status: 1, 0, 0, 0, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:50:47.611 (post_compile 1): Sending command: auto:on
+14:50:47.612 (loader): remote cmd from 11: "auto:on"
+14:50:47.612 (post_compile 1): Disconnect
+14:50:47.622 (post_compile 2): Running teensy_reboot: /home/preeve/.platformio/packages/tool-teensy/teensy_reboot
+14:50:47.734 (loader): remote connection 11 opened
+14:50:47.734 (loader): remote connection 11 closed
+14:50:47.734 (loader): remote connection 11 closed
+14:50:47.735 (reboot 3): Begin, version=1.52
+14:50:47.760 (loader): remote connection 11 opened
+14:50:47.762 (reboot 3): add device: subsys=usb, type=usb_device, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:50:47.762 (reboot 3):   devnode=/dev/bus/usb/005/087, subsystem=usb, ifacenum=-1
+14:50:47.762 (reboot 3): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0
+14:50:47.762 (reboot 3):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:50:47.762 (reboot 3):   model=33 (Teensy 3.2)
+14:50:47.763 (reboot 3): add child:  subsys=tty, type=(null), location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0/tty/ttyACM0
+14:50:47.763 (reboot 3):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:50:47.763 (reboot 3):   devnode=/dev/ttyACM0, subsystem=tty, ifacenum=0
+14:50:47.763 (reboot 3): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.1
+14:50:47.763 (reboot 3):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:50:47.787 (loader): remote cmd from 11: "show:arduino_attempt_reboot"
+14:50:47.787 (loader): got request to show arduino rebooting message
+14:50:47.800 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_reboot)"
+14:50:47.800 (loader): remote cmd from 11: "status"
+14:50:48.022 (loader): remote cmd from 11: "status"
+14:50:48.382 (loader): remote connection 11 closed
+14:50:48.884 (loader): Device came online, code_size = 262144
+14:50:48.884 (loader): Board is: Teensy 3.2 (MK20DX256), version 1.03
+14:50:48.913 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:50:48.923 (loader): set background IMG_ONLINE
+14:50:48.966 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:50:48.976 (loader): elf appears to be for Teensy 3.2 (MK20DX256) (262144 bytes)
+14:50:48.977 (loader): elf binary data matches hex file
+14:50:48.977 (loader): elf file is for Teensy 3.2 (MK20DX256)
+14:50:48.986 (loader): begin operation
+14:50:48.993 (loader): flash, block=0, bs=1024, auto=1
+14:50:48.996 (loader):  gauge old value = 0
+14:50:48.999 (loader): flash, block=1, bs=1024, auto=1
+14:50:49.000 (loader):  gauge old value = 1
+14:50:49.002 (loader): flash, block=2, bs=1024, auto=1
+14:50:49.003 (loader):  gauge old value = 2
+14:50:49.004 (loader): flash, block=3, bs=1024, auto=1
+14:50:49.074 (loader):  gauge old value = 3
+14:50:49.078 (loader): flash, block=4, bs=1024, auto=1
+14:50:49.080 (loader):  gauge old value = 4
+14:50:49.086 (loader): flash, block=5, bs=1024, auto=1
+14:50:49.088 (loader):  gauge old value = 5
+14:50:49.105 (loader): flash, block=6, bs=1024, auto=1
+14:50:49.107 (loader):  gauge old value = 6
+14:50:49.126 (loader): flash, block=7, bs=1024, auto=1
+14:50:49.129 (loader):  gauge old value = 7
+14:50:49.136 (loader): flash, block=8, bs=1024, auto=1
+14:50:49.137 (loader):  gauge old value = 8
+14:50:49.141 (loader): flash, block=9, bs=1024, auto=1
+14:50:49.143 (loader):  gauge old value = 9
+14:50:49.161 (loader): flash, block=10, bs=1024, auto=1
+14:50:49.163 (loader):  gauge old value = 10
+14:50:49.167 (loader): flash, block=11, bs=1024, auto=1
+14:50:49.169 (loader):  gauge old value = 11
+14:50:49.172 (loader): flash, block=12, bs=1024, auto=1
+14:50:49.173 (loader):  gauge old value = 12
+14:50:49.177 (loader): flash, block=13, bs=1024, auto=1
+14:50:49.178 (loader):  gauge old value = 13
+14:50:49.181 (loader): flash, block=14, bs=1024, auto=1
+14:50:49.183 (loader):  gauge old value = 14
+14:50:49.186 (loader): flash, block=15, bs=1024, auto=1
+14:50:49.187 (loader):  gauge old value = 15
+14:50:49.192 (loader): flash, block=16, bs=1024, auto=1
+14:50:49.193 (loader):  gauge old value = 16
+14:50:49.197 (loader): flash, block=17, bs=1024, auto=1
+14:50:49.216 (loader):  gauge old value = 17
+14:50:49.218 (loader): flash, block=18, bs=1024, auto=1
+14:50:49.220 (loader):  gauge old value = 18
+14:50:49.226 (loader): flash, block=19, bs=1024, auto=1
+14:50:49.227 (loader):  gauge old value = 19
+14:50:49.233 (loader): flash, block=20, bs=1024, auto=1
+14:50:49.234 (loader):  gauge old value = 20
+14:50:49.241 (loader): flash, block=21, bs=1024, auto=1
+14:50:49.242 (loader):  gauge old value = 21
+14:50:49.246 (loader): flash, block=22, bs=1024, auto=1
+14:50:49.247 (loader):  gauge old value = 22
+14:50:49.251 (loader): flash, block=23, bs=1024, auto=1
+14:50:49.269 (loader):  gauge old value = 23
+14:50:49.271 (loader): flash, block=24, bs=1024, auto=1
+14:50:49.273 (loader):  gauge old value = 24
+14:50:49.279 (loader): flash, block=25, bs=1024, auto=1
+14:50:49.280 (loader):  gauge old value = 25
+14:50:49.286 (loader): flash, block=26, bs=1024, auto=1
+14:50:49.287 (loader):  gauge old value = 26
+14:50:49.291 (loader): flash, block=27, bs=1024, auto=1
+14:50:49.293 (loader):  gauge old value = 27
+14:50:49.296 (loader): flash, block=28, bs=1024, auto=1
+14:50:49.297 (loader):  gauge old value = 28
+14:50:49.301 (loader): flash, block=29, bs=1024, auto=1
+14:50:49.319 (loader):  gauge old value = 29
+14:50:49.322 (loader): flash, block=30, bs=1024, auto=1
+14:50:49.324 (loader):  gauge old value = 30
+14:50:49.332 (loader): flash, block=31, bs=1024, auto=1
+14:50:49.333 (loader):  gauge old value = 31
+14:50:49.337 (loader): flash, block=32, bs=1024, auto=1
+14:50:49.338 (loader):  gauge old value = 32
+14:50:49.341 (loader): flash, block=33, bs=1024, auto=1
+14:50:49.343 (loader):  gauge old value = 33
+14:50:49.346 (loader): flash, block=34, bs=1024, auto=1
+14:50:49.365 (loader):  gauge old value = 34
+14:50:49.368 (loader): flash, block=35, bs=1024, auto=1
+14:50:49.369 (loader):  gauge old value = 35
+14:50:49.377 (loader): flash, block=36, bs=1024, auto=1
+14:50:49.378 (loader):  gauge old value = 36
+14:50:49.382 (loader): flash, block=37, bs=1024, auto=1
+14:50:49.383 (loader):  gauge old value = 37
+14:50:49.386 (loader): flash, block=38, bs=1024, auto=1
+14:50:49.388 (loader):  gauge old value = 38
+14:50:49.391 (loader): flash, block=39, bs=1024, auto=1
+14:50:49.393 (loader):  gauge old value = 39
+14:50:49.396 (loader): flash, block=40, bs=1024, auto=1
+14:50:49.415 (loader):  gauge old value = 40
+14:50:49.417 (loader): flash, block=41, bs=1024, auto=1
+14:50:49.419 (loader):  gauge old value = 41
+14:50:49.424 (loader): flash, block=42, bs=1024, auto=1
+14:50:49.428 (loader):  gauge old value = 42
+14:50:49.431 (loader): sending reboot
+14:50:49.432 (loader): begin wait_until_offline
+14:50:49.784 (loader): HID/linux: something changed, try reading a descriptor
+14:50:49.784 (loader): HID/linux: Device was just disconnected
+14:50:49.784 (loader): offline, waited 7
+14:50:49.784 (loader): end operation, total time = 0.798 seconds
+14:50:49.784 (loader): set background IMG_REBOOT_OK
+14:50:49.801 (loader): redraw timer set, image 14 to show for 1200 ms
+14:50:51.001 (loader): redraw, image 9
+14:51:05.209 (loader): Device came online, code_size = 262144
+14:51:05.209 (loader): Board is: Teensy 3.2 (MK20DX256), version 1.03
+14:51:05.236 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:05.246 (loader): set background IMG_ONLINE
+14:51:05.289 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:05.299 (loader): elf appears to be for Teensy 3.2 (MK20DX256) (262144 bytes)
+14:51:05.299 (loader): elf binary data matches hex file
+14:51:05.299 (loader): elf file is for Teensy 3.2 (MK20DX256)
+14:51:05.309 (loader): begin operation
+14:51:05.312 (loader): flash, block=0, bs=1024, auto=1
+14:51:05.315 (loader):  gauge old value = 0
+14:51:05.316 (loader): flash, block=1, bs=1024, auto=1
+14:51:05.318 (loader):  gauge old value = 1
+14:51:05.320 (loader): flash, block=2, bs=1024, auto=1
+14:51:05.321 (loader):  gauge old value = 2
+14:51:05.322 (loader): flash, block=3, bs=1024, auto=1
+14:51:05.392 (loader):  gauge old value = 3
+14:51:05.397 (loader): flash, block=4, bs=1024, auto=1
+14:51:05.398 (loader):  gauge old value = 4
+14:51:05.407 (loader): flash, block=5, bs=1024, auto=1
+14:51:05.408 (loader):  gauge old value = 5
+14:51:05.426 (loader): flash, block=6, bs=1024, auto=1
+14:51:05.428 (loader):  gauge old value = 6
+14:51:05.432 (loader): flash, block=7, bs=1024, auto=1
+14:51:05.433 (loader):  gauge old value = 7
+14:51:05.452 (loader): flash, block=8, bs=1024, auto=1
+14:51:05.454 (loader):  gauge old value = 8
+14:51:05.457 (loader): flash, block=9, bs=1024, auto=1
+14:51:05.459 (loader):  gauge old value = 9
+14:51:05.462 (loader): flash, block=10, bs=1024, auto=1
+14:51:05.463 (loader):  gauge old value = 10
+14:51:05.467 (loader): flash, block=11, bs=1024, auto=1
+14:51:05.468 (loader):  gauge old value = 11
+14:51:05.483 (loader): flash, block=12, bs=1024, auto=1
+14:51:05.485 (loader):  gauge old value = 12
+14:51:05.489 (loader): flash, block=13, bs=1024, auto=1
+14:51:05.490 (loader):  gauge old value = 13
+14:51:05.494 (loader): flash, block=14, bs=1024, auto=1
+14:51:05.495 (loader):  gauge old value = 14
+14:51:05.499 (loader): flash, block=15, bs=1024, auto=1
+14:51:05.500 (loader):  gauge old value = 15
+14:51:05.504 (loader): flash, block=16, bs=1024, auto=1
+14:51:05.505 (loader):  gauge old value = 16
+14:51:05.509 (loader): flash, block=17, bs=1024, auto=1
+14:51:05.510 (loader):  gauge old value = 17
+14:51:05.514 (loader): flash, block=18, bs=1024, auto=1
+14:51:05.533 (loader):  gauge old value = 18
+14:51:05.537 (loader): flash, block=19, bs=1024, auto=1
+14:51:05.538 (loader):  gauge old value = 19
+14:51:05.546 (loader): flash, block=20, bs=1024, auto=1
+14:51:05.547 (loader):  gauge old value = 20
+14:51:05.553 (loader): flash, block=21, bs=1024, auto=1
+14:51:05.554 (loader):  gauge old value = 21
+14:51:05.557 (loader): flash, block=22, bs=1024, auto=1
+14:51:05.559 (loader):  gauge old value = 22
+14:51:05.562 (loader): flash, block=23, bs=1024, auto=1
+14:51:05.563 (loader):  gauge old value = 23
+14:51:05.568 (loader): flash, block=24, bs=1024, auto=1
+14:51:05.586 (loader):  gauge old value = 24
+14:51:05.588 (loader): flash, block=25, bs=1024, auto=1
+14:51:05.590 (loader):  gauge old value = 25
+14:51:05.595 (loader): flash, block=26, bs=1024, auto=1
+14:51:05.598 (loader):  gauge old value = 26
+14:51:05.601 (loader): flash, block=27, bs=1024, auto=1
+14:51:05.602 (loader):  gauge old value = 27
+14:51:05.606 (loader): flash, block=28, bs=1024, auto=1
+14:51:05.609 (loader):  gauge old value = 28
+14:51:05.625 (loader): flash, block=29, bs=1024, auto=1
+14:51:05.627 (loader):  gauge old value = 29
+14:51:05.631 (loader): flash, block=30, bs=1024, auto=1
+14:51:05.633 (loader):  gauge old value = 30
+14:51:05.637 (loader): flash, block=31, bs=1024, auto=1
+14:51:05.639 (loader):  gauge old value = 31
+14:51:05.644 (loader): flash, block=32, bs=1024, auto=1
+14:51:05.645 (loader):  gauge old value = 32
+14:51:05.650 (loader): flash, block=33, bs=1024, auto=1
+14:51:05.651 (loader):  gauge old value = 33
+14:51:05.655 (loader): flash, block=34, bs=1024, auto=1
+14:51:05.674 (loader):  gauge old value = 34
+14:51:05.676 (loader): flash, block=35, bs=1024, auto=1
+14:51:05.677 (loader):  gauge old value = 35
+14:51:05.681 (loader): flash, block=36, bs=1024, auto=1
+14:51:05.682 (loader):  gauge old value = 36
+14:51:05.686 (loader): flash, block=37, bs=1024, auto=1
+14:51:05.687 (loader):  gauge old value = 37
+14:51:05.693 (loader): flash, block=38, bs=1024, auto=1
+14:51:05.694 (loader):  gauge old value = 38
+14:51:05.698 (loader): flash, block=39, bs=1024, auto=1
+14:51:05.716 (loader):  gauge old value = 39
+14:51:05.719 (loader): flash, block=40, bs=1024, auto=1
+14:51:05.720 (loader):  gauge old value = 40
+14:51:05.725 (loader): flash, block=41, bs=1024, auto=1
+14:51:05.727 (loader):  gauge old value = 41
+14:51:05.731 (loader): flash, block=42, bs=1024, auto=1
+14:51:05.733 (loader):  gauge old value = 42
+14:51:05.736 (loader): sending reboot
+14:51:05.738 (loader): begin wait_until_offline
+14:51:06.039 (loader): HID/linux: something changed, try reading a descriptor
+14:51:06.039 (loader): HID/linux: Device was just disconnected
+14:51:06.039 (loader): offline, waited 6
+14:51:06.040 (loader): end operation, total time = 0.731 seconds
+14:51:06.040 (loader): set background IMG_REBOOT_OK
+14:51:06.057 (loader): redraw timer set, image 14 to show for 1200 ms
+14:51:07.257 (loader): redraw, image 9
+14:51:22.479 (loader): Device came online, code_size = 262144
+14:51:22.479 (loader): Board is: Teensy 3.2 (MK20DX256), version 1.03
+14:51:22.507 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:22.516 (loader): set background IMG_ONLINE
+14:51:22.560 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:22.570 (loader): elf appears to be for Teensy 3.2 (MK20DX256) (262144 bytes)
+14:51:22.570 (loader): elf binary data matches hex file
+14:51:22.570 (loader): elf file is for Teensy 3.2 (MK20DX256)
+14:51:22.580 (loader): begin operation
+14:51:22.585 (loader): flash, block=0, bs=1024, auto=1
+14:51:22.587 (loader):  gauge old value = 0
+14:51:22.588 (loader): flash, block=1, bs=1024, auto=1
+14:51:22.591 (loader):  gauge old value = 1
+14:51:22.603 (loader): flash, block=2, bs=1024, auto=1
+14:51:22.606 (loader):  gauge old value = 2
+14:51:22.608 (loader): flash, block=3, bs=1024, auto=1
+14:51:22.660 (loader):  gauge old value = 3
+14:51:22.664 (loader): flash, block=4, bs=1024, auto=1
+14:51:22.665 (loader):  gauge old value = 4
+14:51:22.686 (loader): flash, block=5, bs=1024, auto=1
+14:51:22.689 (loader):  gauge old value = 5
+14:51:22.693 (loader): flash, block=6, bs=1024, auto=1
+14:51:22.694 (loader):  gauge old value = 6
+14:51:22.716 (loader): flash, block=7, bs=1024, auto=1
+14:51:22.719 (loader):  gauge old value = 7
+14:51:22.721 (loader): flash, block=8, bs=1024, auto=1
+14:51:22.722 (loader):  gauge old value = 8
+14:51:22.726 (loader): flash, block=9, bs=1024, auto=1
+14:51:22.727 (loader):  gauge old value = 9
+14:51:22.746 (loader): flash, block=10, bs=1024, auto=1
+14:51:22.749 (loader):  gauge old value = 10
+14:51:22.753 (loader): flash, block=11, bs=1024, auto=1
+14:51:22.754 (loader):  gauge old value = 11
+14:51:22.757 (loader): flash, block=12, bs=1024, auto=1
+14:51:22.760 (loader):  gauge old value = 12
+14:51:22.762 (loader): flash, block=13, bs=1024, auto=1
+14:51:22.763 (loader):  gauge old value = 13
+14:51:22.767 (loader): flash, block=14, bs=1024, auto=1
+14:51:22.768 (loader):  gauge old value = 14
+14:51:22.771 (loader): flash, block=15, bs=1024, auto=1
+14:51:22.773 (loader):  gauge old value = 15
+14:51:22.776 (loader): flash, block=16, bs=1024, auto=1
+14:51:22.794 (loader):  gauge old value = 16
+14:51:22.796 (loader): flash, block=17, bs=1024, auto=1
+14:51:22.798 (loader):  gauge old value = 17
+14:51:22.803 (loader): flash, block=18, bs=1024, auto=1
+14:51:22.805 (loader):  gauge old value = 18
+14:51:22.810 (loader): flash, block=19, bs=1024, auto=1
+14:51:22.812 (loader):  gauge old value = 19
+14:51:22.816 (loader): flash, block=20, bs=1024, auto=1
+14:51:22.817 (loader):  gauge old value = 20
+14:51:22.820 (loader): flash, block=21, bs=1024, auto=1
+14:51:22.822 (loader):  gauge old value = 21
+14:51:22.825 (loader): flash, block=22, bs=1024, auto=1
+14:51:22.844 (loader):  gauge old value = 22
+14:51:22.846 (loader): flash, block=23, bs=1024, auto=1
+14:51:22.848 (loader):  gauge old value = 23
+14:51:22.853 (loader): flash, block=24, bs=1024, auto=1
+14:51:22.855 (loader):  gauge old value = 24
+14:51:22.861 (loader): flash, block=25, bs=1024, auto=1
+14:51:22.862 (loader):  gauge old value = 25
+14:51:22.866 (loader): flash, block=26, bs=1024, auto=1
+14:51:22.867 (loader):  gauge old value = 26
+14:51:22.870 (loader): flash, block=27, bs=1024, auto=1
+14:51:22.889 (loader):  gauge old value = 27
+14:51:22.892 (loader): flash, block=28, bs=1024, auto=1
+14:51:22.894 (loader):  gauge old value = 28
+14:51:22.900 (loader): flash, block=29, bs=1024, auto=1
+14:51:22.902 (loader):  gauge old value = 29
+14:51:22.906 (loader): flash, block=30, bs=1024, auto=1
+14:51:22.907 (loader):  gauge old value = 30
+14:51:22.911 (loader): flash, block=31, bs=1024, auto=1
+14:51:22.913 (loader):  gauge old value = 31
+14:51:22.916 (loader): flash, block=32, bs=1024, auto=1
+14:51:22.917 (loader):  gauge old value = 32
+14:51:22.921 (loader): flash, block=33, bs=1024, auto=1
+14:51:22.939 (loader):  gauge old value = 33
+14:51:22.942 (loader): flash, block=34, bs=1024, auto=1
+14:51:22.945 (loader):  gauge old value = 34
+14:51:22.950 (loader): flash, block=35, bs=1024, auto=1
+14:51:22.951 (loader):  gauge old value = 35
+14:51:22.955 (loader): flash, block=36, bs=1024, auto=1
+14:51:22.956 (loader):  gauge old value = 36
+14:51:22.960 (loader): flash, block=37, bs=1024, auto=1
+14:51:22.961 (loader):  gauge old value = 37
+14:51:22.965 (loader): flash, block=38, bs=1024, auto=1
+14:51:22.983 (loader):  gauge old value = 38
+14:51:22.985 (loader): flash, block=39, bs=1024, auto=1
+14:51:22.987 (loader):  gauge old value = 39
+14:51:22.993 (loader): flash, block=40, bs=1024, auto=1
+14:51:22.995 (loader):  gauge old value = 40
+14:51:22.999 (loader): flash, block=41, bs=1024, auto=1
+14:51:23.000 (loader):  gauge old value = 41
+14:51:23.003 (loader): flash, block=42, bs=1024, auto=1
+14:51:23.005 (loader):  gauge old value = 42
+14:51:23.009 (loader): sending reboot
+14:51:23.027 (loader): begin wait_until_offline
+14:51:23.278 (loader): HID/linux: something changed, try reading a descriptor
+14:51:23.278 (loader): HID/linux: Device was just disconnected
+14:51:23.278 (loader): offline, waited 5
+14:51:23.278 (loader): end operation, total time = 0.699 seconds
+14:51:23.279 (loader): set background IMG_REBOOT_OK
+14:51:23.294 (loader): redraw timer set, image 14 to show for 1200 ms
+14:51:24.495 (loader): redraw, image 9
+14:51:48.320 (post_compile 4): Begin, version=1.52
+14:51:48.320 (loader): remote connection 11 opened
+14:51:48.320 (post_compile 4): Sending command: comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)
+14:51:48.321 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)"
+14:51:48.321 (loader): remote cmd from 11: "status"
+14:51:48.321 (loader): file changed
+14:51:48.362 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:48.500 (post_compile 4): Status: 1, 1, 0, 3, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:48.500 (post_compile 4): Disconnect
+14:51:48.510 (post_compile 5): Running teensy_reboot: /home/preeve/.platformio/packages/tool-teensy/teensy_reboot
+14:51:48.607 (loader): remote connection 12 opened
+14:51:48.608 (loader): remote connection 11 closed
+14:51:48.608 (loader): remote connection 12 closed
+14:51:48.609 (reboot 6): Begin, version=1.52
+14:51:48.632 (loader): remote connection 11 opened
+14:51:48.635 (reboot 6): add device: subsys=usb, type=usb_device, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:51:48.635 (reboot 6):   devnode=/dev/bus/usb/005/093, subsystem=usb, ifacenum=-1
+14:51:48.635 (reboot 6): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0
+14:51:48.635 (reboot 6):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:51:48.635 (reboot 6):   model=33 (Teensy 3.2)
+14:51:48.636 (reboot 6): add child:  subsys=tty, type=(null), location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0/tty/ttyACM0
+14:51:48.636 (reboot 6):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:51:48.636 (reboot 6):   devnode=/dev/ttyACM0, subsystem=tty, ifacenum=0
+14:51:48.636 (reboot 6): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.1
+14:51:48.636 (reboot 6):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+14:51:48.660 (reboot 6): found Teensy Loader, version 1.52
+14:51:48.660 (reboot 6): Sending command: show:arduino_attempt_reboot
+14:51:48.660 (loader): remote cmd from 11: "show:arduino_attempt_reboot"
+14:51:48.660 (loader): got request to show arduino rebooting message
+14:51:48.673 (reboot 6): Sending command: comment: Teensyduino 1.52 - LINUX64 (teensy_reboot)
+14:51:48.673 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_reboot)"
+14:51:48.673 (loader): remote cmd from 11: "status"
+14:51:48.823 (reboot 6): Status: 1, 1, 0, 3, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:48.823 (reboot 6): do_reset (serial) /dev/ttyACM0
+14:51:48.889 (loader): remote cmd from 11: "status"
+14:51:49.002 (reboot 6): Status: 1, 1, 0, 3, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.002 (reboot 6): status read, retry 0
+14:51:49.146 (loader): remote cmd from 11: "status"
+14:51:49.253 (reboot 6): Status: 1, 1, 0, 3, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.253 (reboot 6): status read, retry 1
+14:51:49.416 (loader): remote cmd from 11: "status"
+14:51:49.550 (reboot 6): Status: 1, 1, 0, 3, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.550 (reboot 6): status read, retry 2
+14:51:49.662 (loader): Device came online, code_size = 262144
+14:51:49.662 (loader): Board is: Teensy 3.2 (MK20DX256), version 1.03
+14:51:49.691 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:49.700 (loader): set background IMG_ONLINE
+14:51:49.743 (loader): File "firmware.hex". 43536 bytes, 17% used
+14:51:49.753 (loader): elf appears to be for Teensy 3.2 (MK20DX256) (262144 bytes)
+14:51:49.753 (loader): elf binary data matches hex file
+14:51:49.753 (loader): elf file is for Teensy 3.2 (MK20DX256)
+14:51:49.763 (loader): begin operation
+14:51:49.780 (loader): remote cmd from 11: "status"
+14:51:49.781 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.781 (loader): flash, block=0, bs=1024, auto=1
+14:51:49.783 (loader):  gauge old value = 0
+14:51:49.794 (loader): flash, block=1, bs=1024, auto=1
+14:51:49.795 (loader):  gauge old value = 1
+14:51:49.796 (loader): flash, block=2, bs=1024, auto=1
+14:51:49.798 (loader):  gauge old value = 2
+14:51:49.799 (loader): flash, block=3, bs=1024, auto=1
+14:51:49.852 (loader):  gauge old value = 3
+14:51:49.855 (loader): remote cmd from 11: "status"
+14:51:49.855 (loader): flash, block=4, bs=1024, auto=1
+14:51:49.855 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.873 (loader):  gauge old value = 4
+14:51:49.890 (loader): flash, block=5, bs=1024, auto=1
+14:51:49.892 (loader):  gauge old value = 5
+14:51:49.894 (loader): flash, block=6, bs=1024, auto=1
+14:51:49.896 (loader):  gauge old value = 6
+14:51:49.901 (loader): flash, block=7, bs=1024, auto=1
+14:51:49.902 (loader):  gauge old value = 7
+14:51:49.920 (loader): remote cmd from 11: "status"
+14:51:49.921 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.921 (loader): flash, block=8, bs=1024, auto=1
+14:51:49.923 (loader):  gauge old value = 8
+14:51:49.926 (loader): flash, block=9, bs=1024, auto=1
+14:51:49.927 (loader):  gauge old value = 9
+14:51:49.946 (loader): flash, block=10, bs=1024, auto=1
+14:51:49.948 (loader):  gauge old value = 10
+14:51:49.952 (loader): flash, block=11, bs=1024, auto=1
+14:51:49.953 (loader):  gauge old value = 11
+14:51:49.957 (loader): flash, block=12, bs=1024, auto=1
+14:51:49.960 (loader):  gauge old value = 12
+14:51:49.961 (loader): flash, block=13, bs=1024, auto=1
+14:51:49.963 (loader):  gauge old value = 13
+14:51:49.982 (loader): remote cmd from 11: "status"
+14:51:49.983 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:49.983 (loader): flash, block=14, bs=1024, auto=1
+14:51:49.986 (loader):  gauge old value = 14
+14:51:49.988 (loader): flash, block=15, bs=1024, auto=1
+14:51:49.989 (loader):  gauge old value = 15
+14:51:49.994 (loader): flash, block=16, bs=1024, auto=1
+14:51:49.995 (loader):  gauge old value = 16
+14:51:50.011 (loader): flash, block=17, bs=1024, auto=1
+14:51:50.013 (loader):  gauge old value = 17
+14:51:50.017 (loader): flash, block=18, bs=1024, auto=1
+14:51:50.019 (loader):  gauge old value = 18
+14:51:50.022 (loader): flash, block=19, bs=1024, auto=1
+14:51:50.023 (loader):  gauge old value = 19
+14:51:50.027 (loader): flash, block=20, bs=1024, auto=1
+14:51:50.028 (loader):  gauge old value = 20
+14:51:50.032 (loader): flash, block=21, bs=1024, auto=1
+14:51:50.033 (loader):  gauge old value = 21
+14:51:50.037 (loader): remote cmd from 11: "status"
+14:51:50.037 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:50.038 (loader): flash, block=22, bs=1024, auto=1
+14:51:50.039 (loader):  gauge old value = 22
+14:51:50.042 (loader): flash, block=23, bs=1024, auto=1
+14:51:50.044 (loader):  gauge old value = 23
+14:51:50.048 (loader): flash, block=24, bs=1024, auto=1
+14:51:50.066 (loader):  gauge old value = 24
+14:51:50.068 (loader): flash, block=25, bs=1024, auto=1
+14:51:50.070 (loader):  gauge old value = 25
+14:51:50.076 (loader): flash, block=26, bs=1024, auto=1
+14:51:50.078 (loader):  gauge old value = 26
+14:51:50.084 (loader): flash, block=27, bs=1024, auto=1
+14:51:50.085 (loader):  gauge old value = 27
+14:51:50.091 (loader): remote cmd from 11: "status"
+14:51:50.092 (reboot 6): Status: 1, 1, 1, 4, 0, 1, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+14:51:50.092 (loader): flash, block=28, bs=1024, auto=1
+14:51:50.093 (loader):  gauge old value = 28
+14:51:50.096 (loader): flash, block=29, bs=1024, auto=1
+14:51:50.097 (loader):  gauge old value = 29
+14:51:50.101 (loader): flash, block=30, bs=1024, auto=1
+14:51:50.119 (loader):  gauge old value = 30
+14:51:50.121 (loader): flash, block=31, bs=1024, auto=1
+14:51:50.123 (loader):  gauge old value = 31
+14:51:50.129 (loader): flash, block=32, bs=1024, auto=1
+14:51:50.130 (loader):  gauge old value = 32
+14:51:50.136 (loader): flash, block=33, bs=1024, auto=1
+14:51:50.137 (loader):  gauge old value = 33
+14:51:50.142 (reboot 6): status read, retry 3
+14:51:50.142 (reboot 6): Success
+14:51:50.142 (reboot 6): Disconnect
+14:51:50.142 (loader): flash, block=34, bs=1024, auto=1
+14:51:50.144 (loader):  gauge old value = 34
+14:51:50.147 (loader): flash, block=35, bs=1024, auto=1
+14:51:50.149 (loader):  gauge old value = 35
+14:51:50.152 (loader): flash, block=36, bs=1024, auto=1
+14:51:50.170 (loader):  gauge old value = 36
+14:51:50.172 (loader): flash, block=37, bs=1024, auto=1
+14:51:50.174 (loader):  gauge old value = 37
+14:51:50.180 (loader): remote connection 11 closed
+14:51:50.180 (loader): flash, block=38, bs=1024, auto=1
+14:51:50.182 (loader):  gauge old value = 38
+14:51:50.187 (loader): flash, block=39, bs=1024, auto=1
+14:51:50.188 (loader):  gauge old value = 39
+14:51:50.193 (loader): flash, block=40, bs=1024, auto=1
+14:51:50.195 (loader):  gauge old value = 40
+14:51:50.201 (loader): flash, block=41, bs=1024, auto=1
+14:51:50.202 (loader):  gauge old value = 41
+14:51:50.207 (loader): flash, block=42, bs=1024, auto=1
+14:51:50.209 (loader):  gauge old value = 42
+14:51:50.216 (loader): sending reboot
+14:51:50.218 (loader): begin wait_until_offline
+14:51:50.519 (loader): HID/linux: something changed, try reading a descriptor
+14:51:50.519 (loader): HID/linux: Device was just disconnected
+14:51:50.519 (loader): offline, waited 6
+14:51:50.519 (loader): end operation, total time = 0.757 seconds
+14:51:50.520 (loader): set background IMG_REBOOT_OK
+14:51:50.540 (loader): redraw timer set, image 14 to show for 1200 ms
+14:51:51.741 (loader): redraw, image 9
+14:54:00.920 (loader): file changed
+14:54:00.949 (loader): File "firmware.hex". 19452 bytes, 7% used
+15:04:14.738 (loader): file changed
+15:07:55.982 (loader): file changed
+15:07:56.019 (loader): File "firmware.hex". 19964 bytes, 8% used
+15:08:11.066 (loader): file changed
+15:08:11.091 (post_compile 7): Begin, version=1.52
+15:08:11.215 (loader): remote connection 11 opened
+15:08:11.215 (post_compile 7): Sending command: comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)
+15:08:11.215 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_post_compile)"
+15:08:11.216 (loader): remote cmd from 11: "status"
+15:08:11.337 (post_compile 7): Status: 0, 1, 0, 4, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+15:08:11.337 (post_compile 7): Disconnect
+15:08:11.348 (post_compile 8): Running teensy_reboot: /home/preeve/.platformio/packages/tool-teensy/teensy_reboot
+15:08:11.449 (loader): remote connection 12 opened
+15:08:11.449 (loader): remote connection 11 closed
+15:08:11.449 (loader): remote connection 12 closed
+15:08:11.450 (reboot 9): Begin, version=1.52
+15:08:11.472 (loader): remote connection 11 opened
+15:08:11.474 (reboot 9): add device: subsys=usb, type=usb_device, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+15:08:11.474 (reboot 9):   devnode=/dev/bus/usb/005/096, subsystem=usb, ifacenum=-1
+15:08:11.475 (reboot 9): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0
+15:08:11.475 (reboot 9):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+15:08:11.475 (reboot 9):   model=33 (Teensy 3.2)
+15:08:11.475 (reboot 9): add child:  subsys=tty, type=(null), location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.0/tty/ttyACM0
+15:08:11.475 (reboot 9):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+15:08:11.475 (reboot 9):   devnode=/dev/ttyACM0, subsystem=tty, ifacenum=0
+15:08:11.476 (reboot 9): add child:  subsys=usb, type=usb_interface, location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1/5-1:1.1
+15:08:11.476 (reboot 9):   parent location=/sys/devices/pci0000:00/0000:00:1d.0/usb5/5-1
+15:08:11.499 (reboot 9): found Teensy Loader, version 1.52
+15:08:11.499 (reboot 9): Sending command: show:arduino_attempt_reboot
+15:08:11.500 (loader): remote cmd from 11: "show:arduino_attempt_reboot"
+15:08:11.500 (loader): got request to show arduino rebooting message
+15:08:11.512 (reboot 9): Sending command: comment: Teensyduino 1.52 - LINUX64 (teensy_reboot)
+15:08:11.513 (loader): remote cmd from 11: "comment: Teensyduino 1.52 - LINUX64 (teensy_reboot)"
+15:08:11.513 (loader): remote cmd from 11: "status"
+15:08:11.634 (reboot 9): Status: 0, 1, 0, 4, 0, 0, /home/preeve/Projects/ankreo/sketch/.pio/build/teensy31/, firmware.hex
+15:08:11.634 (reboot 9): Teensy Loader is unable to read your compiled sketch (r)
+15:08:11.634 (reboot 9): Disconnect
+15:08:11.797 (loader): remote connection 11 closed
+15:09:32.060 (loader): Verbose Info event
+
