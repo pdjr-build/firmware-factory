@@ -1,7 +1,7 @@
-DEVICE_UNIQUE_NUMBER++
-sketch/include/build.h
-sketch/src/main.cpp
-sketch/report.*
+./DEVICE_UNIQUE_NUMBER++
+./sketch/include/build.h
+./sketch/src/main.cpp
+./sketch/report.*
 
 # Prerequisites
 *.d
