@@ -25,8 +25,8 @@
 #define DEBUG_SERIAL 1
 #define DEBUG_USE_DEBUG_ADDRESSES
 
-#define DEBUG_SERIAL_START_DELAY 2000UL
-#define DEBUG_SERIAL_INTERVAL 1000UL
+#define DEBUG_SERIAL_START_DELAY 1000UL
+#define DEBUG_SERIAL_INTERVAL 5000UL
 #define DEBUG_INSTANCE_VALUE 0x22
 
 /**********************************************************************
@@ -243,8 +243,8 @@ void setup() {
   delay(DEBUG_SERIAL_START_DELAY);
   #endif
   
-  for (unsigned int i = 0 ; i < ARRAYSIZE(INPUT_PINS); i++) { pinMode(INPUT_PINS[i], INPUT_PULLUP); }
-  for (unsigned int i = 0 ; i < ARRAYSIZE(OUTPUT_PINS); i++) { pinMode(OUTPUT_PINS[i], OUTPUT); digitalWrite(OUTPUT_PINS[i], LOW); }
+  //for (unsigned int i = 0 ; i < ARRAYSIZE(INPUT_PINS); i++) { pinMode(INPUT_PINS[i], INPUT_PULLUP); }
+  //for (unsigned int i = 0 ; i < ARRAYSIZE(OUTPUT_PINS); i++) { pinMode(OUTPUT_PINS[i], OUTPUT); digitalWrite(OUTPUT_PINS[i], LOW); }
   
   // The very first time this code runs, there will be no previously
   // assigned source address in EEPROM and a read will most likely
@@ -362,8 +362,13 @@ void processSensors() {
 
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
-  for (byte i = (ARRAYSIZE(INSTANCE_PINS) - 1); i >= 0; i--) {
-    instance = instance + (digitalRead(INSTANCE_PINS[i]) << i);
+  unsigned char t;
+  for (int i = (ARRAYSIZE(INSTANCE_PINS) - 1); i >= 0; i--) {
+    t = digitalRead(INSTANCE_PINS[i]);
+    Serial.print(i);
+    Serial.print(" ");
+    Serial.println(t);
+    instance = instance | (t << i);
   }
   return(instance);
 }
@@ -628,13 +633,15 @@ double windlassOperatingTimer(Windlass::OperatingTimerMode mode, Windlass::Opera
   */
 }
 
+
 #ifdef DEBUG_SERIAL
 void debugDump() {
   static unsigned deadline = 0UL;
   unsigned now = millis();
   if (now > deadline) {
-    unsigned char instance = getPoleInstance();
-    Serial.print("INSTANCE:  "); Serial.println(getPoleInstance(), HEX)
+    STATUS_LED_MANAGER.operate(GPIO_LED_BOARD, 0, 2);
+    Serial.println(now);
+    Serial.print("-->INSTANCE:  "); Serial.println(getPoleInstance(), HEX);
     deadline = (now + DEBUG_SERIAL_INTERVAL);
   }
 }
