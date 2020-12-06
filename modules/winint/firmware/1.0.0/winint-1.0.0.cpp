@@ -215,6 +215,10 @@ N2kSpudpole::Settings settings = {
  * scratch storage for the last operating command received over N2K. 
  */
 
+unsigned char INPUT_PINS[] = GPIO_PINS_INPUT;
+unsigned char OUTPUT_PINS[] = GPIO_PINS_OUTPUT;
+unsigned char INSTANCE_PINS[] = GPIO_PINS_INSTANCE;
+
 //N2kSpudpole spudpole(settings);
 
 //tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
@@ -239,10 +243,8 @@ void setup() {
   delay(DEBUG_SERIAL_START_DELAY);
   #endif
   
-  int ipins[] = GPIO_PINS_INPUT;
-  //int opins[] = GPIO_PINS_OUTPUT;
-  for (unsigned int i = 0 ; i < ARRAYSIZE(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
-  //for (unsigned int i = 0 ; i < ARRAYSIZE(opins); i++) { pinMode(opins[i], OUTPUT); digitalWrite(opins[i], HIGH); }
+  for (unsigned int i = 0 ; i < ARRAYSIZE(INPUT_PINS); i++) { pinMode(INPUT_PINS[i], INPUT_PULLUP); }
+  for (unsigned int i = 0 ; i < ARRAYSIZE(OUTPUT_PINS); i++) { pinMode(OUTPUT_PINS[i], OUTPUT); digitalWrite(OUTPUT_PINS[i], LOW); }
   
   // The very first time this code runs, there will be no previously
   // assigned source address in EEPROM and a read will most likely
@@ -360,12 +362,9 @@ void processSensors() {
 
 unsigned char getPoleInstance() {
   unsigned char instance = 0;
-  /*
-  int ipins[] = GPIO_PINS_INSTANCE;
-  for (byte i = 7; i >= 0; i--) {
-    instance = instance + (digitalRead(ipins[i]) << i);
+  for (byte i = (ARRAYSIZE(INSTANCE_PINS) - 1); i >= 0; i--) {
+    instance = instance + (digitalRead(INSTANCE_PINS[i]) << i);
   }
-  */
   return(instance);
 }
 
@@ -634,17 +633,8 @@ void debugDump() {
   static unsigned deadline = 0UL;
   unsigned now = millis();
   if (now > deadline) {
-    Serial.print(now); Serial.print(": ");
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE6));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE5));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE4));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE3));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE2));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE1));
-    Serial.print(digitalRead(GPIO_SWITCH_INSTANCE0));
-    Serial.print(" -> ");
-    //Serial.print(getPoleInstance());
-    Serial.println();
+    unsigned char instance = getPoleInstance();
+    Serial.print("INSTANCE:  "); Serial.println(getPoleInstance(), HEX)
     deadline = (now + DEBUG_SERIAL_INTERVAL);
   }
 }
