@@ -28,6 +28,7 @@ class Debouncer {
     void debounce();
     bool channelState(int gpio);
     void dumpConfiguration();
+    unsigned char getStates();
   private:
     union DEBOUNCED_SWITCHES_T {
       unsigned char states;

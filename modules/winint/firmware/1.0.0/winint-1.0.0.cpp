@@ -138,8 +138,8 @@
 
 #define DEFAULT_SOURCE_ADDRESS 22
 #define N2K_COMMAND_TIMEOUT 0.4 // seconds
-#define N2K_DYNAMIC_UPDATE_INTERVAL 0.25 // seconds
-#define N2K_STATIC_UPDATE_INTERVAL 5.0 // seconds
+#define N2K_DYNAMIC_UPDATE_INTERVAL 250 // mseconds
+#define N2K_STATIC_UPDATE_INTERVAL 5000 // mseconds
 #define STARTUP_SETTLE_PERIOD 5000
 #define STATUS_LED_MANAGER_HEARTBEAT 300
 #define STATUS_LED_MANAGER_INTERVAL 10
@@ -219,12 +219,12 @@ unsigned char INPUT_PINS[] = GPIO_PINS_INPUT;
 unsigned char OUTPUT_PINS[] = GPIO_PINS_OUTPUT;
 unsigned char INSTANCE_PINS[] = GPIO_PINS_INSTANCE;
 
-//N2kSpudpole spudpole(settings);
+N2kSpudpole spudpole(settings);
 
-//tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
+tN2kDD484 N2K_LAST_COMMAND = N2kDD484_Reserved;
 
-//int SENSORS[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, -1, -1 };
-//Debouncer DEBOUNCER (SENSORS);
+int SENSORS[] = { GPIO_SENSOR_DPD, GPIO_SENSOR_DPG, GPIO_SENSOR_OVL, GPIO_SENSOR_ROT, GPIO_SENSOR_RTD, GPIO_SENSOR_RTG, -1, -1 };
+Debouncer DEBOUNCER (SENSORS);
 
 /**********************************************************************
  * Create an LED manager STATUS_LED_MANAGER which can be used to manage
@@ -238,13 +238,15 @@ LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_
  */
 
 void setup() {
-  #ifdef SERIAL_DEBUG
+  #ifdef DEBUG_SERIAL
   Serial.begin(9600);
-  delay(DEBUG_SERIAL_START_DELAY);
+  while (!Serial);
   #endif
+
+  Serial.println("CONNECTED");
   
-  //for (unsigned int i = 0 ; i < ARRAYSIZE(INPUT_PINS); i++) { pinMode(INPUT_PINS[i], INPUT_PULLUP); }
-  //for (unsigned int i = 0 ; i < ARRAYSIZE(OUTPUT_PINS); i++) { pinMode(OUTPUT_PINS[i], OUTPUT); digitalWrite(OUTPUT_PINS[i], LOW); }
+  for (unsigned int i = 0 ; i < ARRAYSIZE(INPUT_PINS); i++) { pinMode(INPUT_PINS[i], INPUT_PULLUP); }
+  for (unsigned int i = 0 ; i < ARRAYSIZE(OUTPUT_PINS); i++) { pinMode(OUTPUT_PINS[i], OUTPUT); digitalWrite(OUTPUT_PINS[i], LOW); }
   
   // The very first time this code runs, there will be no previously
   // assigned source address in EEPROM and a read will most likely
@@ -259,6 +261,7 @@ void setup() {
   //
   pinMode(GPIO_LED_BOARD, OUTPUT); //digitalWrite(GPIO_LED_BOARD, HIGH);
   STATUS_LED_MANAGER.operate(GPIO_LED_BOARD, 0, 3);
+  delay(3);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION, PRODUCT_LEN, PRODUCT_N2K_VERSION, PRODUCT_CERTIFICATION_LEVEL);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE, DEVICE_INDUSTRY_GROUP);
@@ -290,27 +293,27 @@ void loop() {
   // we let debounce() run a number of times immediately after startup
   // before processing the stabilised inputs.
   //
-  //static bool JUST_STARTED = true;
-  //if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
+  static bool JUST_STARTED = true;
+  if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
 
-  //DEBOUNCER.debounce();
+  DEBOUNCER.debounce();
   //if (!JUST_STARTED) processSensors();
   
   // Operating commands have to be continuously received over the NMEA
   // bus for relay outputs to be maintained or we time them out.
   //
-  //commandTimeout();
+  commandTimeout();
 
   // And we report the current status me transmitting some NMEA
   // messages every so often.
   //
-  //transmitStatus();
+  transmitStatus();
 
   NMEA2000.ParseMessages();
   // The above may have resulted in acquisition of a new source
   // address, so we check if there has been a change and if so save the
   // new address to EEPROM for future re-use.
-  //if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, NMEA2000.GetN2kSource());
+  if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS, NMEA2000.GetN2kSource());
 
   // Let the LED manager update the status LEDs.
   //
@@ -364,11 +367,7 @@ unsigned char getPoleInstance() {
   unsigned char instance = 0;
   unsigned char t;
   for (int i = (ARRAYSIZE(INSTANCE_PINS) - 1); i >= 0; i--) {
-    t = digitalRead(INSTANCE_PINS[i]);
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.println(t);
-    instance = instance | (t << i);
+    instance = instance | ((digitalRead(INSTANCE_PINS[i])?0:1) << i);
   }
   return(instance);
 }
@@ -413,18 +412,16 @@ void messageHandler(const tN2kMsg &N2kMsg) {
  * This function should be executed directly from loop().
  */
  void transmitStatus() {
-   /*
   static byte sed = 0;
   static unsigned long lastUpdate = millis();
   unsigned long updateInterval = spudpole.isWorking()?N2K_DYNAMIC_UPDATE_INTERVAL:N2K_STATIC_UPDATE_INTERVAL;
   if ((lastUpdate + updateInterval) < millis()) {
     lastUpdate = millis();
-    tN2kMsg m776; provisionPGN128776(m776, sed); NMEA2000.SendMsg(m776);
-    tN2kMsg m777; provisionPGN128777(m777, sed); NMEA2000.SendMsg(m777);
-    tN2kMsg m778; provisionPGN128778(m778, sed); NMEA2000.SendMsg(m778);
+    //tN2kMsg m776; provisionPGN128776(m776, sed); NMEA2000.SendMsg(m776);
+    tN2kMsg m777; provisionPGN128777(m777, sed); NMEA2000.SendMsg(m777); Serial.println("Sending PGN128777");
+    //tN2kMsg m778; provisionPGN128778(m778, sed); NMEA2000.SendMsg(m778);
     sed++;
   }
-  */
 }
 
 void provisionPGN128776(tN2kMsg &msg, byte sed) {
@@ -449,7 +446,6 @@ void provisionPGN128776(tN2kMsg &msg, byte sed) {
 }
 
 void provisionPGN128777(tN2kMsg &msg, byte sed) {
-  /* 
   tN2kWindlassOperatingEvents events;
   events.Event.SystemError = 0;
   events.Event.SensorError = 0;
@@ -474,7 +470,6 @@ void provisionPGN128777(tN2kMsg &msg, byte sed) {
     (spudpole.isDocked())?N2kDD482_FullyDocked:N2kDD482_NotDocked,
     events
   );
-  */
 }
 
 void provisionPGN128778(tN2kMsg &msg, byte sed) {
@@ -639,9 +634,10 @@ void debugDump() {
   static unsigned deadline = 0UL;
   unsigned now = millis();
   if (now > deadline) {
-    STATUS_LED_MANAGER.operate(GPIO_LED_BOARD, 0, 2);
     Serial.println(now);
-    Serial.print("-->INSTANCE:  "); Serial.println(getPoleInstance(), HEX);
+    Serial.print("-->CAN SOURCE ADDRESS: "); Serial.println(EEPROM.read(EEPROM_SOURCE_ADDRESS_STORAGE_ADDRESS));
+    Serial.print("-->INSTANCE:           "); Serial.println(getPoleInstance(), HEX);
+    Serial.print("-->SENSOR STATES:      "); Serial.println(DEBOUNCER.getStates(), BIN);
     deadline = (now + DEBUG_SERIAL_INTERVAL);
   }
 }

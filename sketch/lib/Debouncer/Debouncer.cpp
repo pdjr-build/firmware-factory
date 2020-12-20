@@ -62,3 +62,7 @@ void Debouncer::dumpConfiguration() {
   }
   Serial.print("State: "); Serial.println(this->switches.states, BIN);
 }
+
+unsigned char Debouncer::getStates() {
+  return(this->switches.states);
+}
