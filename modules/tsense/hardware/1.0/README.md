@@ -1,4 +1,4 @@
-# WININT - windlass interface module (1.0)
+# TSENSE - temperature sensor module (1.0)
 
 ## Schematic design
 
