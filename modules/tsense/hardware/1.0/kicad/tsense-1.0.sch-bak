@@ -222,17 +222,6 @@ Wire Wire Line
 	8150 5150 8750 5150
 NoConn ~ 7650 4500
 NoConn ~ 9200 3300
-$Comp
-L Connector:Screw_Terminal_01x02 J1
-U 1 1 60B93210
-P 950 2200
-F 0 "J1" H 850 2250 50  0000 C CNN
-F 1 "T0" H 1050 2150 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 2200 50  0001 C CNN
-F 3 "~" H 950 2200 50  0001 C CNN
-	1    950  2200
-	-1   0    0    1   
-$EndComp
 Text Label 1450 5400 0    50   ~ 0
 CAN_SCR
 NoConn ~ 4850 1700
@@ -315,7 +304,7 @@ F 3 "" H 2400 1450 50  0001 C CNN
 	1    2400 1450
 	0    1    1    0   
 $EndComp
-Text Label 2400 2100 0    50   ~ 0
+Text Label 2400 2250 0    50   ~ 0
 SENSOR_T0
 $Comp
 L power:GND #PWR01
@@ -378,61 +367,6 @@ F 3 "" H 2400 1250 50  0001 C CNN
 	1    2400 1250
 	0    -1   -1   0   
 $EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J2
-U 1 1 61203D6F
-P 950 2450
-F 0 "J2" H 850 2500 50  0000 C CNN
-F 1 "T1" H 1050 2400 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 2450 50  0001 C CNN
-F 3 "~" H 950 2450 50  0001 C CNN
-	1    950  2450
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J3
-U 1 1 61215B92
-P 950 2700
-F 0 "J3" H 850 2750 50  0000 C CNN
-F 1 "T2" H 1050 2650 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 2700 50  0001 C CNN
-F 3 "~" H 950 2700 50  0001 C CNN
-	1    950  2700
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J4
-U 1 1 6122A63E
-P 950 2950
-F 0 "J4" H 850 3000 50  0000 C CNN
-F 1 "T3" H 1050 2900 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 2950 50  0001 C CNN
-F 3 "~" H 950 2950 50  0001 C CNN
-	1    950  2950
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J5
-U 1 1 6129697E
-P 950 3200
-F 0 "J5" H 850 3250 50  0000 C CNN
-F 1 "T4" H 1050 3150 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 3200 50  0001 C CNN
-F 3 "~" H 950 3200 50  0001 C CNN
-	1    950  3200
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J6
-U 1 1 612A8AC1
-P 950 3450
-F 0 "J6" H 850 3500 50  0000 C CNN
-F 1 "T5" H 1050 3400 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 3450 50  0001 C CNN
-F 3 "~" H 950 3450 50  0001 C CNN
-	1    950  3450
-	-1   0    0    1   
-$EndComp
 Text Notes 800  800  0    50   ~ 10
 LM335 SENSOR INPUTS
 Text Notes 10000 2900 2    50   ~ 10
@@ -489,10 +423,10 @@ Wire Wire Line
 Wire Wire Line
 	10400 3800 10400 5150
 $Comp
-L Connector:Screw_Terminal_01x05 J9
+L Connector:Screw_Terminal_01x05 J3
 U 1 1 6069075F
 P 10700 3600
-F 0 "J9" H 10700 3900 50  0000 C CNN
+F 0 "J3" H 10700 3900 50  0000 C CNN
 F 1 "CAN" H 10700 3300 50  0000 C CNN
 F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-5-2.54_1x05_P2.54mm_Horizontal" H 10700 3600 50  0001 C CNN
 F 3 "~" H 10700 3600 50  0001 C CNN
@@ -524,77 +458,39 @@ F 3 "http://www.vishay.com/docs/31509/csc.pdf" H 1850 1750 50  0001 C CNN
 	1    1850 1750
 	1    0    0    -1  
 $EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J8
-U 1 1 606897E7
-P 950 3950
-F 0 "J8" H 850 4000 50  0000 C CNN
-F 1 "T7" H 1050 3900 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 3950 50  0001 C CNN
-F 3 "~" H 950 3950 50  0001 C CNN
-	1    950  3950
-	-1   0    0    1   
-$EndComp
-$Comp
-L Connector:Screw_Terminal_01x02 J7
-U 1 1 6068A83B
-P 950 3700
-F 0 "J7" H 850 3750 50  0000 C CNN
-F 1 "T6" H 1050 3650 50  0000 C CNN
-F 2 "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MPT-0,5-2-2.54_1x02_P2.54mm_Horizontal" H 950 3700 50  0001 C CNN
-F 3 "~" H 950 3700 50  0001 C CNN
-	1    950  3700
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
-	1150 3950 1250 3950
+	1150 3800 1250 3800
 Wire Wire Line
-	1250 3950 1250 3700
+	1150 2350 1250 2350
+Connection ~ 1250 2350
 Wire Wire Line
-	1150 2200 1250 2200
-Connection ~ 1250 2200
-Wire Wire Line
-	1150 2450 1250 2450
-Connection ~ 1250 2450
-Wire Wire Line
-	1250 2450 1250 2200
-Wire Wire Line
-	1150 2700 1250 2700
-Connection ~ 1250 2700
-Wire Wire Line
-	1250 2700 1250 2450
+	1150 2750 1250 2750
+Connection ~ 1250 2750
 Wire Wire Line
 	1150 2950 1250 2950
 Connection ~ 1250 2950
 Wire Wire Line
-	1250 2950 1250 2700
+	1250 2950 1250 2750
 Wire Wire Line
 	1150 3200 1250 3200
 Connection ~ 1250 3200
 Wire Wire Line
 	1250 3200 1250 2950
 Wire Wire Line
-	1150 3450 1250 3450
-Connection ~ 1250 3450
+	1150 3400 1250 3400
+Connection ~ 1250 3400
 Wire Wire Line
-	1250 3450 1250 3200
+	1250 3400 1250 3200
 Wire Wire Line
-	1150 3700 1250 3700
-Connection ~ 1250 3700
+	1150 2250 1450 2250
 Wire Wire Line
-	1250 3700 1250 3450
+	1450 2250 1450 1950
 Wire Wire Line
-	1150 2100 1450 2100
+	1550 2450 1550 1950
 Wire Wire Line
-	1450 2100 1450 1950
+	1150 2650 1650 2650
 Wire Wire Line
-	1150 2350 1550 2350
-Wire Wire Line
-	1550 2350 1550 1950
-Wire Wire Line
-	1150 2600 1650 2600
-Wire Wire Line
-	1650 2600 1650 1950
+	1650 2650 1650 1950
 Wire Wire Line
 	1150 2850 1750 2850
 Wire Wire Line
@@ -604,26 +500,23 @@ Wire Wire Line
 Wire Wire Line
 	1850 3100 1850 1950
 Wire Wire Line
-	1150 3350 1950 3350
+	1150 3300 1950 3300
 Wire Wire Line
-	1950 3350 1950 1950
+	1950 3300 1950 1950
 Wire Wire Line
-	1150 3600 2050 3600
+	2050 3500 2050 1950
 Wire Wire Line
-	2050 3600 2050 1950
+	1150 3700 2150 3700
 Wire Wire Line
-	1150 3850 2150 3850
+	2150 3700 2150 1950
 Wire Wire Line
-	2150 3850 2150 1950
+	1450 2250 2400 2250
+Connection ~ 1450 2250
 Wire Wire Line
-	1450 2100 2400 2100
-Connection ~ 1450 2100
+	1550 2450 2400 2450
 Wire Wire Line
-	1550 2350 2400 2350
-Connection ~ 1550 2350
-Wire Wire Line
-	1650 2600 2400 2600
-Connection ~ 1650 2600
+	1650 2650 2400 2650
+Connection ~ 1650 2650
 Wire Wire Line
 	1750 2850 2400 2850
 Connection ~ 1750 2850
@@ -631,27 +524,26 @@ Wire Wire Line
 	1850 3100 2400 3100
 Connection ~ 1850 3100
 Wire Wire Line
-	1950 3350 2400 3350
-Connection ~ 1950 3350
+	1950 3300 2400 3300
+Connection ~ 1950 3300
 Wire Wire Line
-	2050 3600 2400 3600
-Connection ~ 2050 3600
+	2050 3500 2400 3500
 Wire Wire Line
-	2150 3850 2400 3850
-Connection ~ 2150 3850
-Text Label 2400 2350 0    50   ~ 0
+	2150 3700 2400 3700
+Connection ~ 2150 3700
+Text Label 2400 2450 0    50   ~ 0
 SENSOR_T1
-Text Label 2400 2600 0    50   ~ 0
+Text Label 2400 2650 0    50   ~ 0
 SENSOR_T2
 Text Label 2400 2850 0    50   ~ 0
 SENSOR_T3
 Text Label 2400 3100 0    50   ~ 0
 SENSOR_T4
-Text Label 2400 3350 0    50   ~ 0
+Text Label 2400 3300 0    50   ~ 0
 SENSOR_T5
-Text Label 2400 3600 0    50   ~ 0
+Text Label 2400 3500 0    50   ~ 0
 SENSOR_T6
-Text Label 2400 3850 0    50   ~ 0
+Text Label 2400 3700 0    50   ~ 0
 SENSOR_T7
 Wire Wire Line
 	1450 1550 1450 1450
@@ -660,7 +552,7 @@ Wire Wire Line
 Wire Wire Line
 	1250 1250 2400 1250
 Wire Wire Line
-	1250 1250 1250 2200
+	1250 1250 1250 2350
 Text Label 4850 1800 2    50   ~ 0
 SENSOR_T0
 Text Label 4850 1900 2    50   ~ 0
@@ -944,4 +836,46 @@ Text Label 5950 2900 0    50   ~ 0
 LED_SOURCE
 Wire Wire Line
 	4850 2600 4350 2600
+$Comp
+L Connector:Screw_Terminal_01x08 J1
+U 1 1 6056B2EF
+P 950 2550
+F 0 "J1" H 950 2950 50  0000 C CNN
+F 1 "Screw_Terminal_01x08" H 1100 3300 50  0001 C CNN
+F 2 "TerminalBlock_WAGO:TerminalBlock_WAGO_236-108_1x08_P5.00mm_45Degree" H 950 2550 50  0001 C CNN
+F 3 "~" H 950 2550 50  0001 C CNN
+	1    950  2550
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	1250 2350 1250 2550
+Wire Wire Line
+	1150 2450 1550 2450
+Connection ~ 1550 2450
+Wire Wire Line
+	1150 2550 1250 2550
+Connection ~ 1250 2550
+Wire Wire Line
+	1250 2550 1250 2750
+$Comp
+L Connector:Screw_Terminal_01x08 J2
+U 1 1 605A5007
+P 950 3400
+F 0 "J2" H 950 2900 50  0000 C CNN
+F 1 "Screw_Terminal_01x08" H 1100 4150 50  0001 C CNN
+F 2 "TerminalBlock_WAGO:TerminalBlock_WAGO_236-108_1x08_P5.00mm_45Degree" H 950 3400 50  0001 C CNN
+F 3 "~" H 950 3400 50  0001 C CNN
+	1    950  3400
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	1150 3500 2050 3500
+Connection ~ 2050 3500
+Wire Wire Line
+	1250 3400 1250 3600
+Wire Wire Line
+	1150 3600 1250 3600
+Connection ~ 1250 3600
+Wire Wire Line
+	1250 3600 1250 3800
 $EndSCHEMATC
