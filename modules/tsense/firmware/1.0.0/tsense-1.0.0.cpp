@@ -52,9 +52,9 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_PROGRAMME_LED1 0
-#define GPIO_PROGRAMME_LED2 1
-#define GPIO_PROGRAMME_SWITCH 2
+#define GPIO_SENSOR_LED 0
+#define GPIO_INSTANCE_LED 1
+#define GPIO_SOURCE_LED 2
 #define GPIO_INSTANCE_BIT7 5
 #define GPIO_INSTANCE_BIT6 6
 #define GPIO_INSTANCE_BIT5 7
@@ -72,10 +72,11 @@
 #define GPIO_T5 A5
 #define GPIO_T6 A6
 #define GPIO_T7 A7
+#define GPIO_PROGRAMME_SWITCH 22
 #define GPIO_POWER_LED 23
 #define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
 #define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
-#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_PROGRAMME_LED1, GPIO_PROGRAMME_LED2 }
+#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_SENSOR_LED, GPIO_INSTANCE_LED, GPIO_SOURCE_LED }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -173,6 +174,7 @@ tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
 
 int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCHWITCH, -1, -1, -1, -1, -1, -1, -1 };
 Debouncer DEBOUNCER (SWITCHES);
+enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT };
 
 /**********************************************************************
  * Create an LED manager with operating characteristics that suit the
@@ -184,8 +186,6 @@ LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_
 SENSOR SENSORS[8];
 int SELECTED_SENSOR = -1;
 for (int i = 0; i < 8; i++) SENSORS[i].invalidate(); 
-
-enum { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT } MODE = NORMAL;
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -266,39 +266,55 @@ void loop() {
  */
 
 void processSwitches() {
-  if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
-    int s = getDipSetting();
-    switch MODE {
-      case NORMAL:
-        if (s & (s - 1)) == 0) {
-          for (SELECTED_SENSOR = 0; ((SELECTED_SENSOR < 8) && ((2^SELECTED_SENSOR) != s)); SELECTED_SENSOR++);
-          MODE = WAITINGFORINSTANCE;
-          STATUS_LED_MANAGER.operate(GPIO_PROGRAMME_LED1, 0, 1);
-          // Set programmme timeout
-        } else {
-          STATUS_LED_MANAGER.operate(GPIO_PROGRAMME_LED1, 3, 0);
-        }
-        break;
-      case WAITINGFORINSTANCE:
-        PROGRAMME_SENSOR_INSTANCE = s;
-        MODE = WAITINGFORSOURCE;
-        // Set PROG LED state to single flash
-        // Set programmme timeout
-        break;
-      case WAITINGFORSOURCE:
-        PROGRAMME_SENSOR_SOURCE = s;
-        MODE = WAITINGFORSETPOINT;
-        // Set PROG LED state to single flash
-        // Set programmme timeout
-        break;
-      case WAITINGFORSETPOINT:
-        PROGRAM_SET_POINT = s;
-        MODE = NORMAL;
-        // Set SENSORS to programmed value and save to EEPROM
-        // Set PROG LED to confirm success
-        // Cancel programme timeout
-        break;
-    }
+  static unsigned long deadline = 0UL;
+  unsigned long now = millis();
+  if (now > deadline) {
+    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) processProgrammeSwitch();
+    deadline = (now + SWITCH_PROCESS_INTERVAL);
+  }
+}
+
+void processProgrammeSwitch() {
+  static PROGRAMME_STATES state = NORMAL;
+  static unsigned int sensor;
+  static unsigned long timeout = 0UL;
+
+  unsigned long now = millis();
+  if (now > timeout) {
+    state = NORMAL;
+    STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH);
+    STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, OFF);
+    STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, OFF);
+  }
+
+  int s = getDipSetting();
+  switch state {
+    case NORMAL:
+      if (s & (s - 1)) == 0) {
+        for (sensor = 0; ((sensor < 8) && ((2^sensor) != s)); sensor++);
+        state = WAITINGFORINSTANCE;
+        STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, ON);
+        STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
+        timeout = PROGRAMME_TIMEOUT_INTERVAL;
+      } else {
+        STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH BRIEFLY);
+        STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH BRIEFLY);
+        STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH BRIEFLY);
+      }
+      break;
+    case WAITINGFORINSTANCE:
+      SENSORS[sensor].setInstance(s);
+      state = WAITINGFORSOURCE;
+      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, ON);
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
+      timeout = PROGRAMME_TIMEOUT_INTERVAL;
+      break;
+    case WAITINGFORSOURCE:
+      SENSORS[sensor].setSource(s);
+      state = NORMAL;
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
+      timeout = 0UL;
+      break;
   }
 }
 
