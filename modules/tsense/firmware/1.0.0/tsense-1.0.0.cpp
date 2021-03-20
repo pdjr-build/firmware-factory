@@ -44,7 +44,7 @@
  */
 
 #define SOURCE_ADDRESS_EEPROM_ADDRESS 0
-#define SENSORS_STATE_EEPROM_ADDRESS 2
+#define SENSORS_EEPROM_ADDRESS 2
 
 /**********************************************************************
  * MCU DIGITAL IO PIN DEFINITIONS
@@ -209,10 +209,10 @@ void setup() {
   // take the opportunity to also save our unconfigured SENSORS structure.
   if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 255) {
     EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
-    SENSORS.saveState(SENSORS_STATE_EEPROM_ADDRESS);
+    SENSORS.saveState(SENSORS_EEPROM_ADDRESS);
   }
   
-  SENSORS.loadState(SENSORS_STATE_EEPROM_ADDRESS); 
+  SENSORS.loadState(SENSORS_EEPROM_ADDRESS); 
   
   STATUS_LED_MANAGER.operate(GPIO_BOARD_LED, 0, 3);
 
@@ -296,10 +296,6 @@ void processProgrammeSwitch() {
         STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, ON);
         STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
         timeout = PROGRAMME_TIMEOUT_INTERVAL;
-      } else {
-        STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH BRIEFLY);
-        STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH BRIEFLY);
-        STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH BRIEFLY);
       }
       break;
     case WAITINGFORINSTANCE:
@@ -314,6 +310,10 @@ void processProgrammeSwitch() {
       state = NORMAL;
       STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
       timeout = 0UL;
+      STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH);
+      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
+      EEPROM.update(SENSORS_EEPROM_ADDRESS, SENSORS);
       break;
   }
 }
