@@ -182,12 +182,6 @@
     (add_net "Net-(F1-Pad2)")
     (add_net "Net-(R1-Pad2)")
     (add_net "Net-(SW3-Pad2)")
-    (add_net "Net-(U1-Pad15)")
-    (add_net "Net-(U1-Pad26)")
-    (add_net "Net-(U2-Pad5)")
-    (add_net "Net-(U3-Pad3)")
-    (add_net "Net-(U3-Pad5)")
-    (add_net "Net-(U3-Pad8)")
   )
 
   (module Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal (layer F.Cu) (tedit 5AE5139B) (tstamp 6055D3EF)
