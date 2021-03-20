@@ -7,14 +7,9 @@
 #include <Sensor.h>
 
 Sensor::Sensor() {
-  this->index = -1;
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;
-}
-
-int Sensor::getIndex() {
-  return(this->index);
 }
 
 unsigned byte Sensor::getInstance() {
@@ -27,10 +22,6 @@ unsigned byter Sensor::getSource() {
 
 int Sensor::getSetPoint() {
   return(this->setPoint);
-}
-
-void Sensor::setIndex(int index) {
-  this->index = index;
 }
 
 void Sensor::setInstance(unsigned byte instance) {
@@ -46,7 +37,6 @@ void Sensor::setSetPoint(int setPoint) {
 }
 
 void Sensor::invalidate() {
-  this->index = -1;
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;

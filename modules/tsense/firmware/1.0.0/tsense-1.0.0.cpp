@@ -7,36 +7,6 @@
  * Range PGN 130316.
  * 
  * The firmware supports LM335Z sensors.
- * 
- * Each connected sensor is configured stwo control channels W0 and W1. Each control
- * channel is configured by a single unsigned byte which supplies the
- * instance number of the remote windlass that should be associated
- * with the channel. These instance numbers are recovered from EEPROM
- * when the firmware boots. A set of seven GPIO inputs allow the
- * connection of a seven bit DIP switch that can be used to specify
- * an instance number. A further two GPIO inputs save the configured
- * instance number to EEPROM when set high.
- * 
- * The firmware continuously monitors the NMEA bus for PGN 128777
- * Windlass Operating Status messages decorated with an instance number
- * that corresponds to one or other of the configured values. These
- * messages are used to (i) update the firmware's notion of the NMEA
- * network address of each configured remote windlass (allowing control
- * messages to be directed to the remote device) and (ii) condition
- * the status output channels associated with a particular channel.
- * Continuous update of remote windlass network addresses is required
- * because the NMEA bus may require nodes to dynamically change their
- * network address.
- *  
- * UP and DOWN GPIO inputs are provided for each control channel: if a
- * control channel becomes active then the firmware will output a
- * PGN 126208 Group Function Control message commanding the associated
- * windlass to operate in the same sense as the control. PGN 126208
- * messages will continue to be output every 250ms until the control
- * channel becomes inactive.
- * 
- * Five GPIO status outputs are provided (conditioned by PGN 128777
- * Windlass Operating Status messages).
  */
 
 #include <Arduino.h>
@@ -46,7 +16,7 @@
 #include <N2kMessages.h>
 #include <Debouncer.h>
 #include <LedManager.h>
-#include <WindlassState.h>
+#include <Sensor.h>
 #include <arraymacros.h>
 
 /**********************************************************************
@@ -82,8 +52,8 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_ERROR_LED 0
-#define GPIO_PROGRAMME_LED 1
+#define GPIO_PROGRAMME_LED1 0
+#define GPIO_PROGRAMME_LED2 1
 #define GPIO_PROGRAMME_SWITCH 2
 #define GPIO_INSTANCE_BIT7 5
 #define GPIO_INSTANCE_BIT6 6
@@ -103,9 +73,9 @@
 #define GPIO_T6 A6
 #define GPIO_T7 A7
 #define GPIO_POWER_LED 23
-#define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6 }
-#define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, H, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6 }
-#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_W0_LED, GPIO_W1_LED, GPIO_POWER_RELAY, GPIO_W0_UP_RELAY, GPIO_W0_DN_RELAY, GPIO_W1_UP_RELAY, GPIO_W1_DN_RELAY }
+#define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
+#define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
+#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_PROGRAMME_LED1, GPIO_PROGRAMME_LED2 }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -211,10 +181,12 @@ Debouncer DEBOUNCER (SWITCHES);
 
 LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
-Sensors SENSORS (8);
+SENSOR SENSORS[8];
+int SELECTED_SENSOR = -1;
+for (int i = 0; i < 8; i++) SENSORS[i].invalidate(); 
 
-enum OperatingMode { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT };
-OperatingMode MODE = NORMAL;
+enum { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT } MODE = NORMAL;
+
 /**********************************************************************
  * MAIN PROGRAM - setup()
  */
@@ -294,18 +266,17 @@ void loop() {
  */
 
 void processSwitches() {
-  if (switchPressed) {
+  if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
     int s = getDipSetting();
     switch MODE {
       case NORMAL:
         if (s & (s - 1)) == 0) {
-          PROGRAMME_SENSOR_INDEX = s;
+          for (SELECTED_SENSOR = 0; ((SELECTED_SENSOR < 8) && ((2^SELECTED_SENSOR) != s)); SELECTED_SENSOR++);
           MODE = WAITINGFORINSTANCE;
-          // Set PROG LED state to single flash
+          STATUS_LED_MANAGER.operate(GPIO_PROGRAMME_LED1, 0, 1);
           // Set programmme timeout
         } else {
-          // Set ERR LED state to error
-          // Cancel programme timeout
+          STATUS_LED_MANAGER.operate(GPIO_PROGRAMME_LED1, 3, 0);
         }
         break;
       case WAITINGFORINSTANCE:
