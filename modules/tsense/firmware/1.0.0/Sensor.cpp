@@ -11,6 +11,7 @@ Sensor::Sensor() {
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;
+  this->temperature = 0.0;
 }
 
 unsigned byte Sensor::getGpio() {
@@ -29,6 +30,10 @@ int Sensor::getSetPoint() {
   return(this->setPoint);
 }
 
+float Sensor::getTemperature() {
+  return(this->temperature);
+}
+
 void Sensor::setGpio(unsigned byte gpio) {
   this->gpio = gpio;
 }
@@ -45,9 +50,14 @@ void Sensor::setSetPoint(int setPoint) {
   this->setPoint = setPoint;
 }
 
+void Sensor::setTemperature(float temperature) {
+  this.temperature = temperature;
+}
+
 void Sensor::invalidate(unsigned byte gpio) {
   this->gpio = gpio;
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;
+  this->temperature = 0.0;
 }

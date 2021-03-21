@@ -136,6 +136,7 @@
 #define RELAY_UPDATE_INTERVAL 330         // Update outputs every n ms
 #define STATUS_LED_MANAGER_HEARTBEAT 300  // Settings for LEDs on module case
 #define STATUS_LED_MANAGER_INTERVAL 10    //
+#define SENSOR_PROCESS_INTERVAL 4000
 
 /**********************************************************************
  * Declarations of local functions.
@@ -200,8 +201,10 @@ void setup() {
 
   int ipins[] = GPIO_INPUT_PINS;
   int opins[] = GPIO_OUTPUT_PINS;
+  int spins[] = GPIO_SENSOR_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) { pinMode(opins[i], OUTPUT); }
+  for (unsigned int i = 0 ; i < ELEMENTCOUNT(spins); i++) { pinMode(spins[i], INPUT); }
 
   // The first time this thing runs, there will be no previously used
   // source address saved in EEPROM - in fact an EEPROM read will likely
@@ -214,7 +217,7 @@ void setup() {
   }
   
   SENSORS.loadState(SENSORS_EEPROM_ADDRESS); 
-  
+
   STATUS_LED_MANAGER.operate(GPIO_BOARD_LED, 0, 3);
 
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION);
@@ -224,6 +227,8 @@ void setup() {
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
   NMEA2000.Open();
+
+  ADC *adc = new ADC();
 }
 
 /**********************************************************************
@@ -253,8 +258,9 @@ void loop() {
   // new address to EEPROM for future re-use.
   if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, NMEA2000.GetN2kSource());
 
-  STATUS_LED_MANAGER.loop();
-  STATE_LED_MANAGER.loop();
+  LED_MANAGER.loop();
+
+  processSensors();
   
   #ifdef DEBUG_SERIAL
   debugDump();
@@ -330,53 +336,34 @@ void configureSensor() {
  * finishes, updateSensor() is called with the result.
  */
 
-void processSensor() {
+void processSensors() {
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
 
   if (now > timeout) {
     for (int sensor = 0; sensor < 8; sensor++) {
       if (SENSORS[sensor].getInstance() != 0xff) {
-        
-        // Transmit sensor PGN
+        int value = adc->analogRead(SENSORS[sensor].getGpio());
+        if (value != ADC_ERROR_VALUE) {
+          SENSORS[sensor].setTemperature(value * 0.489);
+          transmitPgn130316(Sensors[sensor]); 
+        }
       }
     }
     timeout = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
 
-int updateSensor(unsigned byte pin) {
-  transmitPgn130316();
-}
-
 /**********************************************************************
- * transmitWindlassControl() sends a Group Function control message for
- * PGN128776 Windlass Control Status to the device identified by
- * <windlass>, setting the Windlass Direction Control property to
- * reflect the state of the <up> and <down> GPIO inputs.
- * 
- * transmitWindlassControl() will not operate if a status transmission
- * has not previously been received from the network node defined by
- * <windlass> since the CAN address of the target windlass will be
- * unknown.
- * 
- * The value of the global constant SWITCH_PROCESS_INTERVAL is
- * important because it defines the frequency at which windlass control
- * messages will be issued: this is defined by the NMEA standard as
- * 250ms.
  */
 
 void transmitPgn130316(Sensor sensor) {
   tN2kMsg N2kMsg;
   N2kMsg.SetPGN(130316UL);
   N2kMsg.Priority = 2;
-  N2kMsg.Destination = windlass->address;
-  N2kMsg.AddByte(0x01); // Command message
-  N2kMsg.Add3ByteInt(128776UL); // Windlass Control Status PGN
-  N2kMsg.AddByte(0xF8); // Retain existing priority
-  N2kMsg.AddByte(0x01); // Just one parameter pair to follow
-  N2kMsg.AddByte(0x03); // Parameter 1 - Field 3 is Windlass Direction Control
-  N2kMsg.AddByte((windlass->pDebouncer->channelState(windlass->upSwitchGPIO))?0x02:((windlass->pDebouncer->channelState(windlass->downSwitchGPIO))?0x01:0x00));
+  N2kMsg.Destination = 0xFF
+  N2kMsg.AddByte(sensor.getInstance());
+  N2kMsg.AddByte(sensor.getSource());
   NMEA2000.SendMsg(N2kMsg);
 }  
 
@@ -387,7 +374,7 @@ void transmitPgn130316(Sensor sensor) {
  * then returns 0xFF.
  */
 
-unsigned char getDipSettinig() {
+unsigned char getDipSetting() {
   unsigned char instance = 0xFF;
   #ifdef GPIO_INSTANCE_PINS
   instance = 0x00;
@@ -404,85 +391,6 @@ void messageHandler(const tN2kMsg &N2kMsg) {
   for (iHandler=0; NMEA2000Handlers[iHandler].PGN!=0 && !(N2kMsg.PGN==NMEA2000Handlers[iHandler].PGN); iHandler++);
   if (NMEA2000Handlers[iHandler].PGN!=0) {
     NMEA2000Handlers[iHandler].Handler(N2kMsg); 
-  }
-}
-
-/**********************************************************************
- * PGN128777() parses the supplied N2K message and uses the contained
- * windlass operating status data to update the WINDLASSES global's
- * upRelayState and dnRelayState fields.
- */
-
-void PGN128777(const tN2kMsg &N2kMsg) {
-  unsigned char SID;
-  unsigned char WindlassIdentifier;
-  double RodeCounterValue;
-  double WindlassLineSpeed;
-  tN2kWindlassMotionStates WindlassMotionStatus;
-  tN2kRodeTypeStates RodeTypeStatus;
-  tN2kAnchorDockingStates AnchorDockingStatus;
-  tN2kWindlassOperatingEvents WindlassOperatingEvents;
-  WindlassState *windlass = NULL;
-
-  if (ParseN2kPGN128777(N2kMsg, SID, WindlassIdentifier, RodeCounterValue, WindlassLineSpeed, WindlassMotionStatus, RodeTypeStatus, AnchorDockingStatus, WindlassOperatingEvents)) {
-    for (unsigned int i = 0; i < ELEMENTCOUNT(WINDLASSES); i++) {
-      if ((!WINDLASSES[i]->isDisabled()) && (WINDLASSES[i]->instance == WindlassIdentifier)) {
-        windlass = WINDLASSES[i];
-      }
-    }
-
-    if (windlass != NULL) {
-      if (!windlass->isConfigured()) windlass->address = N2kMsg.Source;
-      if (windlass->isReady()) {
-        // And now set the relay states
-        if (AnchorDockingStatus == N2kDD482_FullyDocked) {
-          windlass->state = WindlassState::DOCKED;
-        } else {
-          switch (WindlassMotionStatus) {
-            case N2kDD480_DeploymentOccurring:
-              windlass->state = WindlassState::DEPLOYING;
-              break;
-            case N2kDD480_RetrievalOccurring:
-              windlass->state = WindlassState::RETRIEVING;
-              break;
-            default:
-              windlass->state = WindlassState::DEPLOYED;
-              break;
-          }
-        }
-        operateOutputs(windlass);
-      }
-    }
-  }
-}
-
-/**********************************************************************
- * Operates the UP and DOWN LED relays associated with the specified
- * <windlass> in responce to the value of the windlass state property.
- */
-
-void operateOutputs(WindlassState *windlass) {
-  switch (windlass->state) {
-    case WindlassState::DOCKED:
-      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 1);
-      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
-      break;
-    case WindlassState::DEPLOYING:
-      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
-      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0, -1);
-      break;
-    case WindlassState::RETRIEVING:
-      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0, -1);
-      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
-      break;
-    case WindlassState::DEPLOYED:
-      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
-      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 1);
-      break;
-    case WindlassState::UNKNOWN:
-      windlass->pStatusLedManager->operate(windlass->upLedGPIO, 0);
-      windlass->pStatusLedManager->operate(windlass->downLedGPIO, 0);
-      break;
   }
 }
 
