@@ -666,7 +666,7 @@ L Device:LED D2
 U 1 1 6057CA7F
 P 9600 1700
 F 0 "D2" H 9600 1600 50  0000 C CNN
-F 1 "INST" H 9600 1800 39  0000 C CNN
+F 1 "SRCE" H 9600 1800 39  0000 C CNN
 F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 9600 1700 50  0001 C CNN
 F 3 "https://docs.rs-online.com/0b77/0900766b814f5345.pdf" H 9600 1700 50  0001 C CNN
 	1    9600 1700
@@ -681,7 +681,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 1850 8650 1550
 Text Label 8650 1700 2    50   ~ 0
-LED_INSTANCE
+LED_SOURCE
 Wire Wire Line
 	8650 1700 9150 1700
 Wire Wire Line
@@ -697,8 +697,6 @@ F 3 "" H 10000 1700 50  0001 C CNN
 	1    10000 1700
 	0    -1   -1   0   
 $EndComp
-Text Label 5950 2800 0    50   ~ 0
-LED_INSTANCE
 $Comp
 L Switch:SW_Push SW3
 U 1 1 60587E3C
@@ -722,7 +720,7 @@ F 3 "" H 3950 2600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L pdjr:Teensy_3.2 U1
+L tsense-1.0-rescue:Teensy_3.2-pdjr U1
 U 1 1 6054541D
 P 5950 3000
 F 0 "U1" H 6500 1433 50  0000 C CNN
@@ -751,7 +749,7 @@ L Device:LED D1
 U 1 1 6055BCDE
 P 9600 1350
 F 0 "D1" H 9600 1250 50  0000 C CNN
-F 1 "SENS" H 9600 1450 39  0000 C CNN
+F 1 "INST" H 9600 1450 39  0000 C CNN
 F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 9600 1350 50  0001 C CNN
 F 3 "https://docs.rs-online.com/0b77/0900766b814f5345.pdf" H 9600 1350 50  0001 C CNN
 	1    9600 1350
@@ -766,7 +764,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 1500 8650 1200
 Text Label 8650 1350 2    50   ~ 0
-LED_SENSOR
+LED_INSTANCE
 Wire Wire Line
 	8650 1350 9150 1350
 Wire Wire Line
@@ -782,8 +780,8 @@ F 3 "" H 10000 1350 50  0001 C CNN
 	1    10000 1350
 	0    -1   -1   0   
 $EndComp
-Text Label 5950 2700 0    50   ~ 0
-LED_SENSOR
+Text Label 5950 2800 0    50   ~ 0
+LED_SOURCE
 $Comp
 L Device:R R6
 U 1 1 60582AA3
@@ -801,7 +799,7 @@ L Device:LED D3
 U 1 1 60582AA9
 P 9600 2050
 F 0 "D3" H 9600 1950 50  0000 C CNN
-F 1 "SRCE" H 9600 2150 39  0000 C CNN
+F 1 "SETP" H 9600 2150 39  0000 C CNN
 F 2 "LED_THT:LED_D1.8mm_W3.3mm_H2.4mm" H 9600 2050 50  0001 C CNN
 F 3 "https://docs.rs-online.com/0b77/0900766b814f5345.pdf" H 9600 2050 50  0001 C CNN
 	1    9600 2050
@@ -816,7 +814,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 2200 8650 1900
 Text Label 8650 2050 2    50   ~ 0
-LED_SOURCE
+LED_SETPOINT
 Wire Wire Line
 	8650 2050 9150 2050
 Wire Wire Line
@@ -833,7 +831,7 @@ F 3 "" H 10000 2050 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Text Label 5950 2900 0    50   ~ 0
-LED_SOURCE
+LED_SETPOINT
 Wire Wire Line
 	4850 2600 4350 2600
 $Comp
@@ -878,4 +876,6 @@ Wire Wire Line
 Connection ~ 1250 3600
 Wire Wire Line
 	1250 3600 1250 3800
+Text Label 5950 2700 0    50   ~ 0
+LED_INSTANCE
 $EndSCHEMATC

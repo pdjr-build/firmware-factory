@@ -681,7 +681,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 1850 8650 1550
 Text Label 8650 1700 2    50   ~ 0
-LED_INSTANCE
+LED_SENSOR
 Wire Wire Line
 	8650 1700 9150 1700
 Wire Wire Line
@@ -697,8 +697,6 @@ F 3 "" H 10000 1700 50  0001 C CNN
 	1    10000 1700
 	0    -1   -1   0   
 $EndComp
-Text Label 5950 2800 0    50   ~ 0
-LED_INSTANCE
 $Comp
 L Switch:SW_Push SW3
 U 1 1 60587E3C
@@ -722,7 +720,7 @@ F 3 "" H 3950 2600 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L pdjr:Teensy_3.2 U1
+L tsense-1.0-rescue:Teensy_3.2-pdjr U1
 U 1 1 6054541D
 P 5950 3000
 F 0 "U1" H 6500 1433 50  0000 C CNN
@@ -766,7 +764,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 1500 8650 1200
 Text Label 8650 1350 2    50   ~ 0
-LED_SENSOR
+LED_INSTANCE
 Wire Wire Line
 	8650 1350 9150 1350
 Wire Wire Line
@@ -782,7 +780,7 @@ F 3 "" H 10000 1350 50  0001 C CNN
 	1    10000 1350
 	0    -1   -1   0   
 $EndComp
-Text Label 5950 2700 0    50   ~ 0
+Text Label 5950 2800 0    50   ~ 0
 LED_SENSOR
 $Comp
 L Device:R R6
@@ -816,7 +814,7 @@ Wire Notes Line
 Wire Notes Line
 	8650 2200 8650 1900
 Text Label 8650 2050 2    50   ~ 0
-LED_SOURCE
+LED_SETPOINT
 Wire Wire Line
 	8650 2050 9150 2050
 Wire Wire Line
@@ -833,7 +831,7 @@ F 3 "" H 10000 2050 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Text Label 5950 2900 0    50   ~ 0
-LED_SOURCE
+LED_SETPOINT
 Wire Wire Line
 	4850 2600 4350 2600
 $Comp
@@ -842,7 +840,7 @@ U 1 1 6056B2EF
 P 950 2550
 F 0 "J1" H 950 2950 50  0000 C CNN
 F 1 "Screw_Terminal_01x08" H 1100 3300 50  0001 C CNN
-F 2 "TerminalBlock_WAGO:TerminalBlock_WAGO_236-108_1x08_P5.00mm_45Degree" H 950 2550 50  0001 C CNN
+F 2 "PDJR:WAGO-250-108" H 950 2550 50  0001 C CNN
 F 3 "~" H 950 2550 50  0001 C CNN
 	1    950  2550
 	-1   0    0    -1  
@@ -863,7 +861,7 @@ U 1 1 605A5007
 P 950 3400
 F 0 "J2" H 950 2900 50  0000 C CNN
 F 1 "Screw_Terminal_01x08" H 1100 4150 50  0001 C CNN
-F 2 "TerminalBlock_WAGO:TerminalBlock_WAGO_236-108_1x08_P5.00mm_45Degree" H 950 3400 50  0001 C CNN
+F 2 "PDJR:WAGO-250-108" H 950 3400 50  0001 C CNN
 F 3 "~" H 950 3400 50  0001 C CNN
 	1    950  3400
 	-1   0    0    -1  
@@ -878,4 +876,6 @@ Wire Wire Line
 Connection ~ 1250 3600
 Wire Wire Line
 	1250 3600 1250 3800
+Text Label 5950 2700 0    50   ~ 0
+LED_INSTANCE
 $EndSCHEMATC

@@ -52,9 +52,9 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_SENSOR_LED 0
-#define GPIO_INSTANCE_LED 1
-#define GPIO_SOURCE_LED 2
+#define GPIO_INSTANCE_LED 0
+#define GPIO_SOURCE_LED 1
+#define GPIO_SETPOINT_LED 2
 #define GPIO_INSTANCE_BIT7 5
 #define GPIO_INSTANCE_BIT6 6
 #define GPIO_INSTANCE_BIT5 7
@@ -320,6 +320,16 @@ void configureSensor() {
   }
 }
 
+/**********************************************************************
+ * processSensors() is executed from a delay loop which cycles at the
+ * reporting interval specified by ??? (the N2K specification for PGN
+ * 130316 say max transmit every 4 seconds).
+ * 
+ * The function iterates over the SENSORS array, initiating an ADC
+ * conversion for each configured sensor. When the ADC conversion
+ * finishes, updateSensor() is called with the result.
+ */
+
 void processSensor() {
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
@@ -335,7 +345,8 @@ void processSensor() {
   }
 }
 
-int readSensor(unsigned byte pin) {
+int updateSensor(unsigned byte pin) {
+  transmitPgn130316();
 }
 
 /**********************************************************************
@@ -355,9 +366,9 @@ int readSensor(unsigned byte pin) {
  * 250ms.
  */
 
-void transmitWindlassControl(WindlassState *windlass) {
+void transmitPgn130316(Sensor sensor) {
   tN2kMsg N2kMsg;
-  N2kMsg.SetPGN(126208UL);
+  N2kMsg.SetPGN(130316UL);
   N2kMsg.Priority = 2;
   N2kMsg.Destination = windlass->address;
   N2kMsg.AddByte(0x01); // Command message
