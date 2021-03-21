@@ -64,16 +64,17 @@
 #define GPIO_INSTANCE_BIT1 11
 #define GPIO_INSTANCE_BIT0 12
 #define GPIO_BOARD_LED 13
-#define GPIO_T0 A0
-#define GPIO_T1 A1
-#define GPIO_T2 A2
-#define GPIO_T3 A3
-#define GPIO_T4 A4
-#define GPIO_T5 A5
-#define GPIO_T6 A6
-#define GPIO_T7 A7
+#define GPIO_SENSOR0 A0
+#define GPIO_SENSOR1 A1
+#define GPIO_SENSOR2 A2
+#define GPIO_SENSOR3 A3
+#define GPIO_SENSOR4 A4
+#define GPIO_SENSOR5 A5
+#define GPIO_SENSOR6 A6
+#define GPIO_SENSOR7 A7
 #define GPIO_PROGRAMME_SWITCH 22
 #define GPIO_POWER_LED 23
+#define GPIO_SENSOR_PINS { GPIO_SENSOR0, GPIO_SENSOR1, GPIO_SENSOR2, GPIO_SENSOR3, GPIO_SENSOR4, GPIO_SENSOR5, GPIO_SENSOR6, GPIO_SENSOR7 } 
 #define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
 #define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
 #define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_SENSOR_LED, GPIO_INSTANCE_LED, GPIO_SOURCE_LED }
@@ -184,8 +185,8 @@ enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFOR
 LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
 SENSOR SENSORS[8];
-int SELECTED_SENSOR = -1;
-for (int i = 0; i < 8; i++) SENSORS[i].invalidate(); 
+unsigned byte sensorGpios[] = GPIO_SENSORS_PINS;
+for (int i = 0; i < 8; i++) SENSORS[i].invalidate(sensorGpios[i]); 
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -269,22 +270,23 @@ void processSwitches() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {
-    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) processProgrammeSwitch();
+    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) configureSensor();
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
 }
 
-void processProgrammeSwitch() {
+void configureSensor() {
   static PROGRAMME_STATES state = NORMAL;
   static unsigned int sensor;
   static unsigned long timeout = 0UL;
-
   unsigned long now = millis();
-  if (now > timeout) {
+
+  if ((state != NORMAL) && (now > timeout)) {
     state = NORMAL;
-    STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH);
-    STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, OFF);
-    STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, OFF);
+    STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH 3 TIMES);
+    STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH 3 TIMES);
+    STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH 3 TIMES);
+    EEPROM.update(SENSORS_EEPROM_ADDRESS, SENSORS);
   }
 
   int s = getDipSetting();
@@ -307,15 +309,33 @@ void processProgrammeSwitch() {
       break;
     case WAITINGFORSOURCE:
       SENSORS[sensor].setSource(s);
-      state = NORMAL;
+      state = WAITINGFORSETPOINT;
       STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
+      timeout = PROGRAMME_TIMEOUT_INTERVAL;
+      break;
+    case WAITINGFORSETPOINT:
+      SENSORS[sensor].setSetPoint(s);
       timeout = 0UL;
-      STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH);
-      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
-      EEPROM.update(SENSORS_EEPROM_ADDRESS, SENSORS);
       break;
   }
+}
+
+void processSensor() {
+  static unsigned long timeout = 0UL;
+  unsigned long now = millis();
+
+  if (now > timeout) {
+    for (int sensor = 0; sensor < 8; sensor++) {
+      if (SENSORS[sensor].getInstance() != 0xff) {
+        
+        // Transmit sensor PGN
+      }
+    }
+    timeout = (now + SENSOR_PROCESS_INTERVAL);
+  }
+}
+
+int readSensor(unsigned byte pin) {
 }
 
 /**********************************************************************

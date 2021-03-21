@@ -7,9 +7,14 @@
 #include <Sensor.h>
 
 Sensor::Sensor() {
+  this->gpio = 0;
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;
+}
+
+unsigned byte Sensor::getGpio() {
+  return(this->gpio);
 }
 
 unsigned byte Sensor::getInstance() {
@@ -24,6 +29,10 @@ int Sensor::getSetPoint() {
   return(this->setPoint);
 }
 
+void Sensor::setGpio(unsigned byte gpio) {
+  this->gpio = gpio;
+}
+
 void Sensor::setInstance(unsigned byte instance) {
   this->instance = instance;
 }
@@ -36,7 +45,8 @@ void Sensor::setSetPoint(int setPoint) {
   this->setPoint = setPoint;
 }
 
-void Sensor::invalidate() {
+void Sensor::invalidate(unsigned byte gpio) {
+  this->gpio = gpio;
   this->instance = 0xFF;
   this->source = 0xFF;
   this->setPoint = 0;
