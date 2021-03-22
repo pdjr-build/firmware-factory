@@ -4,60 +4,63 @@
  */
 
 #include <cstddef>
+#include <eeprom.h>
 #include <Sensor.h>
 
 Sensor::Sensor() {
-  this->gpio = 0;
-  this->instance = 0xFF;
-  this->source = 0xFF;
-  this->setPoint = 0;
+  this->config = { 0x00, 0xff, 0xff, 0.0 };
   this->temperature = 0.0;
 }
 
-unsigned byte Sensor::getGpio() {
-  return(this->gpio);
+unsigned char Sensor::getGpio() {
+  return(this->config.gpio);
 }
 
-unsigned byte Sensor::getInstance() {
-  return(this->instance);
+unsigned char Sensor::getInstance() {
+  return(this->config.instance);
 }
 
-unsigned byter Sensor::getSource() {
-  return(this->source);
+unsigned char Sensor::getSource() {
+  return(this->config.source);
 }
 
-int Sensor::getSetPoint() {
-  return(this->setPoint);
+double Sensor::getSetPoint() {
+  return(this->config.setPoint);
 }
 
-float Sensor::getTemperature() {
+double Sensor::getTemperature() {
   return(this->temperature);
 }
 
-void Sensor::setGpio(unsigned byte gpio) {
-  this->gpio = gpio;
+void Sensor::setGpio(unsigned char gpio) {
+  this->config.gpio = gpio;
 }
 
-void Sensor::setInstance(unsigned byte instance) {
-  this->instance = instance;
+void Sensor::setInstance(unsigned char instance) {
+  this->config.instance = instance;
 }
 
-void Sensor::setSource(unsigned byte source) {
-  this->source = source;
+void Sensor::setSource(unsigned char source) {
+  this->config.source = source;
 }
 
-void Sensor::setSetPoint(int setPoint) {
-  this->setPoint = setPoint;
+void Sensor::setSetPoint(double setPoint) {
+  this->config.setPoint = setPoint;
 }
 
-void Sensor::setTemperature(float temperature) {
+void Sensor::setTemperature(double temperature) {
   this.temperature = temperature;
 }
 
-void Sensor::invalidate(unsigned byte gpio) {
-  this->gpio = gpio;
-  this->instance = 0xFF;
-  this->source = 0xFF;
-  this->setPoint = 0;
+void Sensor::invalidate(unsigned char gpio) {
+  this->config = { 0x00, 0xff, 0xff, 0.0 };
   this->temperature = 0.0;
+}
+
+void Sensor::save(int eepromAddress, int index) {
+  EEPROM.put(eepromAddress + (index * sizeof(this->config)), this->config);
+}
+
+void Sensor::load(int eepromAddress, int index) {
+  EEPROM.get(eepromAddress + (index * sizeof(this->config)), this->config);
 }

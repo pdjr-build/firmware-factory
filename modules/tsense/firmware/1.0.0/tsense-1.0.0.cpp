@@ -52,17 +52,17 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_INSTANCE_LED 0
+#define GPIO_ENCODER_LED 0
 #define GPIO_SOURCE_LED 1
 #define GPIO_SETPOINT_LED 2
-#define GPIO_INSTANCE_BIT7 5
-#define GPIO_INSTANCE_BIT6 6
-#define GPIO_INSTANCE_BIT5 7
-#define GPIO_INSTANCE_BIT4 8
-#define GPIO_INSTANCE_BIT3 9
-#define GPIO_INSTANCE_BIT2 10
-#define GPIO_INSTANCE_BIT1 11
-#define GPIO_INSTANCE_BIT0 12
+#define GPIO_ENCODER_BIT7 5
+#define GPIO_ENCODER_BIT6 6
+#define GPIO_ENCODER_BIT5 7
+#define GPIO_ENCODER_BIT4 8
+#define GPIO_ENCODER_BIT3 9
+#define GPIO_ENCODER_BIT2 10
+#define GPIO_ENCODER_BIT1 11
+#define GPIO_ENCODER_BIT0 12
 #define GPIO_BOARD_LED 13
 #define GPIO_SENSOR0 A0
 #define GPIO_SENSOR1 A1
@@ -75,9 +75,9 @@
 #define GPIO_PROGRAMME_SWITCH 22
 #define GPIO_POWER_LED 23
 #define GPIO_SENSOR_PINS { GPIO_SENSOR0, GPIO_SENSOR1, GPIO_SENSOR2, GPIO_SENSOR3, GPIO_SENSOR4, GPIO_SENSOR5, GPIO_SENSOR6, GPIO_SENSOR7 } 
-#define GPIO_INSTANCE_PINS { GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
-#define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_INSTANCE_BIT0, GPIO_INSTANCE_BIT1, GPIO_INSTANCE_BIT2, GPIO_INSTANCE_BIT3, GPIO_INSTANCE_BIT4, GPIO_INSTANCE_BIT5, GPIO_INSTANCE_BIT6, GPIO_INSTANCE_BIT7 }
-#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_SENSOR_LED, GPIO_INSTANCE_LED, GPIO_SOURCE_LED }
+#define GPIO_ENCODER_PINS { GPIO_ENCODER_BIT0, GPIO_ENCODER_BIT1, GPIO_ENCODER_BIT2, GPIO_ENCODER_BIT3, GPIO_ENCODER_BIT4, GPIO_ENCODER_BIT5, GPIO_ENCODER_BIT6, GPIO_ENCODER_BIT7 }
+#define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_ENCODER_BIT0, GPIO_ENCODER_BIT1, GPIO_ENCODER_BIT2, GPIO_ENCODER_BIT3, GPIO_ENCODER_BIT4, GPIO_ENCODER_BIT5, GPIO_ENCODER_BIT6, GPIO_ENCODER_BIT7 }
+#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_SENSOR_LED, GPIO_ENCODER_LED, GPIO_SOURCE_LED }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -134,9 +134,11 @@
 #define STARTUP_SETTLE_PERIOD 5000        // Wait this many ms before processing switch inputs
 #define SWITCH_PROCESS_INTERVAL 250       // Process switch inputs evety n ms
 #define RELAY_UPDATE_INTERVAL 330         // Update outputs every n ms
-#define STATUS_LED_MANAGER_HEARTBEAT 300  // Settings for LEDs on module case
-#define STATUS_LED_MANAGER_INTERVAL 10    //
-#define SENSOR_PROCESS_INTERVAL 4000
+#define LED_MANAGER_HEARTBEAT 300         // Settings for LEDs on module case
+#define LED_MANAGER_INTERVAL 10           //
+
+#define SENSOR_TRANSMISSION_INTERVAL 4000 // Number of ms between N2K transmits
+#define SENSOR_VOLTS_TO_KELVIN 0.0489     // Conversion factor for LM335 temperature sensors
 
 /**********************************************************************
  * Declarations of local functions.
@@ -150,6 +152,8 @@ void messageHandler(const tN2kMsg&);
 void processSwitches(WindlassState **windlasses);
 void transmitWindlassControl(WindlassState *windlass);
 void operateOutputs(WindlassState *windlass);
+
+int ENCODER_PINS[] = GPIO_ENCODER_PINS;
 
 /**********************************************************************
  * PGNs of messages transmitted by this program.
@@ -176,7 +180,7 @@ tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
 
 int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCHWITCH, -1, -1, -1, -1, -1, -1, -1 };
 Debouncer DEBOUNCER (SWITCHES);
-enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT };
+enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
 
 /**********************************************************************
  * Create an LED manager with operating characteristics that suit the
@@ -185,9 +189,14 @@ enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFOR
 
 LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
-SENSOR SENSORS[8];
-unsigned byte sensorGpios[] = GPIO_SENSORS_PINS;
-for (int i = 0; i < 8; i++) SENSORS[i].invalidate(sensorGpios[i]); 
+/**********************************************************************
+ * Create an array of defined sensor pin addresses and a corresponding
+ * array of SENSOR objects, then initialise each sensor object and set
+ * its pin address.
+ */
+unsigned char SENSOR_PINS[] = GPIO_SENSORS_PINS;
+SENSOR SENSORS[ELEMENTCOUNT(SENSOR_PINS)];
+for (int i = 0; i < ELEMENTCOUNT(SENSOR_PINS); i++) SENSORS[i].invalidate(SENSOR_PINS[i]); 
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -199,27 +208,39 @@ void setup() {
   delay(DEBUG_SERIAL_START_DELAY);
   #endif
 
+  // Set the mode of all digital GPIO pins.
   int ipins[] = GPIO_INPUT_PINS;
   int opins[] = GPIO_OUTPUT_PINS;
-  int spins[] = GPIO_SENSOR_PINS;
-  for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) { pinMode(ipins[i], INPUT_PULLUP); }
-  for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) { pinMode(opins[i], OUTPUT); }
-  for (unsigned int i = 0 ; i < ELEMENTCOUNT(spins); i++) { pinMode(spins[i], INPUT); }
-
-  // The first time this thing runs, there will be no previously used
-  // source address saved in EEPROM - in fact an EEPROM read will likely
-  // return the network broadcast address, so if this is the case, then
-  // we write an arbitrary, non-broadcast, source address to EEPROM and 
-  // take the opportunity to also save our unconfigured SENSORS structure.
-  if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 255) {
-    EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
-    SENSORS.saveState(SENSORS_EEPROM_ADDRESS);
-  }
+  for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
+  for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
   
-  SENSORS.loadState(SENSORS_EEPROM_ADDRESS); 
+  // We assume that a new host system has its EEPROM initialised to all
+  // 0xFF. We test by reading a byte that in a configured system should
+  // never be this value and if it indicates a scratch system then we
+  // set EEPROM memory up in the following way.
+  //
+  // Address | Value                                    | Size in bytes
+  // --------+------------------------------------------+--------------
+  // 0x00    | N2K source address                       | 1
+  // 0x10    | Sensor configuration (the SENSORS array) | Lots
+  //
+  if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 0xff) {
+    EEPROM.write(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
+    for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].save(SENSORS_EEPROM_ADDRESS, i);
+  }
 
-  STATUS_LED_MANAGER.operate(GPIO_BOARD_LED, 0, 3);
+  // Load sensor configurations from EEPROM  
+  for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS, i);
 
+  // Create an Analogue to Digital Converter service.
+  ADC *adc = new ADC();
+
+  // Flash the board n times (where n = number of configured sensors)
+  var n = 0;
+  for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) if (SENSORS[i].getInstance() != 0xff) n++;
+  LED_MANAGER.operate(GPIO_BOARD_LED, 0, n);
+
+  // Initialise and start N2K services.
   NMEA2000.SetProductInformation(PRODUCT_SERIAL_CODE, PRODUCT_CODE, PRODUCT_TYPE, PRODUCT_FIRMWARE_VERSION, PRODUCT_VERSION);
   NMEA2000.SetDeviceInformation(DEVICE_UNIQUE_NUMBER, DEVICE_FUNCTION, DEVICE_CLASS, DEVICE_MANUFACTURER_CODE);
   NMEA2000.SetMode(tNMEA2000::N2km_ListenAndNode, EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS)); // Configure for sending and receiving.
@@ -227,8 +248,6 @@ void setup() {
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
   NMEA2000.Open();
-
-  ADC *adc = new ADC();
 }
 
 /**********************************************************************
@@ -247,20 +266,25 @@ void setup() {
 void loop() {
   static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
-
+  
+  // Debounce all switch inputs.
   DEBOUNCER.debounce();
+
+  // If the system has settled (had time to debounce) then process switches.
   if (!JUST_STARTED) processSwitches();
 
   // Process any received messages.
   NMEA2000.ParseMessages();
-  // The above may have resulted in acquisition of a new source
+  // The above call may have resulted in acquisition of a new source
   // address, so we check if there has been a change and if so save the
   // new address to EEPROM for future re-use.
   if (NMEA2000.ReadResetAddressChanged()) EEPROM.update(SOURCE_ADDRESS_EEPROM_ADDRESS, NMEA2000.GetN2kSource());
 
-  LED_MANAGER.loop();
-
+  // Process temperature sensors  
   processSensors();
+
+  // Update the states of connected LEDs
+  LED_MANAGER.loop();
   
   #ifdef DEBUG_SERIAL
   debugDump();
@@ -268,74 +292,11 @@ void loop() {
 }
 
 /**********************************************************************
- * processSwitches() invokes various handlers dependent upon the state
- * of their associated switch input channels.
+ * processSensors() recovers temperature data from all configured
+ * temperature sensors and transmits it directly over N2K. The function
+ * should be called directly from loop(): it will only process sensors
+ * once per SENSOR_TRANSMISSION_INTERVAL.
  */
-
-void processSwitches() {
-  static unsigned long deadline = 0UL;
-  unsigned long now = millis();
-  if (now > deadline) {
-    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) configureSensor();
-    deadline = (now + SWITCH_PROCESS_INTERVAL);
-  }
-}
-
-void configureSensor() {
-  static PROGRAMME_STATES state = NORMAL;
-  static unsigned int sensor;
-  static unsigned long timeout = 0UL;
-  unsigned long now = millis();
-
-  if ((state != NORMAL) && (now > timeout)) {
-    state = NORMAL;
-    STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH 3 TIMES);
-    STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH 3 TIMES);
-    STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH 3 TIMES);
-    EEPROM.update(SENSORS_EEPROM_ADDRESS, SENSORS);
-  }
-
-  int s = getDipSetting();
-  switch state {
-    case NORMAL:
-      if (s & (s - 1)) == 0) {
-        for (sensor = 0; ((sensor < 8) && ((2^sensor) != s)); sensor++);
-        state = WAITINGFORINSTANCE;
-        STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, ON);
-        STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
-        timeout = PROGRAMME_TIMEOUT_INTERVAL;
-      }
-      break;
-    case WAITINGFORINSTANCE:
-      SENSORS[sensor].setInstance(s);
-      state = WAITINGFORSOURCE;
-      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, ON);
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
-      timeout = PROGRAMME_TIMEOUT_INTERVAL;
-      break;
-    case WAITINGFORSOURCE:
-      SENSORS[sensor].setSource(s);
-      state = WAITINGFORSETPOINT;
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
-      timeout = PROGRAMME_TIMEOUT_INTERVAL;
-      break;
-    case WAITINGFORSETPOINT:
-      SENSORS[sensor].setSetPoint(s);
-      timeout = 0UL;
-      break;
-  }
-}
-
-/**********************************************************************
- * processSensors() is executed from a delay loop which cycles at the
- * reporting interval specified by ??? (the N2K specification for PGN
- * 130316 say max transmit every 4 seconds).
- * 
- * The function iterates over the SENSORS array, initiating an ADC
- * conversion for each configured sensor. When the ADC conversion
- * finishes, updateSensor() is called with the result.
- */
-
 void processSensors() {
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
@@ -345,45 +306,105 @@ void processSensors() {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
         if (value != ADC_ERROR_VALUE) {
-          SENSORS[sensor].setTemperature(value * 0.489);
+          SENSORS[sensor].setTemperature(value * SENSOR_VOLTS_TO_KELVIN);
           transmitPgn130316(Sensors[sensor]); 
         }
       }
     }
-    timeout = (now + SENSOR_PROCESS_INTERVAL);
+    timeout = (now + SENSOR_TRANSMISSION_INTERVAL);
   }
 }
+
+/**********************************************************************
+ * processSwitches() invokes various handlers dependent upon the state
+ * of their associated switch input pins. The function should be called
+ * directly from loop(): it will only process switches once per
+ * SWITCH_PROCESS_INTERVAL.
+ */
+
+void processSwitches() {
+  static unsigned long deadline = 0UL;
+  unsigned long now = millis();
+  if (now > deadline) {
+    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
+      configureSensor(SENSORS, getEncodedByte(ENCODER_PINS));
+    }
+    deadline = (now + SWITCH_PROCESS_INTERVAL);
+  }
+}
+
+/**********************************************************************
+ * configureSensor() implements a state machine that will update the
+ * properties of a SENSOR in the <sensors> array from <value>.
+ */
+void configureSensor(SENSOR *sensors, int value) {
+  static PROGRAMME_STATES state = NORMAL;
+  static int sensor = -1;
+  static unsigned long timeout = 0UL;
+  unsigned long now = millis();
+
+  if ((state != NORMAL) && (now > timeout)) state = FINISH;
+
+  switch state {
+    case NORMAL:
+      if (value & (value - 1)) == 0) {
+        for (int i = 0; (i < ELEMENTCOUNT(sensors)); i++) { if ((2^i) == value) sensor = i; }
+        if (sensor != -1) {
+          state = WAITINGFORINSTANCE;
+          STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
+          timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
+      }
+      break;
+    case WAITINGFORINSTANCE:
+      sensors[sensor].setInstance(value);
+      state = WAITINGFORSOURCE;
+      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, ON);
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
+      timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
+      break;
+    case WAITINGFORSOURCE:
+      sensors[sensor].setSource(value);
+      state = WAITINGFORSETPOINT;
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
+      STATUS_LED_MANAGER.operate(GPIO_SETPOINT_LED, FLASH);
+      timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
+      break;
+    case WAITINGFORSETPOINT:
+      sensors[sensor].setSetPoint((double) value);
+      state = NORMAL;
+    case FINISH:
+      sensors[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
+      state = NORMAL;
+      sensor = -1;
+      STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH 3 TIMES THEN OFF);
+      STATUS_LED_MANAGER.operate(GPIO_ENCODER_LED, FLASH 3 TIMES THEN OFF);
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH 3 TIMES THEN OFF);
+      timeout = 0UL;
+      break;
+  }
+}
+
 
 /**********************************************************************
  */
 
 void transmitPgn130316(Sensor sensor) {
   tN2kMsg N2kMsg;
-  N2kMsg.SetPGN(130316UL);
-  N2kMsg.Priority = 2;
-  N2kMsg.Destination = 0xFF
-  N2kMsg.AddByte(sensor.getInstance());
-  N2kMsg.AddByte(sensor.getSource());
+  SetN2kPGN130316(tN2kMsg, 0, sensor.getInstance(), sensor.getSource(), sensor.getTemperature(), sensor.getSetPoint());
   NMEA2000.SendMsg(N2kMsg);
 }  
 
 /**********************************************************************
- * getPoleInstance() returns the 8-bit instance address set by the
- * hardware DIP switches defined in GPIO_INSTANCE (the pin sequence
- * supplied must be lo-bit to hi-bit). If GPIO_INSTANCE is not defined
- * then returns 0xFF.
+ * Return the integer value represented by the state of the digital
+ * inputs passed in the <pins> array. Pin addresses are assumed to be
+ * in the order lsb through msb.
  */
-
-unsigned char getDipSetting() {
-  unsigned char instance = 0xFF;
-  #ifdef GPIO_INSTANCE_PINS
-  instance = 0x00;
-  int ipins[] = GPIO_INSTANCE_PINS; 
-  for (byte i = 0; i < ELEMENTCOUNT(ipins); i++) {
-    instance = instance + (digitalRead(ipins[i]) << i);
+unsigned char getEncodedByte(int *pins) {
+  unsigned char retval = 0x00;
+  for (int i = 0; i < ELEMENTCOUNT(pins); i++) {
+    retval = retval + (digitalRead(pins[i] << i);
   }
-  #endif
-  return(instance);
+  return(retval);
 }
 
 void messageHandler(const tN2kMsg &N2kMsg) {

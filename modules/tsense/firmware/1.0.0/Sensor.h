@@ -9,23 +9,28 @@
 class Sensor {
   public:
     Sensor();
-    void setGpio(unsigned byte gpio=0);
-    void setInstance(unsigned byte instance);
-    void setSource(unsigned byte instance);
-    void setSetPoint(int setPoint);
-    void setTemperature(float temperature);
-    unsigned byte getGpio();
-    unsigned byte getInstance();
-    unsigned byte getSource();
-    int getSetPoint();
-    float getTemperature();
+    void setGpio(unsigned char gpio=0);
+    void setInstance(unsigned char instance);
+    void setSource(unsigned char instance);
+    void setSetPoint(double setPoint);
+    void setTemperature(double temperature);
+    unsigned char getGpio();
+    unsigned char getInstance();
+    unsigned char getSource();
+    double getSetPoint();
+    double getTemperature();
     void invalidate(unsigned byte gpio);
+    void save(int eepromAddress, int index);
+    void load(int eepromAddress, int index);
   private:
-    unsigned byte gpio;
-    unsigned byte instance;
-    unsigned byte source;
-    int setPoint;
-    float temperature;
+    struct Configuration {
+      unsigned char gpio;
+      unsigned char instance;
+      unsigned char source;
+      double setPoint;
+    };
+    struct Sensor::Configuration config;
+    double temperature;
 };
 
 #endif
