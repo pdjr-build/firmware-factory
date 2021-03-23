@@ -26,17 +26,9 @@ LedManager::LedManager(unsigned long heartbeat, unsigned int interval) {
 /**********************************************************************
  * Operate the LED on pin <gpio> and optionally automate its behaviour.
  *
- * <state> specifies either the required LED state (if <flashes == 0)
- * or the state in which the LED should be left when a flashing
- * sequence completes.
- *
- * any specified flashing sequence terminates. 0x01 say on, 0x00 says
- * off, 0x03 says on and repeat after interval, 0x02 says off and
- * repeat after interval.
- * <flashes> specifies the number of flashes required. A value of zero
- * (the default) says "don't flash" and the LED state is determined by
- * <endstate>.
- *
+ * @param gpio - the GPIO pin to which the LED is connected.
+ * @param state - the state in which to leave the LED.
+ * @param flashes - the required number of flashes (-1 says infinite)
  */
   
 void LedManager::operate(unsigned int gpio, unsigned int state, int flashes) {

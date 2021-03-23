@@ -187,7 +187,7 @@ enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFOR
  * status LEDS mounted on the module PCB.
  */
 
-LedManager STATUS_LED_MANAGER (STATUS_LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
 
 /**********************************************************************
  * Create an array of defined sensor pin addresses and a corresponding
@@ -351,27 +351,28 @@ void configureSensor(SENSOR *sensors, int value) {
         for (int i = 0; (i < ELEMENTCOUNT(sensors)); i++) { if ((2^i) == value) sensor = i; }
         if (sensor != -1) {
           state = WAITINGFORINSTANCE;
-          STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, FLASH);
+          LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
           timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       }
       break;
     case WAITINGFORINSTANCE:
       sensors[sensor].setInstance(value);
       state = WAITINGFORSOURCE;
-      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, ON);
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH);
+      LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
       sensors[sensor].setSource(value);
       state = WAITINGFORSETPOINT;
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, ON);
-      STATUS_LED_MANAGER.operate(GPIO_SETPOINT_LED, FLASH);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
       sensors[sensor].setSetPoint((double) value);
-      state = NORMAL;
+      state = FINISH;
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
     case FINISH:
       sensors[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
       state = NORMAL;
