@@ -213,6 +213,8 @@ void setup() {
   int opins[] = GPIO_OUTPUT_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
+
+  DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
   
   // We assume that a new host system has its EEPROM initialised to all
   // 0xFF. We test by reading a byte that in a configured system should
@@ -327,7 +329,7 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
-      configureSensor(SENSORS, getEncodedByte(ENCODER_PINS));
+      configureSensor(SENSORS);
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -337,40 +339,40 @@ void processSwitches() {
  * configureSensor() implements a state machine that will update the
  * properties of a SENSOR in the <sensors> array from <value>.
  */
-void configureSensor(SENSOR *sensors, int value) {
+void configureSensor(SENSOR *sensors) {
   static PROGRAMME_STATES state = NORMAL;
   static int sensor = -1;
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
+  DIL_SWITCH.sample();
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
   switch state {
     case NORMAL:
-      if (value & (value - 1)) == 0) {
-        for (int i = 0; (i < ELEMENTCOUNT(sensors)); i++) { if ((2^i) == value) sensor = i; }
-        if (sensor != -1) {
-          state = WAITINGFORINSTANCE;
-          LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
-          timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
+      if (DIL_SWITCH.selectedSwitch()) {
+        sensor = (DIL_SWITCH.selectedSwitch() - 1);
+        state = WAITINGFORINSTANCE;
+        LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
+        timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       }
       break;
     case WAITINGFORINSTANCE:
-      sensors[sensor].setInstance(value);
+      sensors[sensor].setInstance(DIL_SWITCH.value());
       state = WAITINGFORSOURCE;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
-      sensors[sensor].setSource(value);
+      sensors[sensor].setSource(DIL_SWITCH.value());
       state = WAITINGFORSETPOINT;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
-      sensors[sensor].setSetPoint((double) value);
+      sensors[sensor].setSetPoint((double) DIL_SWITCH.value());
       state = FINISH;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
     case FINISH:
