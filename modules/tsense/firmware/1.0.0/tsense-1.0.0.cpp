@@ -295,13 +295,13 @@ void loop() {
  * processSensors() recovers temperature data from all configured
  * temperature sensors and transmits it directly over N2K. The function
  * should be called directly from loop(): it will only process sensors
- * once per SENSOR_TRANSMISSION_INTERVAL.
+ * once per SENSOR_PROCESS_INTERVAL.
  */
 void processSensors() {
-  static unsigned long timeout = 0UL;
+  static unsigned long deadline = 0UL;
   unsigned long now = millis();
 
-  if (now > timeout) {
+  if (now > deadline) {
     for (int sensor = 0; sensor < 8; sensor++) {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
@@ -311,7 +311,7 @@ void processSensors() {
         }
       }
     }
-    timeout = (now + SENSOR_TRANSMISSION_INTERVAL);
+    deadline = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
 
@@ -372,14 +372,14 @@ void configureSensor(SENSOR *sensors, int value) {
     case WAITINGFORSETPOINT:
       sensors[sensor].setSetPoint((double) value);
       state = FINISH;
-      LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case FINISH:
       sensors[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
       state = NORMAL;
       sensor = -1;
-      STATUS_LED_MANAGER.operate(GPIO_SENSOR_LED, FLASH 3 TIMES THEN OFF);
-      STATUS_LED_MANAGER.operate(GPIO_ENCODER_LED, FLASH 3 TIMES THEN OFF);
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, FLASH 3 TIMES THEN OFF);
+      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
+      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
+      STATUS_LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);
       timeout = 0UL;
       break;
   }
