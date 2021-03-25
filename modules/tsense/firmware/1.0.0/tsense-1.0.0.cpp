@@ -3,8 +3,8 @@
  * Copyright (c) 2021 Paul Reeve, <preeve@pdjr.eu>
  *
  * This firmware provides an 8-channel temperature senor interface
- * that reports sensor state using NMEA 2000 Temperature, Extended
- * Range PGN 130316.
+ * that reports sensor state over NMEA 2000 using PGN 130316
+ * Temperature, Extended Range.
  * 
  * The firmware supports LM335Z sensors.
  */
@@ -16,38 +16,38 @@
 #include <N2kMessages.h>
 #include <Debouncer.h>
 #include <LedManager.h>
+#include <DilSwitch.h>
 #include <Sensor.h>
 #include <arraymacros.h>
 
 /**********************************************************************
- * DEBUG AND TESTING
+ * SERIAL DEBUG
  * 
- * Defining DEBUG_SERIAL includes the function debugDump() and arranges
- * for it to be called from loop() every DEBUG_SERIAL_INTERVAL ms.
- * 
- * Defining DEBUG_USE_DEBUG_ADDRESSES disables normal instance number
- * recovery from EEPROM and remote windlass address recovery from the
- * network and instead forces the use of the values defined here. 
+ * Define DEBUG_SERIAL to enable serial output and arrange for the
+ * function debugDump() to be called from loop() every
+ * DEBUG_SERIAL_INTERVAL ms. DEBUG_SERIAL_START_DELAY prevents data
+ * being written to the serial port immediately after system boot.
  */
 
 #define DEBUG_SERIAL
-#define DEBUG_USE_DEBUG_ADDRESSES
-
 #define DEBUG_SERIAL_START_DELAY 4000
 #define DEBUG_SERIAL_INTERVAL 1000UL
 
 /**********************************************************************
- * MCU EEPROM STORAGE DEFINITIONS
+ * MCU EEPROM (PERSISTENT) STORAGE
  * 
- * These two addresses specify the persistent storage address that
- * should be used to store the 1-byte remote windlass instance numbers. 
+ * SOURCE_ADDRESS_EEPROM_ADDRESS: storage address for the device's
+ * 1-byte N2K source address.
+ * SENSORS_EEPROM_ADDRESS: storage address for SENSOR congigurations.
+ * The length of this is variable, so make sure it remains as the last
+ * item.
  */
 
 #define SOURCE_ADDRESS_EEPROM_ADDRESS 0
-#define SENSORS_EEPROM_ADDRESS 2
+#define SENSORS_EEPROM_ADDRESS 1
 
 /**********************************************************************
- * MCU DIGITAL IO PIN DEFINITIONS
+ * MCU PIN DEFINITIONS
  * 
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
@@ -64,6 +64,7 @@
 #define GPIO_ENCODER_BIT1 11
 #define GPIO_ENCODER_BIT0 12
 #define GPIO_BOARD_LED 13
+// Start of analogue pins - AX addresses are defined by the ADC library.
 #define GPIO_SENSOR0 A0
 #define GPIO_SENSOR1 A1
 #define GPIO_SENSOR2 A2
@@ -72,6 +73,7 @@
 #define GPIO_SENSOR5 A5
 #define GPIO_SENSOR6 A6
 #define GPIO_SENSOR7 A7
+// End of analogue pins
 #define GPIO_PROGRAMME_SWITCH 22
 #define GPIO_POWER_LED 23
 #define GPIO_SENSOR_PINS { GPIO_SENSOR0, GPIO_SENSOR1, GPIO_SENSOR2, GPIO_SENSOR3, GPIO_SENSOR4, GPIO_SENSOR5, GPIO_SENSOR6, GPIO_SENSOR7 } 
@@ -213,6 +215,8 @@ void setup() {
   int opins[] = GPIO_OUTPUT_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
+
+  DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
   
   // We assume that a new host system has its EEPROM initialised to all
   // 0xFF. We test by reading a byte that in a configured system should
@@ -327,7 +331,7 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
-      configureSensor(SENSORS, getEncodedByte(ENCODER_PINS));
+      configureSensor(SENSORS);
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -337,40 +341,40 @@ void processSwitches() {
  * configureSensor() implements a state machine that will update the
  * properties of a SENSOR in the <sensors> array from <value>.
  */
-void configureSensor(SENSOR *sensors, int value) {
+void configureSensor(SENSOR *sensors) {
   static PROGRAMME_STATES state = NORMAL;
   static int sensor = -1;
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
+  DIL_SWITCH.sample();
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
   switch state {
     case NORMAL:
-      if (value & (value - 1)) == 0) {
-        for (int i = 0; (i < ELEMENTCOUNT(sensors)); i++) { if ((2^i) == value) sensor = i; }
-        if (sensor != -1) {
-          state = WAITINGFORINSTANCE;
-          LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
-          timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
+      if (DIL_SWITCH.selectedSwitch()) {
+        sensor = (DIL_SWITCH.selectedSwitch() - 1);
+        state = WAITINGFORINSTANCE;
+        LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
+        timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       }
       break;
     case WAITINGFORINSTANCE:
-      sensors[sensor].setInstance(value);
+      sensors[sensor].setInstance(DIL_SWITCH.value());
       state = WAITINGFORSOURCE;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
-      sensors[sensor].setSource(value);
+      sensors[sensor].setSource(DIL_SWITCH.value());
       state = WAITINGFORSETPOINT;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
-      sensors[sensor].setSetPoint((double) value);
+      sensors[sensor].setSetPoint((double) DIL_SWITCH.value());
       state = FINISH;
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case FINISH:
