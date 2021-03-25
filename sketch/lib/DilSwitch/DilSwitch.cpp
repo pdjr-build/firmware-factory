@@ -42,9 +42,8 @@ unsigned char DilSwitch::value() {
 }
 
 /**********************************************************************
- * Assume the DIL switch is used to make a unique selection (i.e. only
- * one of the DIL switches can be set and return the ordinal number of
- * the selected pin or 0 if no switches or more than one switch is ON.
+ * Returns the ordinal number of a singly selected DIL switch or 0 if
+ * no switches or more than one switch is selected.
  */
 unsigned char DilSwitch::selectedSwitch() {
   unsigned char mask = 0x01;
