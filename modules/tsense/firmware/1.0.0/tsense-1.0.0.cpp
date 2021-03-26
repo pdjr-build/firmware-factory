@@ -136,10 +136,9 @@
 #define INSTANCE_UNDEFINED 255            // Flag value
 #define STARTUP_SETTLE_PERIOD 5000        // Wait this many ms before processing switch inputs
 #define SWITCH_PROCESS_INTERVAL 250       // Process switch inputs evety n ms
-#define RELAY_UPDATE_INTERVAL 330         // Update outputs every n ms
-#define LED_MANAGER_HEARTBEAT 300         // Settings for LEDs on module case
-#define LED_MANAGER_INTERVAL 10           //
-#define PROGRAMME_TIMEOUT_INTERVAL 20000
+#define LED_MANAGER_HEARTBEAT 300         // Number of ms on / off
+#define LED_MANAGER_INTERVAL 10           // Number of heartbeats between repeats
+#define PROGRAMME_TIMEOUT_INTERVAL 20000  // Allow 20s to complete each programme step
 #define SENSOR_PROCESS_INTERVAL 4000      // Number of ms between N2K transmits
 #define SENSOR_VOLTS_TO_KELVIN 0.0489     // Conversion factor for LM335 temperature sensors
 
@@ -157,7 +156,8 @@ void processSwitches();
 void transmitPgn130316(Sensor sensor);
 void configureSensor();
 
-int ENCODER_PINS[] = GPIO_ENCODER_PINS;
+enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
+
 
 /**********************************************************************
  * PGNs of messages transmitted by this program.
@@ -177,6 +177,10 @@ const unsigned long TransmitMessages[] PROGMEM={ 130316L, 0 };
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
 tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
 
+
+int ENCODER_PINS[] = GPIO_ENCODER_PINS;
+DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
+
 /**********************************************************************
  * Create a switch debouncer DEBOUNCER and associate with it the GPIO
  * pins that are connected to switches.
@@ -184,14 +188,6 @@ tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
 
 int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCH, -1, -1, -1, -1, -1, -1, -1 };
 Debouncer DEBOUNCER (SWITCHES);
-enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
-
-/**********************************************************************
- * Create an LED manager with operating characteristics that suit the
- * status LEDS mounted on the module PCB.
- */
-
-LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
 
 /**********************************************************************
  * Create an array of defined sensor pin addresses and a corresponding
@@ -201,7 +197,12 @@ LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
 unsigned char SENSOR_PINS[] = GPIO_SENSOR_PINS;
 Sensor SENSORS[ELEMENTCOUNT(SENSOR_PINS)];
 
-DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
+/**********************************************************************
+ * Create an LED manager with operating characteristics that suit the
+ * status LEDS mounted on the module PCB.
+ */
+
+LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
 
 // Create an Analogue to Digital Converter service.
 ADC *adc = new ADC();
@@ -221,6 +222,7 @@ void setup() {
   int opins[] = GPIO_OUTPUT_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
+
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSOR_PINS); i++) SENSORS[i].invalidate(SENSOR_PINS[i]); 
 
   
@@ -256,6 +258,7 @@ void setup() {
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
   NMEA2000.Open();
+
 }
 
 /**********************************************************************
