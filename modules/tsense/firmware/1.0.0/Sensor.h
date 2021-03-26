@@ -19,7 +19,7 @@ class Sensor {
     unsigned char getSource();
     double getSetPoint();
     double getTemperature();
-    void invalidate(unsigned byte gpio);
+    void invalidate(unsigned char gpio);
     void save(int eepromAddress, int index);
     void load(int eepromAddress, int index);
   private:

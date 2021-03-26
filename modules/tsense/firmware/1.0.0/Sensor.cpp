@@ -4,7 +4,7 @@
  */
 
 #include <cstddef>
-#include <eeprom.h>
+#include <EEPROM.h>
 #include <Sensor.h>
 
 Sensor::Sensor() {
@@ -49,7 +49,7 @@ void Sensor::setSetPoint(double setPoint) {
 }
 
 void Sensor::setTemperature(double temperature) {
-  this.temperature = temperature;
+  this->temperature = temperature;
 }
 
 void Sensor::invalidate(unsigned char gpio) {

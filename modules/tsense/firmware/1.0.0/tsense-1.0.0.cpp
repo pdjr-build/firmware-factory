@@ -10,6 +10,7 @@
  */
 
 #include <Arduino.h>
+#include <ADC.h>
 #include <EEPROM.h>
 #include <NMEA2000_CAN.h>
 #include <N2kTypes.h>
@@ -52,7 +53,7 @@
  * GPIO pin definitions for the Teensy 3.2 MCU
  */
 
-#define GPIO_ENCODER_LED 0
+#define GPIO_INSTANCE_LED 0
 #define GPIO_SOURCE_LED 1
 #define GPIO_SETPOINT_LED 2
 #define GPIO_ENCODER_BIT7 5
@@ -64,7 +65,7 @@
 #define GPIO_ENCODER_BIT1 11
 #define GPIO_ENCODER_BIT0 12
 #define GPIO_BOARD_LED 13
-// Start of analogue pins - AX addresses are defined by the ADC library.
+// Start of analogue pinns - AX addresses are defined by the ADC library.
 #define GPIO_SENSOR0 A0
 #define GPIO_SENSOR1 A1
 #define GPIO_SENSOR2 A2
@@ -79,7 +80,7 @@
 #define GPIO_SENSOR_PINS { GPIO_SENSOR0, GPIO_SENSOR1, GPIO_SENSOR2, GPIO_SENSOR3, GPIO_SENSOR4, GPIO_SENSOR5, GPIO_SENSOR6, GPIO_SENSOR7 } 
 #define GPIO_ENCODER_PINS { GPIO_ENCODER_BIT0, GPIO_ENCODER_BIT1, GPIO_ENCODER_BIT2, GPIO_ENCODER_BIT3, GPIO_ENCODER_BIT4, GPIO_ENCODER_BIT5, GPIO_ENCODER_BIT6, GPIO_ENCODER_BIT7 }
 #define GPIO_INPUT_PINS { GPIO_PROGRAMME_SWITCH, GPIO_ENCODER_BIT0, GPIO_ENCODER_BIT1, GPIO_ENCODER_BIT2, GPIO_ENCODER_BIT3, GPIO_ENCODER_BIT4, GPIO_ENCODER_BIT5, GPIO_ENCODER_BIT6, GPIO_ENCODER_BIT7 }
-#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_SENSOR_LED, GPIO_ENCODER_LED, GPIO_SOURCE_LED }
+#define GPIO_OUTPUT_PINS { GPIO_BOARD_LED, GPIO_POWER_LED, GPIO_INSTANCE_LED, GPIO_SOURCE_LED, GPIO_SETPOINT_LED }
 
 /**********************************************************************
  * DEVICE INFORMATION
@@ -138,8 +139,8 @@
 #define RELAY_UPDATE_INTERVAL 330         // Update outputs every n ms
 #define LED_MANAGER_HEARTBEAT 300         // Settings for LEDs on module case
 #define LED_MANAGER_INTERVAL 10           //
-
-#define SENSOR_TRANSMISSION_INTERVAL 4000 // Number of ms between N2K transmits
+#define PROGRAMME_TIMEOUT_INTERVAL 20000
+#define SENSOR_PROCESS_INTERVAL 4000      // Number of ms between N2K transmits
 #define SENSOR_VOLTS_TO_KELVIN 0.0489     // Conversion factor for LM335 temperature sensors
 
 /**********************************************************************
@@ -151,9 +152,10 @@ void debugDump();
 #endif
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
-void processSwitches(WindlassState **windlasses);
-void transmitWindlassControl(WindlassState *windlass);
-void operateOutputs(WindlassState *windlass);
+void processSensors();
+void processSwitches();
+void transmitPgn130316(Sensor sensor);
+void configureSensor();
 
 int ENCODER_PINS[] = GPIO_ENCODER_PINS;
 
@@ -180,7 +182,7 @@ tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
  * pins that are connected to switches.
  */
 
-int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCHWITCH, -1, -1, -1, -1, -1, -1, -1 };
+int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCH, -1, -1, -1, -1, -1, -1, -1 };
 Debouncer DEBOUNCER (SWITCHES);
 enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
 
@@ -189,16 +191,20 @@ enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFOR
  * status LEDS mounted on the module PCB.
  */
 
-LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, STATUS_LED_MANAGER_INTERVAL);
+LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
 
 /**********************************************************************
  * Create an array of defined sensor pin addresses and a corresponding
  * array of SENSOR objects, then initialise each sensor object and set
  * its pin address.
  */
-unsigned char SENSOR_PINS[] = GPIO_SENSORS_PINS;
-SENSOR SENSORS[ELEMENTCOUNT(SENSOR_PINS)];
-for (int i = 0; i < ELEMENTCOUNT(SENSOR_PINS); i++) SENSORS[i].invalidate(SENSOR_PINS[i]); 
+unsigned char SENSOR_PINS[] = GPIO_SENSOR_PINS;
+Sensor SENSORS[ELEMENTCOUNT(SENSOR_PINS)];
+
+DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
+
+// Create an Analogue to Digital Converter service.
+ADC *adc = new ADC();
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -215,8 +221,8 @@ void setup() {
   int opins[] = GPIO_OUTPUT_PINS;
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
+  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSOR_PINS); i++) SENSORS[i].invalidate(SENSOR_PINS[i]); 
 
-  DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
   
   // We assume that a new host system has its EEPROM initialised to all
   // 0xFF. We test by reading a byte that in a configured system should
@@ -230,18 +236,16 @@ void setup() {
   //
   if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 0xff) {
     EEPROM.write(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
-    for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].save(SENSORS_EEPROM_ADDRESS, i);
+    for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].save(SENSORS_EEPROM_ADDRESS, i);
   }
 
   // Load sensor configurations from EEPROM  
-  for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS, i);
+  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS, i);
 
-  // Create an Analogue to Digital Converter service.
-  ADC *adc = new ADC();
-
+  
   // Flash the board n times (where n = number of configured sensors)
-  var n = 0;
-  for (int i = 0; i < ELEMENTCOUNT(SENSORS); i++) if (SENSORS[i].getInstance() != 0xff) n++;
+  int n = 0;
+  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) if (SENSORS[i].getInstance() != 0xff) n++;
   LED_MANAGER.operate(GPIO_BOARD_LED, 0, n);
 
   // Initialise and start N2K services.
@@ -306,12 +310,12 @@ void processSensors() {
   unsigned long now = millis();
 
   if (now > deadline) {
-    for (int sensor = 0; sensor < 8; sensor++) {
+    for (unsigned int sensor = 0; sensor < 8; sensor++) {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
         if (value != ADC_ERROR_VALUE) {
           SENSORS[sensor].setTemperature(value * SENSOR_VOLTS_TO_KELVIN);
-          transmitPgn130316(Sensors[sensor]); 
+          transmitPgn130316(SENSORS[sensor]); 
         }
       }
     }
@@ -331,7 +335,7 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
-      configureSensor(SENSORS);
+      configureSensor();
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -341,7 +345,7 @@ void processSwitches() {
  * configureSensor() implements a state machine that will update the
  * properties of a SENSOR in the <sensors> array from <value>.
  */
-void configureSensor(SENSOR *sensors) {
+void configureSensor() {
   static PROGRAMME_STATES state = NORMAL;
   static int sensor = -1;
   static unsigned long timeout = 0UL;
@@ -350,7 +354,7 @@ void configureSensor(SENSOR *sensors) {
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
-  switch state {
+  switch (state) {
     case NORMAL:
       if (DIL_SWITCH.selectedSwitch()) {
         sensor = (DIL_SWITCH.selectedSwitch() - 1);
@@ -360,30 +364,30 @@ void configureSensor(SENSOR *sensors) {
       }
       break;
     case WAITINGFORINSTANCE:
-      sensors[sensor].setInstance(DIL_SWITCH.value());
+      SENSORS[sensor].setInstance(DIL_SWITCH.value());
       state = WAITINGFORSOURCE;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
-      sensors[sensor].setSource(DIL_SWITCH.value());
+      SENSORS[sensor].setSource(DIL_SWITCH.value());
       state = WAITINGFORSETPOINT;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
-      sensors[sensor].setSetPoint((double) DIL_SWITCH.value());
+      SENSORS[sensor].setSetPoint((double) DIL_SWITCH.value());
       state = FINISH;
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case FINISH:
-      sensors[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
+      SENSORS[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
       state = NORMAL;
       sensor = -1;
-      STATUS_LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
-      STATUS_LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
-      STATUS_LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);
+      LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);
       timeout = 0UL;
       break;
   }
@@ -395,7 +399,7 @@ void configureSensor(SENSOR *sensors) {
 
 void transmitPgn130316(Sensor sensor) {
   tN2kMsg N2kMsg;
-  SetN2kPGN130316(tN2kMsg, 0, sensor.getInstance(), sensor.getSource(), sensor.getTemperature(), sensor.getSetPoint());
+  SetN2kPGN130316(N2kMsg, 0, sensor.getInstance(), sensor.getSource(), sensor.getTemperature(), sensor.getSetPoint());
   NMEA2000.SendMsg(N2kMsg);
 }  
 
@@ -406,8 +410,8 @@ void transmitPgn130316(Sensor sensor) {
  */
 unsigned char getEncodedByte(int *pins) {
   unsigned char retval = 0x00;
-  for (int i = 0; i < ELEMENTCOUNT(pins); i++) {
-    retval = retval + (digitalRead(pins[i] << i);
+  for (unsigned int i = 0; i < ELEMENTCOUNT(pins); i++) {
+    retval = retval + (digitalRead(pins[i] << i));
   }
   return(retval);
 }
@@ -426,10 +430,6 @@ void debugDump() {
   unsigned long now = millis();
   if (now > deadline) {
     Serial.print("DEBUG DUMP @ "); Serial.println(now);
-    Serial.print("W0 instance:  "); Serial.println(WINDLASS0.instance, HEX);
-    Serial.print("W0 address:   "); Serial.println(WINDLASS0.address, HEX);
-    Serial.print("W0 UP switch: "); Serial.println(WINDLASS0.pDebouncer->channelState(WINDLASS0.upSwitchGPIO));
-    Serial.print("W0 DN switch: "); Serial.println(WINDLASS0.pDebouncer->channelState(WINDLASS0.downSwitchGPIO));
     deadline = (now + DEBUG_SERIAL_INTERVAL);
   }
 }

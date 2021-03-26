@@ -9,7 +9,7 @@
 class DilSwitch {
   public:
     DilSwitch(int *pins, int pinCount);
-    int[] getPins();
+    int *getPins();
     int getPinCount();
 
     unsigned char sample();
@@ -18,7 +18,7 @@ class DilSwitch {
   private:
     int *pins;
     int pinCount;
-    unsigned char sample;
+    unsigned char lastsample;
 };
 
 #endif

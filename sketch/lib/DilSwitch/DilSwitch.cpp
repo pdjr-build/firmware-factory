@@ -4,14 +4,16 @@
  */
 
 #include <cstddef>
+#include <Arduino.h>
 #include <DilSwitch.h>
 
 DilSwitch::DilSwitch(int *pins, int pinCount) {
   this->pins = pins;
   this->pinCount = pinCount;
+  this->lastsample = 0;
 }
 
-int[] DilSwitch::getPins() {
+int *DilSwitch::getPins() {
   return(this->pins);
 }
 
@@ -26,19 +28,19 @@ int DilSwitch::getPinCount() {
  * without triggering further GPIO reads.
  */
 unsigned char DilSwitch::sample() {
-  this->sample = 0;
+  this->lastsample = 0;
   for (int i = 0; i < this->pinCount; i++) {
-    this->sample << 1;
-    this->sample = (this->sample & digitalRead(this->pins[i]));
+    this->lastsample = this->lastsample << 1;
+    this->lastsample = (this->lastsample & digitalRead(this->pins[i]));
   }
-  return(this->sample);
+  return(this->lastsample);
 }
 
 /**********************************************************************
  * Return the value read by the last call to sample().
  */
 unsigned char DilSwitch::value() {
-  return(this->sample);
+  return(this->lastsample);
 }
 
 /**********************************************************************
@@ -49,7 +51,7 @@ unsigned char DilSwitch::selectedSwitch() {
   unsigned char mask = 0x01;
   unsigned char retval = 0;
   for (int i = 0; i < this->pinCount; i++) {
-    if (this.sample == mask) { retval = (i + 1); break; }
+    if (this->lastsample == mask) { retval = (i + 1); break; }
     mask << 1;
   }
   return(retval);

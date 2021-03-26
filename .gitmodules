@@ -10,3 +10,6 @@
 [submodule "modules/kicad-libraries/kicad-footprints"]
 	path = modules/kicad-libraries/kicad-footprints
 	url = https://github.com/KiCad/kicad-footprints.git
+[submodule "sketch/lib/ADC"]
+	path = sketch/lib/ADC
+	url = https://github.com/pedvide/ADC.git
