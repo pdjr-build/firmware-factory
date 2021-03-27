@@ -12,7 +12,7 @@ class DilSwitch {
     int *getPins();
     int getPinCount();
 
-    unsigned char sample();
+    DilSwitch *sample();
     unsigned char value();
     unsigned char selectedSwitch();
   private:

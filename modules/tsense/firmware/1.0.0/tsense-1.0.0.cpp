@@ -145,7 +145,6 @@
 /**********************************************************************
  * Declarations of local functions.
  */
-
 #ifdef DEBUG_SERIAL
 void debugDump();
 #endif
@@ -154,9 +153,8 @@ void messageHandler(const tN2kMsg&);
 void processSensors();
 void processSwitches();
 void transmitPgn130316(Sensor sensor);
-void configureSensor();
+void configureSensor(Sensor *sensor, DilSwitch *dilSwitch);
 
-enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
 
 
 /**********************************************************************
@@ -338,7 +336,7 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
-      configureSensor();
+      configureSensor(SENSORS, DIL_SWITCH.sample());
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
   }
@@ -346,48 +344,55 @@ void processSwitches() {
 
 /**********************************************************************
  * configureSensor() implements a state machine that will update the
- * properties of a SENSOR in the <sensors> array from <value>.
+ * properties of a sensor using values provided through dilSwitch.
+ * 
+ * The state machine is statically initialised to the NORMAL state.
+ * The first call to configureSensor() uses the value provided by
+ * dilSwitch to select a Sensor from the sensor array.
+ * 
+ * Subsequent calls advance the machine one state, using the dilSwitch
+ * value to set parameters in the selected sensor until the FINISH
+ * state is reached and the configured sensor is saved to EEPROM. 
  */
-void configureSensor() {
+void configureSensor(Sensor *sensor, DilSwitch *dilSwitch) {
+  enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
   static PROGRAMME_STATES state = NORMAL;
-  static int sensor = -1;
+  static Sensor selectedSensor;
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
-  DIL_SWITCH.sample();
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
   switch (state) {
     case NORMAL:
-      if (DIL_SWITCH.selectedSwitch()) {
-        sensor = (DIL_SWITCH.selectedSwitch() - 1);
+      if (dilSwitch->selectedSwitch()) {
+        selectedSensor = sensor[(dilSwitch->selectedSwitch() - 1)];
         state = WAITINGFORINSTANCE;
         LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
         timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       }
       break;
     case WAITINGFORINSTANCE:
-      SENSORS[sensor].setInstance(DIL_SWITCH.value());
+      selectedSensor.setInstance(dilSwitch->value());
       state = WAITINGFORSOURCE;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
-      SENSORS[sensor].setSource(DIL_SWITCH.value());
+      selectedSensor.setSource(dilSwitch->value());
       state = WAITINGFORSETPOINT;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
-      SENSORS[sensor].setSetPoint((double) DIL_SWITCH.value());
+      selectedSensor.setSetPoint((double) dilSwitch->value());
       state = FINISH;
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case FINISH:
-      SENSORS[sensor].save(SENSORS_EEPROM_ADDRESS, sensor);
+      selectedSensor.save(SENSORS_EEPROM_ADDRESS, sensor);
       state = NORMAL;
-      sensor = -1;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);

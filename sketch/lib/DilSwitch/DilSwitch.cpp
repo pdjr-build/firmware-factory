@@ -27,13 +27,13 @@ int DilSwitch::getPinCount() {
  * recovered using the value(), selection() and pinState() functions
  * without triggering further GPIO reads.
  */
-unsigned char DilSwitch::sample() {
+DilSwitch *DilSwitch::sample() {
   this->lastsample = 0;
   for (int i = 0; i < this->pinCount; i++) {
     this->lastsample = this->lastsample << 1;
     this->lastsample = (this->lastsample & digitalRead(this->pins[i]));
   }
-  return(this->lastsample);
+  return(this);
 }
 
 /**********************************************************************
