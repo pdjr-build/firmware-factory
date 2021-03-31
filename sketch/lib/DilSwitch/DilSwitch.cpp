@@ -29,9 +29,8 @@ int DilSwitch::getPinCount() {
  */
 DilSwitch *DilSwitch::sample() {
   this->lastsample = 0;
-  for (int i = 0; i < this->pinCount; i++) {
-    this->lastsample = this->lastsample << 1;
-    this->lastsample = (this->lastsample | ((digitalRead(this->pins[i]) == 0)?1:0));
+  for (int i = (this.pinCount - 1); i >= 0; i--) {
+    this->lastsample = (this->lastsample | (((digitalRead(this->pins[i]) == 0)?1:0) << i));
   }
   return(this);
 }
