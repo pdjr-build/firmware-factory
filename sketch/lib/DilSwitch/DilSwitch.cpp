@@ -31,7 +31,7 @@ DilSwitch *DilSwitch::sample() {
   this->lastsample = 0;
   for (int i = 0; i < this->pinCount; i++) {
     this->lastsample = this->lastsample << 1;
-    this->lastsample = (this->lastsample & digitalRead(this->pins[i]));
+    this->lastsample = (this->lastsample | ((digitalRead(this->pins[i]) == 0)?1:0));
   }
   return(this);
 }

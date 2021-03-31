@@ -147,6 +147,7 @@
  */
 #ifdef DEBUG_SERIAL
 void debugDump();
+void debugDumpSensors();
 #endif
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
@@ -335,7 +336,8 @@ void processSwitches() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {
-    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH)) {
+    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH) == 0) {
+      Serial.println("Button pressed");
       configureSensor(SENSORS, DIL_SWITCH.sample());
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
@@ -363,6 +365,8 @@ void configureSensor(Sensor *sensor, DilSwitch *dilSwitch) {
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
+  Serial.print("PROGRAMMING STATE "); Serial.println(state);
+  Serial.print("DIL VALUE "); Serial.println(dilSwitch->value());
   switch (state) {
     case NORMAL:
       if (dilSwitch->selectedSwitch()) {
@@ -438,7 +442,16 @@ void debugDump() {
   unsigned long now = millis();
   if (now > deadline) {
     Serial.print("DEBUG DUMP @ "); Serial.println(now);
+    debugDumpSensors();
     deadline = (now + DEBUG_SERIAL_INTERVAL);
+  }
+}
+
+void debugDumpSensors() {
+  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) {
+    Serial.print("Sensor "); Serial.print(i); Serial.print(": ");
+    Serial.print("instance: "); Serial.print(SENSORS[i].getInstance());
+    Serial.println();
   }
 }
 #endif
