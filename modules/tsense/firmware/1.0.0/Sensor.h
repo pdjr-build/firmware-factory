@@ -20,8 +20,9 @@ class Sensor {
     double getSetPoint();
     double getTemperature();
     void invalidate(unsigned char gpio);
-    void save(int eepromAddress, int index);
-    void load(int eepromAddress, int index);
+    void save(int eepromAddress);
+    void load(int eepromAddress);
+    int getConfigSize();
   private:
     struct Configuration {
       unsigned char gpio;

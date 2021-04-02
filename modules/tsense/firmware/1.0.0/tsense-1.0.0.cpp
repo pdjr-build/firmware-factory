@@ -147,7 +147,7 @@
  */
 #ifdef DEBUG_SERIAL
 void debugDump();
-void debugDumpSensors();
+void dumpSensorConfiguration();
 #endif
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
@@ -237,11 +237,11 @@ void setup() {
   //
   if (EEPROM.read(SOURCE_ADDRESS_EEPROM_ADDRESS) == 0xff) {
     EEPROM.write(SOURCE_ADDRESS_EEPROM_ADDRESS, DEFAULT_SOURCE_ADDRESS);
-    for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].save(SENSORS_EEPROM_ADDRESS, i);
+    for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].save(SENSORS_EEPROM_ADDRESS + (i * SENSORS[i].getConfigSize()));
   }
 
   // Load sensor configurations from EEPROM  
-  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS, i);
+  for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS + (i * SENSORS[i].getConfigSize()));
 
   
   // Flash the board n times (where n = number of configured sensors)
@@ -337,7 +337,7 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH) == 0) {
-      Serial.println("Button pressed");
+      dumpSensorConfiguration();
       configureSensor(SENSORS, DIL_SWITCH.sample());
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
@@ -356,46 +356,44 @@ void processSwitches() {
  * value to set parameters in the selected sensor until the FINISH
  * state is reached and the configured sensor is saved to EEPROM. 
  */
-void configureSensor(Sensor *sensor, DilSwitch *dilSwitch) {
+void configureSensor(Sensor *sensors, DilSwitch *dilSwitch) {
   enum PROGRAMME_STATES { NORMAL, WAITINGFORINSTANCE, WAITINGFORSOURCE, WAITINGFORSETPOINT, FINISH };
   static PROGRAMME_STATES state = NORMAL;
-  static Sensor selectedSensor;
+  static int selectedSensorIndex = -1;
   static unsigned long timeout = 0UL;
   unsigned long now = millis();
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
 
-  Serial.print("PROGRAMMING STATE "); Serial.println(state);
-  Serial.print("DIL VALUE "); Serial.println(dilSwitch->value());
   switch (state) {
     case NORMAL:
       if (dilSwitch->selectedSwitch()) {
-        selectedSensor = sensor[(dilSwitch->selectedSwitch() - 1)];
+        selectedSensorIndex = (dilSwitch->selectedSwitch() - 1);
         state = WAITINGFORINSTANCE;
         LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
         timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       }
       break;
     case WAITINGFORINSTANCE:
-      selectedSensor.setInstance(dilSwitch->value());
+      sensors[selectedSensorIndex].setInstance(dilSwitch->value());
       state = WAITINGFORSOURCE;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSOURCE:
-      selectedSensor.setSource(dilSwitch->value());
+      sensors[selectedSensorIndex].setSource(dilSwitch->value());
       state = WAITINGFORSETPOINT;
       LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
       timeout = (now + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case WAITINGFORSETPOINT:
-      selectedSensor.setSetPoint((double) dilSwitch->value());
+      sensors[selectedSensorIndex].setSetPoint((double) dilSwitch->value());
       state = FINISH;
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case FINISH:
-      selectedSensor.save(SENSORS_EEPROM_ADDRESS, sensor);
+      sensors[selectedSensorIndex].save(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * sensors[selectedSensorIndex].getConfigSize()));
       state = NORMAL;
       LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
       LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
@@ -441,17 +439,20 @@ void debugDump() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
   if (now > deadline) {
-    Serial.print("DEBUG DUMP @ "); Serial.println(now);
-    debugDumpSensors();
     deadline = (now + DEBUG_SERIAL_INTERVAL);
   }
 }
 
-void debugDumpSensors() {
+void dumpSensorConfiguration() {
+  Serial.print("[");
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) {
-    Serial.print("Sensor "); Serial.print(i); Serial.print(": ");
-    Serial.print("instance: "); Serial.print(SENSORS[i].getInstance());
-    Serial.println();
+    if (i != 0) Serial.print(",");
+    Serial.print(" {");
+    Serial.print(SENSORS[i].getInstance()); Serial.print(",");
+    Serial.print(SENSORS[i].getSource()); Serial.print(",");
+    Serial.print(SENSORS[i].getSetPoint());
+    Serial.print("}");
   }
+  Serial.println(" ]");
 }
 #endif

@@ -57,10 +57,14 @@ void Sensor::invalidate(unsigned char gpio) {
   this->temperature = 0.0;
 }
 
-void Sensor::save(int eepromAddress, int index) {
-  EEPROM.put(eepromAddress + (index * sizeof(this->config)), this->config);
+void Sensor::save(int eepromAddress) {
+  EEPROM.put(eepromAddress, this->config);
 }
 
-void Sensor::load(int eepromAddress, int index) {
-  EEPROM.get(eepromAddress + (index * sizeof(this->config)), this->config);
+void Sensor::load(int eepromAddress) {
+  EEPROM.get(eepromAddress, this->config);
+}
+
+int Sensor::getConfigSize() {
+  return(sizeof this->config);
 }
