@@ -337,7 +337,6 @@ void processSwitches() {
   unsigned long now = millis();
   if (now > deadline) {
     if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH) == 0) {
-      dumpSensorConfiguration();
       configureSensor(SENSORS, DIL_SWITCH.sample());
     }
     deadline = (now + SWITCH_PROCESS_INTERVAL);
@@ -364,6 +363,13 @@ void configureSensor(Sensor *sensors, DilSwitch *dilSwitch) {
   unsigned long now = millis();
 
   if ((state != NORMAL) && (now > timeout)) state = FINISH;
+
+  #ifdef DEBUG_SERIAL
+    Serial.println("BUTTON PRESSED");
+    Serial.print("  Current configuration: "); dumpSensorConfiguration();
+    Serial.print("  Programming state: "); Serial.println(state);
+    Serial.print("  Selected sensor: "); Serial.println(selectedSensorIndex);
+  #endif
 
   switch (state) {
     case NORMAL:
@@ -448,9 +454,9 @@ void dumpSensorConfiguration() {
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) {
     if (i != 0) Serial.print(",");
     Serial.print(" {");
-    Serial.print(SENSORS[i].getInstance()); Serial.print(",");
-    Serial.print(SENSORS[i].getSource()); Serial.print(",");
-    Serial.print(SENSORS[i].getSetPoint());
+    Serial.print("\"instance\": "); Serial.print(SENSORS[i].getInstance()); Serial.print(",");
+    Serial.print("\"source\": "); Serial.print(SENSORS[i].getSource()); Serial.print(",");
+    Serial.print("\"setPoint\": "); Serial.print(SENSORS[i].getSetPoint());
     Serial.print("}");
   }
   Serial.println(" ]");
