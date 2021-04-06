@@ -152,10 +152,11 @@ void dumpSensorConfiguration();
 unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
 void processSensors();
-void processSwitches();
+bool processSwitches();
 void transmitPgn130316(Sensor sensor);
 void configureSensor(Sensor *sensor, DilSwitch *dilSwitch);
-void timeoutProgrammeMode();
+bool revertMachineStateMaybe();
+void processMachineState();
 
 
 
@@ -213,7 +214,8 @@ ADC *adc = new ADC();
 
 enum MACHINE_STATES { NORMAL, PRG_START, PRG_ACCEPT_INSTANCE, PRG_ACCEPT_SOURCE, PRG_ACCEPT_SETPOINT, PRG_FINALISE, PRG_CANCEL };
 static MACHINE_STATES MACHINE_STATE = NORMAL;
-unsigned int MACHINE_RESET_TIMER = 0L;
+unsigned long MACHINE_PROCESS_TIMER = 0UL;
+unsigned long MACHINE_RESET_TIMER = 0UL;
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
@@ -289,10 +291,14 @@ void loop() {
   // Debounce all switch inputs.
   DEBOUNCER.debounce();
 
-  // If the system has settled (had time to debounce) then process switches.
-  if (!JUST_STARTED) processSwitches();
-  
-  performStateFunctions();
+  // If the system has settled (had time to debounce) then handle any
+  // changes to MACHINE_STATE by reading the current value of DIL_SWITCH
+  // and calling processMachineState(). Changes to MACHINE_STATE are
+  // only made by processSwitches() and revertMachineStateMaybe(), both
+  // of which return true if the make a change.
+  if (!JUST_STARTED) {
+    if (processSwitches() || revertMachineStateMaybe()) { DIL_SWITCH.sample(); processMachineState(); }
+  }
 
   // Process any received messages.
   NMEA2000.ParseMessages();
@@ -309,8 +315,7 @@ void loop() {
   LED_MANAGER.loop();
 
   // Implement programming timeout
-  revertMachineStateMaybe();
-
+  
   #ifdef DEBUG_SERIAL
   debugDump();
   #endif
@@ -341,95 +346,111 @@ void processSensors() {
 }
 
 /**********************************************************************
- * processSwitches() invokes various handlers dependent upon the state
- * of their associated switch input pins. The function should be called
- * directly from loop(): it will only process switches once per
- * SWITCH_PROCESS_INTERVAL.
+ * switchPressed() should be called directly from loop(). Most of the
+ * time it will return false, but once every SWITCH_PROCESS_INTERVAL it
+ * will revover the state of GPIO_PROGRAMME_SWITCH from DEBOUNCER and 
+ * in this case return true if GPIO_PROGRAMME_SWITCH is depressed and
+ * as a side-effect, advance the value of MACHINE_STATE.
  */
-
-void processSwitches() {
+boolean processSwitches() {
   static unsigned long deadline = 0UL;
   unsigned long now = millis();
+  unsigned retval = false;
   if (now > deadline) {
-    if (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH) == 0) {
-      DIL_SWITCH.sample();
-      advanceMachineState();
-    }
+    retval = (DEBOUNCER.channelState(GPIO_PROGRAMME_SWITCH) == 0);
     deadline = (now + SWITCH_PROCESS_INTERVAL);
+    if (retval) {
+      switch (MACHINE_STATE) {
+        case NORMAL: MACHINE_STATE = PRG_START; break;
+        case PRG_START: MACHINE_STATE = PRG_ACCEPT_INSTANCE; break;
+        case PRG_ACCEPT_INSTANCE: MACHINE_STATE = PRG_ACCEPT_SOURCE; break;
+        case PRG_ACCEPT_SOURCE: MACHINE_STATE = PRG_ACCEPT_SETPOINT; break;
+        case PRG_ACCEPT_SETPOINT: MACHINE_STATE = PRG_FINALISE; break;
+        default: break;
+      }
+    }
   }
-}
-
-void advanceMachineState() {
-  switch (MACHINE_STATE) {
-    case NORMAL: MACHINE_STATE = PRG_START; break;
-    case PRG_START: MACHINE_STATE = PRG_ACCEPT_INSTANCE; break;
-    case PRG_ACCEPT_INSTANCE: MACHINE_STATE = PRG_ACCEPT_SOURCE; break;
-    case PRG_ACCEPT_SOURCE: MACHINE_STATE = PRG_ACCEPT_SETPOINT; break;
-    case PRG_ACCEPT_SETPOINT: MACHINE_STATE = PRG_FINALISE; break;
-    default: break;
-  }
+  return(retval);
 }
 
 /**********************************************************************
+ * revertMachineStateMaybe() should be called directly from loop().
  * If the programming mode time window has elapsed because of user
- * inactivity, then set the machine state so that programming mode will
- * be cancelled.
+ * inactivity, then MACHINE_STATE will be set to PRG_CANCEL and true
+ * will be returned.
  */
-void revertMachineStateMaybe() {
+boolean revertMachineStateMaybe() {
+  boolean retval = false;
   if ((MACHINE_RESET_TIMER != 0UL) && (millis() > MACHINE_RESET_TIMER)) {
     MACHINE_STATE = PRG_CANCEL;
+    retval = true;
   }
+  return(retval);
 }
 
-void performStateFunctions() {
-  static MACHINE_STATES processedMachineState = NORMAL;
+/**********************************************************************
+ * Should be called each time MACHINE_STATE is updated to implement any
+ * necessary state change processing.
+ */
+void processMachineState() {
   static int selectedSensorIndex = -1;
-  unsigned long now = millis;
 
-  if (MACHINE_STATE != previousMachineState) {
-    switch (MACHINE_STATE) {
-      case PRG_START:
-        if (DIL_SWITCH->selectedSwitch()) {
-          selectedSensorIndex = (dilSwitch->selectedSwitch() - 1);
-          LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
-          MACHINE_RESET_TIMER = (now + PROGRAMME_TIMEOUT_INTERVAL);
-        }
-        break;
-      case PRG_ACCEPT_INSTANCE:
-        SENSORS[selectedSensorIndex].setInstance(DIL_SWITCH->value());
-        LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
-        LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
-        MACHINE_RESET_TIMER = (now + PROGRAMME_TIMEOUT_INTERVAL);
-        break;
-      case PRG_ACCEPT_SOURCE:
-        SENSORS[selectedSensorIndex].setSource(DIL_SWITCH->value());
+  switch (MACHINE_STATE) {
+    case NORMAL:
+      break;
+    case PRG_START:
+      if (DIL_SWITCH.selectedSwitch()) {
+        selectedSensorIndex = (DIL_SWITCH.selectedSwitch() - 1);
+        LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, -1);
+        MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
+      } else {
+        MACHINE_STATE = NORMAL;
+        MACHINE_RESET_TIMER = 0UL;
+      }
+      break;
+    case PRG_ACCEPT_INSTANCE:
+      SENSORS[selectedSensorIndex].setInstance(DIL_SWITCH.value());
+      LED_MANAGER.operate(GPIO_INSTANCE_LED, 1);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 0, -1);
+      MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
+      break;
+    case PRG_ACCEPT_SOURCE:
+        SENSORS[selectedSensorIndex].setSource(DIL_SWITCH.value());
         LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
         LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
-        MACHINE_RESET_TIMER = (now + PROGRAMME_TIMEOUT_INTERVAL);
+        MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
         break;
-      case PRG_ACCEPT_SETPOINT:
-        SENSORS[selectedSensorIndex].setSetPoint((double) DIL_SWITCH->value());
-        LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
-      case PRG_FINALISE:
-        // Save in-memory configuration to EEPROM, flash LEDs to confirm
-        // programming and return to normal operation.
-        SENSORS[selectedSensorIndex].save(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * SENSORS[selectedSensorIndex].getConfigSize()));
-        MACHINE_STATE = NORMAL;
-        MACHINE_RESET_TIMER = 0UL;
-        LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
-        LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
-        LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);
-        break;
-      case PRG_CANCEL:
-        // Restore in-memory configuration from EEPROM and return to
-        // normal operation.
-        sensors[selectedSensorIndex].load(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * (sensors[selectedSensorIndex].getConfigSize()));
-        MACHINE_STATE = NORMAL;
-        MACHINE_RESET_TIMER = 0UL;
-        break;
-    }
-    processedMachineState = MACHINE_STATE;
+    case PRG_ACCEPT_SETPOINT:
+      SENSORS[selectedSensorIndex].setSetPoint((double) DIL_SWITCH.value());
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
+    case PRG_FINALISE:
+      // Save in-memory configuration to EEPROM, flash LEDs to confirm
+      // programming and return to normal operation.
+      #ifdef DEBUG_SERIAL
+      Serial.println("PRG_FINALISE: finalising programme and saving configuration");
+      #endif
+      SENSORS[selectedSensorIndex].save(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * SENSORS[selectedSensorIndex].getConfigSize()));
+      MACHINE_STATE = NORMAL;
+      MACHINE_RESET_TIMER = 0UL;
+      LED_MANAGER.operate(GPIO_INSTANCE_LED, 0, 3);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 0, 3);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, 3);
+      break;
+    case PRG_CANCEL:
+      // Restore in-memory configuration from EEPROM and return to
+      // normal operation.
+      #ifdef DEBUG_SERIAL
+      Serial.println("PRG_CANCEL: cancelling programme mode and restoring configuration");
+      #endif
+      SENSORS[selectedSensorIndex].load(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * SENSORS[selectedSensorIndex].getConfigSize()));
+      MACHINE_STATE = NORMAL;
+      MACHINE_RESET_TIMER = 0UL;
+      break;
   }
+  #ifdef DEBUG_SERIAL
+    Serial.print("Operating configuration = ");
+    dumpSensorConfiguration();
+  #endif
 }
 
 
