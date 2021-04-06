@@ -149,14 +149,12 @@
 void debugDump();
 void dumpSensorConfiguration();
 #endif
-unsigned char getPoleInstance();
 void messageHandler(const tN2kMsg&);
+void processMachineState();
 void processSensors();
 bool processSwitches();
-void transmitPgn130316(Sensor sensor);
-void configureSensor(Sensor *sensor, DilSwitch *dilSwitch);
 bool revertMachineStateMaybe();
-void processMachineState();
+void transmitPgn130316(Sensor sensor);
 
 
 
@@ -166,7 +164,6 @@ void processMachineState();
  * PGN 130316 Temperature, Extended Range is used to broadcast sensed
  * temperatures.
  */
-
 const unsigned long TransmitMessages[] PROGMEM={ 130316L, 0 };
 
 /**********************************************************************
@@ -174,53 +171,47 @@ const unsigned long TransmitMessages[] PROGMEM={ 130316L, 0 };
  * 
  * There are none.
  */
-
 typedef struct { unsigned long PGN; void (*Handler)(const tN2kMsg &N2kMsg); } tNMEA2000Handler;
 tNMEA2000Handler NMEA2000Handlers[]={ {0, 0} };
 
-
+/**********************************************************************
+ * DIL_SWITCH switch decoder.
+ */
 int ENCODER_PINS[] = GPIO_ENCODER_PINS;
 DilSwitch DIL_SWITCH (ENCODER_PINS, ELEMENTCOUNT(ENCODER_PINS));
 
 /**********************************************************************
- * Create a switch debouncer DEBOUNCER and associate with it the GPIO
- * pins that are connected to switches.
+ * DEBOUNCER for the programme switch.
  */
-
 int SWITCHES[DEBOUNCER_SIZE] = { GPIO_PROGRAMME_SWITCH, -1, -1, -1, -1, -1, -1, -1 };
 Debouncer DEBOUNCER (SWITCHES);
 
 /**********************************************************************
- * Create an array of defined sensor pin addresses and a corresponding
- * array of SENSOR objects, then initialise each sensor object and set
- * its pin address.
+ * LED_MANAGER for all system LEDs.
+ */
+LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
+
+/**********************************************************************
+ * SENSORS array of Sensor objects.
  */
 unsigned char SENSOR_PINS[] = GPIO_SENSOR_PINS;
 Sensor SENSORS[ELEMENTCOUNT(SENSOR_PINS)];
 
 /**********************************************************************
- * Create an LED manager with operating characteristics that suit the
- * status LEDS mounted on the module PCB.
+ * ADC converter service.
  */
-
-LedManager LED_MANAGER (LED_MANAGER_HEARTBEAT, LED_MANAGER_INTERVAL);
-
-// Create an Analogue to Digital Converter service.
 ADC *adc = new ADC();
 
 /**********************************************************************
- *
+ * State machine definitions
  */
-
 enum MACHINE_STATES { NORMAL, PRG_START, PRG_ACCEPT_INSTANCE, PRG_ACCEPT_SOURCE, PRG_ACCEPT_SETPOINT, PRG_FINALISE, PRG_CANCEL };
 static MACHINE_STATES MACHINE_STATE = NORMAL;
-unsigned long MACHINE_PROCESS_TIMER = 0UL;
 unsigned long MACHINE_RESET_TIMER = 0UL;
 
 /**********************************************************************
  * MAIN PROGRAM - setup()
  */
-
 void setup() {
   #ifdef DEBUG_SERIAL
   Serial.begin(9600);
@@ -233,8 +224,8 @@ void setup() {
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(ipins); i++) pinMode(ipins[i], INPUT_PULLUP);
   for (unsigned int i = 0 ; i < ELEMENTCOUNT(opins); i++) pinMode(opins[i], OUTPUT);
 
+  // Initialise SENSORS array.
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSOR_PINS); i++) SENSORS[i].invalidate(SENSOR_PINS[i]); 
-
   
   // We assume that a new host system has its EEPROM initialised to all
   // 0xFF. We test by reading a byte that in a configured system should
@@ -254,8 +245,7 @@ void setup() {
   // Load sensor configurations from EEPROM  
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) SENSORS[i].load(SENSORS_EEPROM_ADDRESS + (i * SENSORS[i].getConfigSize()));
 
-  
-  // Flash the board n times (where n = number of configured sensors)
+  // Flash the board LED n times (where n = number of configured sensors)
   int n = 0;
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) if (SENSORS[i].getInstance() != 0xff) n++;
   LED_MANAGER.operate(GPIO_BOARD_LED, 0, n);
@@ -268,7 +258,6 @@ void setup() {
   NMEA2000.ExtendTransmitMessages(TransmitMessages); // Tell library which PGNs we transmit
   NMEA2000.SetMsgHandler(messageHandler);
   NMEA2000.Open();
-
 }
 
 /**********************************************************************
@@ -277,7 +266,7 @@ void setup() {
  * With the exception of NMEA2000.parseMessages() all of the functions
  * called from loop() implement interval timers which ensure that they
  * will mostly return immediately, only performing their substantive
- * tasks at the defined intervals.
+ * tasks at intervals defined by program constants.
  * 
  * The global constant JUST_STARTED is used to delay acting on switch
  * inputs until a newly started system has stabilised and the GPIO
@@ -286,8 +275,14 @@ void setup() {
 
 void loop() {
   static bool JUST_STARTED = true;
-  if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) JUST_STARTED = false;
-  
+  if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) {
+    #ifdef DEBUG_SERIAL
+    Serial.println("LOOP: system settled, entering production");
+    dumpSensorConfiguration();
+    #endif
+    JUST_STARTED = false;
+  }
+
   // Debounce all switch inputs.
   DEBOUNCER.debounce();
 
@@ -313,12 +308,6 @@ void loop() {
 
   // Update the states of connected LEDs
   LED_MANAGER.loop();
-
-  // Implement programming timeout
-  
-  #ifdef DEBUG_SERIAL
-  debugDump();
-  #endif
 }
 
 /**********************************************************************
@@ -445,6 +434,9 @@ void processMachineState() {
       SENSORS[selectedSensorIndex].load(SENSORS_EEPROM_ADDRESS + (selectedSensorIndex * SENSORS[selectedSensorIndex].getConfigSize()));
       MACHINE_STATE = NORMAL;
       MACHINE_RESET_TIMER = 0UL;
+      LED_MANAGER.operate(GPIO_INSTANCE_LED, 0);
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 0);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 0);
       break;
   }
   #ifdef DEBUG_SERIAL
@@ -455,6 +447,7 @@ void processMachineState() {
 
 
 /**********************************************************************
+ * 
  */
 
 void transmitPgn130316(Sensor sensor) {

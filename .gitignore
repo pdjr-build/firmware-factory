@@ -1,4 +1,4 @@
-./DEVICE_UNIQUE_NUMBER++
+DEVICE_UNIQUE_NUMBER++
 ./sketch/include/build.h
 ./sketch/src/main.cpp
 ./sketch/report.*
