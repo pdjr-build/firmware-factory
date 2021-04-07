@@ -278,7 +278,7 @@ void loop() {
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) {
     #ifdef DEBUG_SERIAL
     Serial.println("LOOP: system settled, entering production");
-    dumpSensorConfiguration();
+    Serial.print("Operating configuration: "); dumpSensorConfiguration();
     #endif
     JUST_STARTED = false;
   }
@@ -337,7 +337,7 @@ void processSensors() {
 /**********************************************************************
  * switchPressed() should be called directly from loop(). Most of the
  * time it will return false, but once every SWITCH_PROCESS_INTERVAL it
- * will revover the state of GPIO_PROGRAMME_SWITCH from DEBOUNCER and 
+ * will recover the state of GPIO_PROGRAMME_SWITCH from DEBOUNCER and 
  * in this case return true if GPIO_PROGRAMME_SWITCH is depressed and
  * as a side-effect, advance the value of MACHINE_STATE.
  */
@@ -404,11 +404,11 @@ void processMachineState() {
       MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case PRG_ACCEPT_SOURCE:
-        SENSORS[selectedSensorIndex].setSource(DIL_SWITCH.value());
-        LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
-        LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
-        MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
-        break;
+      SENSORS[selectedSensorIndex].setSource(DIL_SWITCH.value());
+      LED_MANAGER.operate(GPIO_SOURCE_LED, 1);
+      LED_MANAGER.operate(GPIO_SETPOINT_LED, 0, -1);
+      MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
+      break;
     case PRG_ACCEPT_SETPOINT:
       SENSORS[selectedSensorIndex].setSetPoint((double) DIL_SWITCH.value());
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
@@ -440,8 +440,7 @@ void processMachineState() {
       break;
   }
   #ifdef DEBUG_SERIAL
-    Serial.print("Operating configuration = ");
-    dumpSensorConfiguration();
+    Serial.print("Operating configuration: "); dumpSensorConfiguration();
   #endif
 }
 
