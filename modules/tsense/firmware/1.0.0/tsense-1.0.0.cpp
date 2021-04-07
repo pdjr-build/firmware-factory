@@ -325,11 +325,14 @@ void processSensors() {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
         if (value != ADC_ERROR_VALUE) {
-          SENSORS[sensor].setTemperature(value * SENSOR_VOLTS_TO_KELVIN);
-          transmitPgn130316(SENSORS[sensor]); 
+          double temp = ((value * 3.3) / adc->adc0->getMaxValue()) * 100;
+          Serial.print(temp - 273.0); Serial.print ("C ");
+          SENSORS[sensor].setTemperature(temp);
+          //transmitPgn130316(SENSORS[sensor]); 
         }
       }
     }
+    Serial.println();
     deadline = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
