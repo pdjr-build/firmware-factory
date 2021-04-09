@@ -311,10 +311,13 @@ void loop() {
 }
 
 /**********************************************************************
- * processSensors() recovers temperature data from all configured
- * temperature sensors and transmits it directly over N2K. The function
- * should be called directly from loop(): it will only process sensors
- * once per SENSOR_PROCESS_INTERVAL.
+ * processSensors() should be called directly from loop(). The function
+ * uses a simple elapse timer to ensure that processing is only invoked
+ * once every SENSOR_PROCESS_INTERVAL milliseconds.
+ * 
+ * The function will then iterate over the SENSORS array, reading the
+ * temperature reported by each configured termperature sensor and
+ * transmitting it onto the N2K bus.
  */
 void processSensors() {
   static unsigned long deadline = 0UL;
@@ -325,24 +328,28 @@ void processSensors() {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
         if (value != ADC_ERROR_VALUE) {
-          double temp = ((value * 3.3) / adc->adc0->getMaxValue()) * 100;
-          Serial.print(temp - 273.0); Serial.print ("C ");
-          SENSORS[sensor].setTemperature(temp);
-          //transmitPgn130316(SENSORS[sensor]); 
+          double kelvin = ((value * 3.3) / adc->adc0->getMaxValue()) * 100;
+          SENSORS[sensor].setTemperature(kelvin);
+          #ifdef DEBUG_SERIAL
+          Serial.print("Sensor "); Serial.print(sensor); Serial.print(": ");
+          Serial.print(kelvin - 273.0); Serial.println ("C ");
+          #endif
+          transmitPgn130316(SENSORS[sensor]); 
         }
       }
     }
-    Serial.println();
     deadline = (now + SENSOR_PROCESS_INTERVAL);
   }
 }
 
 /**********************************************************************
- * switchPressed() should be called directly from loop(). Most of the
- * time it will return false, but once every SWITCH_PROCESS_INTERVAL it
- * will recover the state of GPIO_PROGRAMME_SWITCH from DEBOUNCER and 
- * in this case return true if GPIO_PROGRAMME_SWITCH is depressed and
- * as a side-effect, advance the value of MACHINE_STATE.
+ * switchPressed() should be called directly from loop(). The function
+ * uses a simple elapse timer to ensure that processing is only invoked
+ * once every SWITCH_PROCESS_INTERVAL milliseconds.
+ * 
+ * The function will then recover the state of GPIO_PROGRAMME_SWITCH
+ * from DEBOUNCER and if the switch is depressed the value of
+ * MACHINE_STATE will be advanced and the function will return true.
  */
 boolean processSwitches() {
   static unsigned long deadline = 0UL;
