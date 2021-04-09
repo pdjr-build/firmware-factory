@@ -1,12 +1,12 @@
 # TSENSE - NMEA 2000 temperature sensor module
 
 __TSENSE__ is an NMEA 2000 module which allows the connection of up to
-eight remote temperature LM335Z temperature sensors.
-The module transmits [PGN 130316 Temperature, Extended Range](
-https://www.nmea.org/Assets/nmea%202000%20pgn%20130316%20corrigenda%20nmd%20version%202.100%20feb%202015.pdf)
-messages to report sensed temperatures over the NMEA 2000 bus.
+eight LM335Z temperature sensors.
+The module transmits temperature readings from the connected sensors
+over NMEA 2000 using [PGN 130316 Temperature, Extended Range](
+https://www.nmea.org/Assets/nmea%202000%20pgn%20130316%20corrigenda%20nmd%20version%202.100%20feb%202015.pdf).
 
-__TSENSE__ connects to the NMEA bus by a standard M12 5-pin circular
+__TSENSE__ connects to a host NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module has an NMEA LEN of 1.
 
@@ -49,7 +49,7 @@ A PWR status LED is modulated to indicate operating status.
 
 | LED    | Illumination state                | Meaning |
 |:------:|:----------------------------------|:--------|
-| PWR/TX | Three rapid flashes               | The module has just been connected to power and is initialising.|
+| PWR/TX | *n* rapid flashes on startup      | The module has just been connected to power and is initialising *n* temperature sensors.|
 |        | Steady                            | The module has power.|
 |        | Flashing                          | The module is transmitting NMEA data from a configured sensor. |
 
@@ -63,7 +63,7 @@ cables.
 Two 8-pin terminal blocks allow the connection of up to eight two-wire
 LM335Z temperature sensors, numbered 0 through 7. Each sensor requires
 a two-wire connection to its respective positive (P) and ground (G)
-pins; the sensor calibration connection is not used.
+pins; the LM335Z calibration pin is not used.
 
 | Terminal | Function                        |
 |:--------:|:--------------------------------|
