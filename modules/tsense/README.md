@@ -93,62 +93,132 @@ Programming a sensor channel requires the consecutive entry of two or
 three numeric values and these LEDs provide information on the state
 of progress through the programming activity.
 
-### (8) SCR jumper
+### (8) SCR switch
 
-With the jumper in place the NMEA cable shield is connected to the module
+With the switch closed the NMEA cable shield is connected to the module
 ground plane.
 
 ## Installing the module
 
-1. Position the module close to the switches and indicators which you intend
-   to use for operation and feedback, ensuring that you are able to remove
-   the top cover for access to the PCB switches and that you have space to
-   route the various connecting cables.
+1. Position the module so that you are able to connect the associated
+   temperature sensors and NMEA drop-cable without excessive cable runs
+   and ensuring that you are able to remove the top cover for access to
+   the PCB switches.
+
    Fix the module to its supporting surface with appropriate fasteners.
 
-2. Ensure that there is a T-connector or multi-drop connector available on
-   the NMEA bus you have chosen to host the module and connect an NMEA drop
-   cable to the module and route it to the bus connector.
-   If your host NMEA bus is poered, do not connect the drop cable to the bus
-   at this stage: the module must remain unpowered until installation is
-   complete.
-   
-3. Carefully remove the module cover.
-   Inside the module, the NMEA connector is wired to the PCB with a 150mm
-   long cable which should allow you to conveniantly position to one side
-   so that you can access the module connector blocks.
+2. Carefully remove the module cover and position it so that you have
+   easy access to the temperature sensor connection terminals.
+
+   The NMEA connector is wired to the PCB with a 150mm long cable which
+   should allow you to conveniantly position the cover to one side:
+   consider temporarily taping the cover out of the way.
    Do not place excessive strain on the internal NMEA connector cable.
    
-4. Wire the switches and indicators that constitute your chosen control
-   interface.
-   The minimum functional requirement for any channel is that U0 and D0
-   are connected to an operating switch of some form.
-   
-   Fig 2 gives an illustrative schematic for a simple wiring arrangement
-   that incorporates a SPDT switch and three indicators in support of
-   a single windlass channel.
-   Note the use of jumpers on the indicator outputs to allow the use of
-   the PWR GND connection for outputs 0UP and 0DN.
-  
-5. The power supply to the module should be fused at a level that supports
-   your chosen indicators (the switch input current requirement is
-   negligible at around 40mA).
-   .
-![Fig 2: Wiring example](wiring.png)
-   
-## Configuring the module
+3. Connect each temperature sensors that you intend using to an unused
+   terminal pair on the PCB.
+   Use the G terminal of a pair for the sensor ground and the P
+   terminal for the sensor power supply.
+   Make a note in the "Comment" column of the installation table on
+   page N of the purpose of each connected sensor.
 
-To operate correctly the module must be configured with the NMEA instance
-of the windlasses which are being controlled.
-If only one windlass is to be controlled then a special instance value can
-be used to disable the unused channel.
-The module is supplied with channe W0 unconfigured and channel W1 disabled.
+4. Connect an NMEA drop cable between between the host NMEA bus and the
+   module's NMEA connector.
+   The module's power LED will illuminate to indicate that the module
+   has power.
 
-To configure a windlass control channel.
+5. If you intend configuring the installed temperature sensors at this
+   stage, then skip to the "Module Configuration" section below before
+   continuing to step (6).
 
-1. Inspect the windlass which is to be controlled and identify the instance
-   number that has been assigned to its NMEA interface.
-2. Connect the module to the NMEA bus and confirm that it has power.
+6. Replace the module cover taking care not to trap the NMEA connector
+   wires.
+
+## Module configuratiom
+
+For the module to operate correctly each connected temperature sensor
+must be configured with an NMEA instance address, a code which
+describes the type of data source associated with the temperature
+reading and an alarm temperature or set point.
+
+Refer to the installation table on page N and for each installed sensor
+insert a value into the "Instance", "Source" and "Set-point" columns
+that reflects your installation requirements and satisfies the
+following constraints.
+
+The value you choose for "Instance" must be in the range 0 through 255
+and must be a unique identifier for a temperature sensor across the
+vessel's entire NMEA installation.
+The values 255 can be used to indicate that a temperature sensor is
+disabled.
+
+The value you choose for "Source" must be in the range 0 through 255
+and should be selected from the table included as "Annex 1: NMEA
+temperature source codes".
+Some standard values are defined in NMEA and will either be appropriate
+or should be avoided.
+
+The value you choose for "Set-point" must be in the range 0 through 255
+and specifies a set-point or alarm temperature in degrees Celsius.
+Value below 100 are considered to be below zero Celsius, values above
+100 are considered to be above zero Celsius and the value 100 specifies
+0 Celsius.
+Thus, the value 53 says "-53 Celsius", 147 says "+47 Celsius".
+
+### Programming the module
+
+The values you have defined above are programmed into the module one
+sensor at a time and the process begins by selection of the sensor
+which is to be programmed.
+Programming proceeds by using the DIL switch to specify a value and
+the PRG button to commit the DIL switch value:
+
+C
+
+To configure a temperature sensor channel.
+
+1. Select the sensor to be configured
+  1.1 Set a single switch on the DIL switch that corresponds to the sensor
+      you wish to configure.
+  1.2 Briefly press and then release the PRG button. If your selection at
+      (1.1) is valid, the INST LED will begin to flash, indicating that the
+      module is waiting for you to specify an NMEA instance address for your
+      selected temperature sensor.
+2. Assign the selected sensor an NMEA instance address
+  2.1 Using the DIL switch, setup a binary number in the range 0
+      through 255 representing your chosen address.
+      Bear in mind that each temperature sensor must have a unique
+      instance address.
+      The address 255 (all switches in the ON position) is used to
+      indicate that the selected sensor is disabled.
+  2.2 Briefly press and then release the PRG button.
+      The INST LED will stop flashing and move to steady ON
+      indicating that the instance address has been accepted.
+      The SRCE LED wil begin to flash indicating that that the module
+      is waiting for you to specify an NMEA temperature source code.
+3. Assign the selected sensor an NMEA source code
+  3.1 Using the DIL switch, setup a binary number in the range 0
+      through 255 representing the type of temperature source being
+      reported by your selected sensor (consult Table 3.1 for a list
+      of source codes defined by the NMEA standard).
+  3.2 Briefly press and then release the PRG button.
+      The SRCE LED will stop flashing and move to steady ON
+      indicating that the source code has been accepted.
+      The SETP LED wil begin to flash indicating that that the module
+      is waiting for you to specify a set point (alarm) temperature
+      for your selected sensor.
+4. Assign the selected sensor a set-point/alarm temperature.
+  4.1 Using the DIL switch setup a binary number that represents
+      your desired temperature in degrees centigrade.
+  4.2 Briefly press and then release the PRG button.
+      The SETP LED will stop flashing and move to steady ON
+      indicating that the set point temperature has been accepted.
+      After a moment or two, all three programming LEDs will flash
+      three times, confirming that the entered settings have been
+      saved to EEPROM.
+      
+
+theConnect the module to the NMEA bus and confirm that it has power.
 3. If you have connected switches to the SWITCH terminal block, then
    ensure that the switches are in the OFF position.
 4. Enter the instance number of the windlass you wish to control (i.e the
