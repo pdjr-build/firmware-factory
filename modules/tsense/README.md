@@ -141,15 +141,15 @@ must be configured with an NMEA instance address, a code which
 describes the type of data source associated with the temperature
 reading and an alarm temperature or set point.
 
-Refer to the installation table on page N and for each installed sensor
+For each sensor recorded in the installation table you prepared earlier
 insert a value into the "Instance", "Source" and "Set-point" columns
 that reflects your installation requirements and satisfies the
 following constraints.
 
 The value you choose for "Instance" must be in the range 0 through 255
-and must be a unique identifier for a temperature sensor across the
+and must be a unique identifier for each temperature sensor across the
 vessel's entire NMEA installation.
-The values 255 can be used to indicate that a temperature sensor is
+The value 255 can be used to indicate that a temperature sensor is
 disabled.
 
 The value you choose for "Source" must be in the range 0 through 255
@@ -167,7 +167,51 @@ Thus, the value 53 says "-53 Celsius", 147 says "+47 Celsius".
 
 ### Programming the module
 
-The values you have defined above are programmed into the module one
+The values you have defined above are programmed into the module by
+setting up the required value as a binary-encoded number on the module
+DIL switch and then pressing PRG to commit the DIL switch value to
+the module configuration.
+
+The programming sequence is: (1) select sensor to be programmed; (2)
+enter instance; (3) enter state; (4) enter set-point.
+
+Let us imagine we have the following temperature sensor settings:
+
+Sensor id: 0
+Instance:  0
+Source:    11 (Gearbox temperature)
+Set point: 85C
+
+Begin programming by selecting the sensor you wish to configure on the
+DIL switch. The left-most switch corresponds to sensor 0, the right-most
+switch to sensor 7.
+You must only select one sensor and then press and release PRG.
+
+*In the case of our example we set [ON-OFF-OFF-OFF-OFF-OFF-OFF-OFF]*.
+
+If your entry is accepted then the INST LED will flash to indicate that
+the module is awaiting entry of a sensor instance value.
+At this point, you have 20s in which to set up the DIL switch and press
+PRG again to accept the instance entry.
+
+*In the case of our example we set [OFF-OFF-OFF-OFF-OFF-OFF-OFF-OFF]*.
+
+If your entry is accepted, then the INST LED will become steadily illuminated
+and the SRCE LED will begin to flash, requesting entry of a source value
+within a new 20s timeout period.
+
+*In the case of our example we set [OFF-OFF-OFF-OFF-ON-OFF-ON-ON]*.
+
+If your entry is accepted then the SRCE LED will become steadily illuminated
+and the SETP LED will begin to flash, requesting entry of a set-point / alarm
+value within a new 20s timeout period.
+
+*In the case of our example we set [OFF-ON-OFF-ON-OFF-ON-OFF-ON].
+
+
+
+
+The configuration is saved to EEPROM only after  
 sensor at a time and the process begins by selection of the sensor
 which is to be programmed.
 Programming proceeds by using the DIL switch to specify a value and
