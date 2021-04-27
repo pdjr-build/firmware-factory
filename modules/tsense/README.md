@@ -38,10 +38,10 @@ ground.
 
 ### (1) NMEA bus connector
 
-The module uses an M12 circular female 5-pin industrial connector for
-NMEA connection.
-Any standard compliant N2K drop cable will allow the module to be connected
-to a host NMEA bus through a T-connector.
+The module uses an M12, circular, female, 5-pin industrial connector
+for NMEA connection.
+Any N2K standard-compliant drop cable will allow the module to be
+connected to a host NMEA bus through a T-connector.
 
 ### (2) Status LED
 
@@ -82,84 +82,162 @@ channel's NMEA properties.
 ### (6) DIL switch
 
 The DIL switch allows the selection of a sensor channel which is to be
-programmed and the entry of configuration data.
-Eight slide switches are each labelled with a value 0 through 7 which
-can be used to select a temperature sensor channel for programming and
-allow the entry of binary encoded configuration data. 
+programmed and the entry of binary-encoded sensor configuration data.
+The switch consists of eight small slide switches labelled one through
+eight. 
 
 ### (7) Programme state LEDs
 
-Programming a sensor channel requires the consecutive entry of two or
-three numeric values and these LEDs provide information on the state
-of progress through the programming activity.
+There are three LEDs labelled INST, SRCE and SETP which are used to
+indicate what data has been entered and what is required whilst a sensor
+channel is being configured.
+
+During normal module operation these LEDs will all be switched off.
 
 ### (8) SCR switch
 
 With the switch closed the NMEA cable shield is connected to the module
 ground plane.
 
-## Installing the module
+## Temperature sensors
+
+The TSENSE module supports a maximum of eight LM335Z or equivalent
+temperature sensor IC.
+Other types of temperature sensor cannot be used and connecting them
+to a TSENSE module will almost certainly damage the module beyond
+repair.
+
+LM335Z-based temperature sensors are commercially available (for
+example Victron ) or you can easily make your own sensor.
+
+The LM335Z sensor IC is packaged in a TO-92 housing and has the
+following pin layout.
+
+Pin 1 - calibrate (not used by TSENSE)
+Pin 2 - ground (G)
+Pin 3 - supply (P)
+
+### Making a bolt-on temperature sensor
+
+You will require an LM335Z IC, a length of two-core cable with 0.5mm2
+conductors, a 10mm2 ring terminal with a hole size that suits your
+mounting needs and a minimum 10mm2 cable capacity and some silicone
+sealer or potting compound.
+
+1. Remove the calibrate pin from the LM335Z by cutting or breaking it
+   off as close to the IC body as possible.
+
+2. Solder an appropriate length of two-core cable to IC pins G and P.
+   Make sure you can identify which pin connects to which cable core!
+   Insulate the exposed connection is some way, perhaps using small
+   diameter heat-shrink sleeving around each connection.
+
+3. Fill the cable-entry port of the ring terminal with silicone-sealant
+   and coat the LM335Z with sealant as well.
+   Try to avoid air bubbles.
+
+4. Fully immerse the LM335Z in the ring-terminal cable-entry port so
+   that the electrical connections are completely embedded in the
+   sealant and making sure that they do not touch the ring-terminal
+   body.
+
+5. Allow the sealant to fully cure.
+
+Ordinary silicone-sealant and potting compounds are not wonderful
+conductors of heat so it is good to keep the volume of these low.
+Thermally conductive silicone-sealant and potting compounds perform
+better, but are expensive.
+
+## Installing and configuring the module
+
+### Removing and replacing the module cover
+
+The following procedures require you to remove the module cover in
+order to gain access to PCB mounted terminals and switches.
+
+To remove the module cover pinch firmly at the centre of the top and
+botton edges and pull away from the base.
+The NMEA connector is wired internally to the PCB with a 150mm long
+cable which you should be careful not to strain excessively.
+The length of cable  should allow you to conveniantly position the
+cover to one side of the module base so that the PCB can be easily
+accessed.
+   
+To replace the module cover arrange the NMEA connector cable so that
+it will not be trapped between base and cover and push the cover onto
+the base until it clicks in place.   
+
+### Installing the module
 
 1. Position the module so that you are able to connect the associated
-   temperature sensors and NMEA drop-cable without excessive cable runs
-   and ensuring that you are able to remove the top cover for access to
-   the PCB switches.
+   temperature sensors and NMEA drop-cable without excessive cable
+   runs.
+   Ensure that in your chosen position you are able to remove the
+   module's top cover and can easily access the PCB terminals and
+   switches.
 
-   Fix the module to its supporting surface with appropriate fasteners.
+2. Fix the module in your chosen location using appropriate fasteners.
 
-2. Carefully remove the module cover and position it so that you have
-   easy access to the temperature sensor connection terminals.
+### Connecting the module to the host NMEA bus
 
-   The NMEA connector is wired to the PCB with a 150mm long cable which
-   should allow you to conveniantly position the cover to one side:
-   consider temporarily taping the cover out of the way.
-   Do not place excessive strain on the internal NMEA connector cable.
-   
-3. Connect each temperature sensors that you intend using to an unused
-   terminal pair on the PCB.
-   Use the G terminal of a pair for the sensor ground and the P
-   terminal for the sensor power supply.
-   Make a note in the "Comment" column of the installation table on
-   page N of the purpose of each connected sensor.
+You will require a T-connector or an unused tap on a multi-drop
+connector to provide a drop-cable connection point on host NMEA bus.
 
-4. Connect an NMEA drop cable between between the host NMEA bus and the
+1. Connect an NMEA drop-cable between between the host NMEA bus and the
    module's NMEA connector.
    The module's power LED will illuminate to indicate that the module
    has power.
 
-5. If you intend configuring the installed temperature sensors at this
-   stage, then skip to the "Module Configuration" section below before
-   continuing to step (6).
+### Connecting temperature sensors
 
-6. Replace the module cover taking care not to trap the NMEA connector
-   wires.
+1. Disconnect the module NMEA cable or otherwise power down the host
+   NMEA bus.
 
-## Module configuratiom
+2. Remove the module cover.
+   
+3. Thread a temperature sensor cable through one of the entry glands
+   in the module cover and connect to an unused terminal pair on the
+   PCB.
+   Use the G terminal of each terminal pair for the sensor ground and
+   the corresponding P terminal for the sensor power supply.
 
-For the module to operate correctly each connected temperature sensor
-must be configured with an NMEA instance address, a code which
-describes the type of data source associated with the temperature
-reading and an alarm temperature or set point.
+   Repeat this step for each temperature sensor you wish to connect.
 
-For each sensor recorded in the installation table you prepared earlier
-insert a value into the "Instance", "Source" and "Set-point" columns
-that reflects your installation requirements and satisfies the
-following constraints.
+4. Reconnect the module NMEA cable or power-up the host NMEA bus.
+   
+5. Make a note of the purpose of each newly connected sensor in the
+   "Comment" column of the installation table on page NNN.
 
-The value you choose for "Instance" must be in the range 0 through 255
-and must be a unique identifier for each temperature sensor across the
+## Configuring a sensor connection
+
+You can configure a sensor connection before or after the connection
+of a temperature sensor.
+
+For the module to operate correctly each sensor connection must be
+assigned an NMEA instance address, a code which describes the type of
+data source associated with the temperature reading and an alarm
+temperature or set point.
+
+### Preparing for configuration
+
+For each sensor recorded in the installation table on page NNN, insert
+a value into the "Instance", "Source" and "Set-point" columns that
+reflects your installation requirements and satisfies the following
+constraints.
+
+INSTANCE. The value you choose must be in the range 0 through 255 and
+must be a unique identifier for each temperature sensor across the
 vessel's entire NMEA installation.
-The value 255 can be used to indicate that a temperature sensor is
-disabled.
+The value 255 is used to indicate that a sensor connection is disabled.
 
-The value you choose for "Source" must be in the range 0 through 255
-and should be selected from the table included as "Annex 1: NMEA
+SOURCE. The value you choose must be in the range 0 through 255 and
+should be selected from the table included as "Annex 1: NMEA
 temperature source codes".
 Some standard values are defined in NMEA and will either be appropriate
 or should be avoided.
 
-The value you choose for "Set-point" must be in the range 0 through 255
-and specifies a set-point or alarm temperature in degrees Celsius.
+SET-POINT. The value you choose must be in the range 0 through 255 and
+should specify a set-point or alarm temperature in degrees Celsius.
 Value below 100 are considered to be below zero Celsius, values above
 100 are considered to be above zero Celsius and the value 100 specifies
 0 Celsius.
@@ -182,152 +260,53 @@ Instance:  0
 Source:    11 (Gearbox temperature)
 Set point: 85C
 
-Begin programming by selecting the sensor you wish to configure on the
-DIL switch. The left-most switch corresponds to sensor 0, the right-most
-switch to sensor 7.
-You must only select one sensor and then press and release PRG.
+We begin programming by selecting the sensor we wish to configure on
+the DIL switch.
+The left-most switch corresponds to sensor 0, the right-most switch
+to sensor 7.
+We are programming sensor 0, so we set the DIL switch to [ON-OFF-OFF-OFF-OFF-OFF-OFF-OFF]
+and then press PRG.
 
-*In the case of our example we set [ON-OFF-OFF-OFF-OFF-OFF-OFF-OFF]*.
-
-If your entry is accepted then the INST LED will flash to indicate that
+If our entry is accepted then the INST LED will flash to indicate that
 the module is awaiting entry of a sensor instance value.
-At this point, you have 20s in which to set up the DIL switch and press
-PRG again to accept the instance entry.
+At this point, we have 20 seconds in which to set up the requested
+instance value on the DIL switch and press PRG to confirm the entry.
 
-*In the case of our example we set [OFF-OFF-OFF-OFF-OFF-OFF-OFF-OFF]*.
+We are setting an instance value of 0, so we set the DIL switch to
+[OFF-OFF-OFF-OFF-OFF-OFF-OFF-OFF] and press PRG.
 
-If your entry is accepted, then the INST LED will become steadily illuminated
-and the SRCE LED will begin to flash, requesting entry of a source value
-within a new 20s timeout period.
+If our entry is accepted, then the INST LED will become steadily
+illuminated and the SRCE LED will begin to flash, requesting entry of a
+source value within a new 20s timeout period.
 
-*In the case of our example we set [OFF-OFF-OFF-OFF-ON-OFF-ON-ON]*.
+We are setting a source value of 11, so we set the DIL switch to
+[OFF-OFF-OFF-OFF-ON-OFF-ON-ON] and press PRG.
 
-If your entry is accepted then the SRCE LED will become steadily illuminated
-and the SETP LED will begin to flash, requesting entry of a set-point / alarm
-value within a new 20s timeout period.
+If our entry is accepted then the SRCE LED will become steadily
+illuminated and the SETP LED will begin to flash, requesting entry of a
+set-point / alarm value within a new 20s timeout period.
 
-*In the case of our example we set [OFF-ON-OFF-ON-OFF-ON-OFF-ON].
+We are setting a set-point value of 83, so we set the DIL switch to
+[OFF-ON-OFF-ON-OFF-ON-OFF-ON] and press PRG.
 
+If our entry is accepted then the INST, SRCE and SETP LEDs will flash
+three times to indicate that all enries have been accepted and the
+configuration has been saved to the module's EEPROM.
 
+The protocol described above can be repeated to programme another
+sensor channel or to amend an incorrect or inappropriate existing
+entry.
 
+If an error is made in the programming sequence or the 20s timeout
+expires before an entry is made, then the all LEDS will extinquish and
+the programming sequence must be restarted with the selection of the
+sensor to be programmed.
 
-The configuration is saved to EEPROM only after  
-sensor at a time and the process begins by selection of the sensor
-which is to be programmed.
-Programming proceeds by using the DIL switch to specify a value and
-the PRG button to commit the DIL switch value:
+## NMEA 2000 output
 
-C
-
-To configure a temperature sensor channel.
-
-1. Select the sensor to be configured
-  1.1 Set a single switch on the DIL switch that corresponds to the sensor
-      you wish to configure.
-  1.2 Briefly press and then release the PRG button. If your selection at
-      (1.1) is valid, the INST LED will begin to flash, indicating that the
-      module is waiting for you to specify an NMEA instance address for your
-      selected temperature sensor.
-2. Assign the selected sensor an NMEA instance address
-  2.1 Using the DIL switch, setup a binary number in the range 0
-      through 255 representing your chosen address.
-      Bear in mind that each temperature sensor must have a unique
-      instance address.
-      The address 255 (all switches in the ON position) is used to
-      indicate that the selected sensor is disabled.
-  2.2 Briefly press and then release the PRG button.
-      The INST LED will stop flashing and move to steady ON
-      indicating that the instance address has been accepted.
-      The SRCE LED wil begin to flash indicating that that the module
-      is waiting for you to specify an NMEA temperature source code.
-3. Assign the selected sensor an NMEA source code
-  3.1 Using the DIL switch, setup a binary number in the range 0
-      through 255 representing the type of temperature source being
-      reported by your selected sensor (consult Table 3.1 for a list
-      of source codes defined by the NMEA standard).
-  3.2 Briefly press and then release the PRG button.
-      The SRCE LED will stop flashing and move to steady ON
-      indicating that the source code has been accepted.
-      The SETP LED wil begin to flash indicating that that the module
-      is waiting for you to specify a set point (alarm) temperature
-      for your selected sensor.
-4. Assign the selected sensor a set-point/alarm temperature.
-  4.1 Using the DIL switch setup a binary number that represents
-      your desired temperature in degrees centigrade.
-  4.2 Briefly press and then release the PRG button.
-      The SETP LED will stop flashing and move to steady ON
-      indicating that the set point temperature has been accepted.
-      After a moment or two, all three programming LEDs will flash
-      three times, confirming that the entered settings have been
-      saved to EEPROM.
-      
-
-theConnect the module to the NMEA bus and confirm that it has power.
-3. If you have connected switches to the SWITCH terminal block, then
-   ensure that the switches are in the OFF position.
-4. Enter the instance number of the windlass you wish to control (i.e the
-   value identified at (1)) using the DIP switch on the module PCB.
-   The module allows instance numbers in the range 0 through 126 to be
-   entered.
-   An instance number of 127 can be used to disable a control channel.
-5. Press the PRGW0 button on the module PCB to store the windlass instance
-   number for channel W0 or PRGW1 to store the instance number for channel
-   W1.
-
-If the NMEA interface on the remote spudpole is powered up, then after
-a few seconds the module status LED for the selected control channel should
-turn off and the status outputs for windlass should become active to indicate
-the condition of the windlass.
-After this, the switch inputs for the channel should command the remote
-windlass.
-
-You can repeat this procedure at any time to update a configuration or
-programme a second windlass.
-
-### Configuration issues
-
-Configuration problems are indicated by the status LEDs on the module top
-cover.
-After programming an instance number to a control channel, the corresponding
-channel status LED should turn off.
-
-### Status LED flashes twice and repeats.
-The module channel has not been programmed - i.e. a windlass instance number
-has not saved to module memory.
-
-1. Re-programme the instance number.
-   Make sure that you press and hold the relevant programme switch for one second.
-   
-### Status LED flashes once and repeats for more than ten seconds.
-No messages have been received from the windlass identified by the programmed
-instance number.
-
-1. Make sure the remote windlass interface module is powered.
-2. If you have more than one NMEA bus, make sure that both the windlass and
-   the control module are connected to the same bus or that the busses are
-   bridged.
-3. Check/replace the drop cables used at both the windlass and the control
-   module.
-4. Check the instance number of the windlass and programme it into the module
-   again.
-5. Use an NMEA monitor programme to confirm that the remote windlass is
-   transmitting PGN 128777 Windlass Operating Status messages.
-
-
-
-
-
-
-## NMEA 2000 messages
-
-In addition to the usual N2K network management messages the module
-accepts the following message types and processes them to drive its
-status outputs.
-
-| PGN    | Message name                      | Comment               |
-|:-------|:----------------------------------|:----------------------|
-| 128776 | Anchor Windlass Control Status    | Drives status outputs |
-| 128777 | Anchor Windlass Operating Status  | Drives status outputs |
+As soon as a temperature sensor has been programmed the module will
+commence transmitting the sensor's temperature reading onto the host
+NMEA bus.
 
 The module issues the following control message types in response to
 signals on the switch inputs.

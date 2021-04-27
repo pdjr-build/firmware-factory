@@ -103,7 +103,7 @@
  * automatically by the build system.
  */
 
-#define DEVICE_CLASS 30
+#define DEVICE_CLASS 75
 #define DEVICE_FUNCTION 130
 #define DEVICE_INDUSTRY_GROUP 4
 #define DEVICE_MANUFACTURER_CODE 2046
@@ -139,7 +139,7 @@
 #define LED_MANAGER_HEARTBEAT 300         // Number of ms on / off
 #define LED_MANAGER_INTERVAL 10           // Number of heartbeats between repeats
 #define PROGRAMME_TIMEOUT_INTERVAL 20000  // Allow 20s to complete each programme step
-#define SENSOR_PROCESS_INTERVAL 4000      // Number of ms between N2K transmits
+#define SENSOR_PROCESS_INTERVAL 5000      // Number of ms between N2K transmits
 #define SENSOR_VOLTS_TO_KELVIN 0.0489     // Conversion factor for LM335 temperature sensors
 
 /**********************************************************************
@@ -277,8 +277,8 @@ void loop() {
   static bool JUST_STARTED = true;
   if (JUST_STARTED && (millis() > STARTUP_SETTLE_PERIOD)) {
     #ifdef DEBUG_SERIAL
-    Serial.println("LOOP: system settled, entering production");
-    Serial.print("Operating configuration: "); dumpSensorConfiguration();
+    Serial.print("Starting (N2K Source address: "); Serial.print(NMEA2000.GetN2kSource()); Serial.println(")");
+    dumpSensorConfiguration();
     #endif
     JUST_STARTED = false;
   }
@@ -420,7 +420,7 @@ void processMachineState() {
       MACHINE_RESET_TIMER = (millis() + PROGRAMME_TIMEOUT_INTERVAL);
       break;
     case PRG_ACCEPT_SETPOINT:
-      SENSORS[selectedSensorIndex].setSetPoint((double) DIL_SWITCH.value());
+      SENSORS[selectedSensorIndex].setSetPoint((double) (DIL_SWITCH.value() + 173));
       LED_MANAGER.operate(GPIO_SETPOINT_LED, 1);
     case PRG_FINALISE:
       // Save in-memory configuration to EEPROM, flash LEDs to confirm
@@ -463,6 +463,7 @@ void transmitPgn130316(Sensor sensor) {
   tN2kMsg N2kMsg;
   SetN2kPGN130316(N2kMsg, 0, sensor.getInstance(), sensor.getSource(), sensor.getTemperature(), sensor.getSetPoint());
   NMEA2000.SendMsg(N2kMsg);
+  LED_MANAGER.operate(GPIO_POWER_LED, 0, 1);
 }  
 
 /**********************************************************************
@@ -496,15 +497,16 @@ void debugDump() {
 }
 
 void dumpSensorConfiguration() {
-  Serial.print("[");
   for (unsigned int i = 0; i < ELEMENTCOUNT(SENSORS); i++) {
-    if (i != 0) Serial.print(",");
-    Serial.print(" {");
-    Serial.print("\"instance\": "); Serial.print(SENSORS[i].getInstance()); Serial.print(",");
-    Serial.print("\"source\": "); Serial.print(SENSORS[i].getSource()); Serial.print(",");
-    Serial.print("\"setPoint\": "); Serial.print(SENSORS[i].getSetPoint());
-    Serial.print("}");
+    Serial.print("Sensor "); Serial.print(i); Serial.print(": ");
+    if (SENSORS[i].getInstance() == 0xFF) {
+      Serial.println("disabled");
+    } else {
+      Serial.print("\"instance\": "); Serial.print(SENSORS[i].getInstance()); Serial.print(",");
+      Serial.print("\"source\": "); Serial.print(SENSORS[i].getSource()); Serial.print(",");
+      Serial.print("\"setPoint\": "); Serial.print(SENSORS[i].getSetPoint());
+      Serial.println("}");
+    }
   }
-  Serial.println(" ]");
 }
 #endif

@@ -2,38 +2,38 @@
 
 ## Schematic design
 
-<a href="schematic.pdf">
-<img align="right" width="400" src="schematic.svg">
+<a href="schematic-1.0.pdf">
+<img align="right" width="400" src="schematic-1.0.svg">
 </a>
 
 This design is based on a
 [Teensy 3.2](https://www.pjrc.com/store/teensy32.html)
 MCU.
 
-Module power at 5VDC is supplied by an isolated DC-DC converter fed
-directly by the NMEA 2000 power bus through a 500mA self-resetting
-fuse.
+Module power at 5VDC is supplied by an isolated
+[Traco Power TMR 1-1211](https://tracopower.com/tmr1-datasheet/)
+DC-DC converter] fed directly from the NMEA 2000 power bus through
+a 500mA self-resetting fuse.
 The module has a nominal current draw of 100mA (1 LEN).
 
-The module data interface is implemented using a high-speed CAN
-transceiver.
+The module data interface is implemented using a
+[MicroChip MCP2551](http://ww1.microchip.com/downloads/en/devicedoc/21667e.pdf)
+high-speed CAN transceiver.
 CAN H and L signals are conditioned through simple RC filtering.
 A switch allows the installer to select whether or not to connect
 the host bus screen to the module ground plane.
 
-Six optically isolated sensor input channels accept signals
-at either 12VDC or 24VDC.
+Eight input channels implemented as simple voltage dividers
+support connection of
+[National Semiconductor LM335Z](https://www.switchelectronics.co.uk/pub/media/pdf/LM335Z.pdf)
+precision temperature sensors. 
 
-Two zero-volt SPDT relay output channels are provided for the
-operation of external UP and DOWN actuators.
-The CO, NO and NC contacts of each relay are available to the
-installer and the NO circuit on each relay is snubber protected making
-it suitable for driving inductive loads.
-
-Two DIP switch modules offer configuration and installation settings
-and a range of LED outputs offer status information.
+A DIP switch, momentary push-button and associated LEDs provide
+a user configuration interface and module status interface.
 
 ## Physical design
+
+
 
 ### Enclosure
 
