@@ -12,9 +12,8 @@ precision temperature sensors connected through a two-wire interface.
 The module cannot be used with resistance or current-loop sensors.
 
 The module has a simple user configuration interface consisting of a
-DIP switch, momentary push-button.
-LED outputs provide configuration feedback and indicate module
-operating state.
+DIP switch, momentary push-button and LED outputs.
+A discrete LED indicates module operating state.
 
 ## Active components
 
@@ -33,8 +32,8 @@ operating state.
 
 ## Physical design
 
-The prototype module uses a 75mm square PCB and a compatible
-flanged ABS enclosure.
+The prototype module uses through-hole components on a 75mm square PCB
+mounted in a flanged ABS enclosure.
 The enclosure is machined to accommodate an NMEA cable connector, two
 6mm cable grommets and single 3mm LED indicator.
 
@@ -47,4 +46,3 @@ The enclosure is machined to accommodate an NMEA cable connector, two
 <img align="right" width="400" src="pcb-1.0.svg">
 </a>
 <br clear="both"/>
-

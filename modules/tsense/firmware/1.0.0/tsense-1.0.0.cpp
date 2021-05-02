@@ -140,7 +140,7 @@
 #define LED_MANAGER_INTERVAL 10           // Number of heartbeats between repeats
 #define PROGRAMME_TIMEOUT_INTERVAL 20000  // Allow 20s to complete each programme step
 #define SENSOR_PROCESS_INTERVAL 5000      // Number of ms between N2K transmits
-#define SENSOR_VOLTS_TO_KELVIN 0.0489     // Conversion factor for LM335 temperature sensors
+#define SENSOR_VOLTS_TO_KELVIN 3.3        // Conversion factor for LM335 temperature sensors
 
 /**********************************************************************
  * Declarations of local functions.
@@ -328,7 +328,7 @@ void processSensors() {
       if (SENSORS[sensor].getInstance() != 0xff) {
         int value = adc->analogRead(SENSORS[sensor].getGpio());
         if (value != ADC_ERROR_VALUE) {
-          double kelvin = ((value * 3.3) / adc->adc0->getMaxValue()) * 100;
+          double kelvin = ((value * SENSOR_VOLTS_TO_KELVIN) / adc->adc0->getMaxValue()) * 100;
           SENSORS[sensor].setTemperature(kelvin);
           #ifdef DEBUG_SERIAL
           Serial.print("Sensor "); Serial.print(sensor); Serial.print(": ");

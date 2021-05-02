@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name PDJR)(type KiCad)(uri /home/preeve/Projects/git/ankreo/modules/pdjr-libraries/connectors.pretty)(options "")(descr ""))
+  (lib (name PDJR2)(type KiCad)(uri /home/preeve/Projects/git/ankreo/modules/tsense/hardware/1.0/kicad/libraries/kicad.pretty)(options "")(descr ""))
+)
