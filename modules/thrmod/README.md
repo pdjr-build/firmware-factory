@@ -46,9 +46,10 @@ load-sense support is required).
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
 
-The top cover includes the NMEA bus connector (1) and a status
-LED (2). The cover is penetrated by two cable glands (3) which allow
-passage of sensor connection cables.
+The top cover includes the NMEA bus connector (1) and PWR and LOCK
+status LEDs (2).
+The cover is penetrated by two cable glands (3) which allow passage
+switch or relay connector cables.
 
 The top cover is released by pinching at (A) after which it can be
 lifted away from the the base to expose the printed circuit board (PCB).
@@ -64,15 +65,20 @@ for NMEA connection.
 Any N2K standard-compliant drop cable will allow the module to be
 connected to a host NMEA bus through a T-connector.
 
-### (2) Status LED
+### (2) PWR status LED
 
-A PWR status LED is modulated to indicate operating status.
+The PWR status LED is modulated to indicate operating status.
 
 | LED    | Illumination state                | Meaning |
 |:------:|:----------------------------------|:--------|
-| PWR/TX | *n* rapid flashes on startup      | The module has just been connected to power and is initialising *n* temperature sensors.|
-|        | Steady                            | The module has power.|
-|        | Flashing                          | The module is transmitting NMEA data from a configured sensor. |
+| PWR    | Steady                            | CONTROL mode: the module is locked to its thruster.|
+|        |                                   | OPERATING mode: the module is powered.|
+|        | Continuous rapid occulting        | CONTROL mode: the module is attempting to establish a control lock.|
+|        | Occasional occult                 | CONTROL mode: the module is transmitting thruster commands.|
+|        |                                   | OPERATING mode: the module is transmitting status reports.|
+
+### (3) LOCK status LED
+
 
 ### (3) Cable glands
 
