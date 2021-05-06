@@ -1,0 +1,7 @@
+mv thrmod-1.0-cache.lib THR100-cache.lib
+mv thrmod-1.0.kicad_pcb THR100.kicad_pcb
+mv thrmod-1.0.kicad_pcb-bak THR100.kicad_pcb-bak
+mv thrmod-1.0.net THR100.net
+mv thrmod-1.0.pro THR100.pro
+mv thrmod-1.0.sch THR100.sch
+mv thrmod-1.0.sch-bak THR100.sch-bak
