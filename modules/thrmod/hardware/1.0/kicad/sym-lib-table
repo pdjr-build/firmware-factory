@@ -1,7 +1,0 @@
-(sym_lib_table
-  (lib (name PDJR)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/pdjr-libraries/pdjr.lib)(options "")(descr ""))
-  (lib (name Teensy)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winctl/hardware/1.0/kicad/winctl-1.0-cache.lib)(options "")(descr ""))
-  (lib (name temp)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/winint-1.0-cache.lib)(options "")(descr ""))
-  (lib (name temp2)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/libraries/pdjr.lib)(options "")(descr ""))
-  (lib (name temp3)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/libraries/pdjr.lib)(options "")(descr ""))
-)
