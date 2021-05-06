@@ -1,48 +1,52 @@
-# THR100 - NMEA 2000 thruster control module
+# THR100 Thruster Module
 
-__THR100__ is an NMEA 2000 module which can act as either a thruster
-control interface or a thruster operating interface: which mode of
-behaviour the module assumes is determined by the position of a
-switch on the module PCB.
+The __THR100 Thruster Module__ is an NMEA 2000 module which can act
+as either a thruster control interface or a thruster operating
+interface depending upon the position of an installer settable PCB
+configuration switch.
 
-In control mode the module supports the connection of two SPST switch
-inputs (PS_CMD and SB_CMD) and responds to operation of these inputs
-by transmitting thruster control messages over the NMEA 2000 bus to
-operate a remote thruster.
-Typically, the switch inputs will be connected to momentary switches
-like those operated by a joystick.
+__THR100__ modules communicate using the NMEA Thruster Network Messages
+protocol described in this
+[Technical Bulletin](https://www.nmea.org/Assets/20190613%20thruster%20amendment%20128006,%20128007,%20128008.pdf).
 
-In operating mode the module listens on the NMEA 2000 bus for thruster
-control messages and responds by operating either PORT or STARBOARD
-relays dependent upon received commands.
+In control mode a __THR100__ module supports the connection of two
+SPST switches and responds to operation of these inputs by
+transmitting a stream of thruster control messages over the NMEA
+2000 bus to operate a remote thruster.
+Typically, the connected switches will be momentary devices like
+those operated by a joystick.
+The address of the remote thruster is configured by a DIP switch
+on the module PCB.
+
+In operating mode a __THR100__ listens on the NMEA 2000 bus for
+thruster control messages and responds by operating either PORT or
+STARBOARD relays dependent upon received commands.
+For continuous operation if the relay outputsi a continuous stream
+of control messages must be receaived: if the stream dries up, then
+the relay ouputs are switched off.
 
 To cater for the needs of some hydraulic systems which require
-operation of a load-sense valve when there is a call for thruster
-operation a module in operating mode can be configured to operate both
-its output relays whenever it receives an operating command of any
-sort.
+operation of a load-sense valve when there is a call for any
+thruster operation, a __THR100__ in operating mode can be further
+configured to operate both its output relays whenever it receives
+an operating command of any sort.
 
-A simple THR100 installation controlling a single electrical thruster
-will require one THR100 (set to operate mode) at the thruster and one
-THR100 (set to control mode) at each helm location where thruster
-control is required.
+A simple installation controlling a single electrical thruster from
+one helm location will require two __THR100__ modules: one installed
+at the thruster and set to operate mode and another installed at the
+helm and set to control mode.
 
-A hydraulic installation may require an additional THR100 (set to
-operate and common modes) to operate a hydraulic system load-sense
-valve.
+A hydraulic installation may require an additional __THR100__ (set
+to operate mode with common enabled) to operate a hydraulic systems
+load-sense valve.
 
 __THR100__ connects to a host NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module has an NMEA LEN of 0.5 in control mode and 1.5 in operating
 mode.
 
-Status and diagnostic LEDs confirm NMEA connection and module operating
+A diagnostic LED confirms thruster connection and module operating
 status.
-
-The module is configured by a PCB mounted DIP switch which allows entry
-of an NMEA thruster ID.
-In operating mode this serves as a thruster identifier and in control
-mode this specifies the ID of the thruster to be operated.
 
 ## About the module
 
