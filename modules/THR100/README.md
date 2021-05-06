@@ -21,9 +21,9 @@ on the module PCB.
 In operating mode a __THR100__ listens on the NMEA 2000 bus for
 thruster control messages and responds by operating either PORT or
 STARBOARD relays dependent upon received commands.
-For continuous operation if the relay outputsi a continuous stream
-of control messages must be receaived: if the stream dries up, then
-the relay ouputs are switched off.
+For continuous operation of a relay a continuous stream of control
+messages must be received: if the control stream dries up, then
+relay ouputs are switched off.
 
 To cater for the needs of some hydraulic systems which require
 operation of a load-sense valve when there is a call for any
@@ -37,7 +37,7 @@ at the thruster and set to operate mode and another installed at the
 helm and set to control mode.
 
 A hydraulic installation may require an additional __THR100__ (set
-to operate mode with common enabled) to operate a hydraulic systems
+to operate mode with common enabled) to operate a hydraulic system's
 load-sense valve.
 
 __THR100__ connects to a host NMEA bus by a standard M12 5-pin circular
