@@ -1,3 +1,0 @@
-(fp_lib_table
-  (lib (name pdjr)(type KiCad)(uri ${KIPRJMOD}/libraries/pdjr.pretty)(options "")(descr ""))
-)
