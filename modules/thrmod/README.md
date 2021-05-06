@@ -1,16 +1,20 @@
 # THRMOD - NMEA 2000 thruster control module
 
 __THRMOD__ is an NMEA 2000 module which can act as either a thruster
-control interface or a thruster operating interface.
+control interface or a thruster operating interface: which mode of
+behaviour the module assumes is determined by the position of a
+switch on the module PCB.
 
 In control mode the module supports the connection of two SPST switch
-inputs (PORT and STARBOARD) and responds to operation of these inputs
+inputs (PS_CMD and SB_CMD) and responds to operation of these inputs
 by transmitting thruster control messages over the NMEA 2000 bus to
 operate a remote thruster.
+Typically, the switch inputs will be connected to momentary switches
+like those operated by a joystick.
 
 In operating mode the module listens on the NMEA 2000 bus for thruster
 control messages and responds by operating either PORT or STARBOARD
-relays dependent upon the received command.
+relays dependent upon received commands.
 
 To cater for the needs of some hydraulic systems which require
 operation of a load-sense valve when there is a call for thruster
@@ -18,9 +22,14 @@ operation a module in operating mode can be configured to operate both
 its output relays whenever it receives an operating command of any
 sort.
 
-The module transmits temperature readings from the connected sensors
-over NMEA 2000 using [PGN 130316 Temperature, Extended Range](
-https://www.nmea.org/Assets/nmea%202000%20pgn%20130316%20corrigenda%20nmd%20version%202.100%20feb%202015.pdf).
+A simple THRMOD installation controlling a single electrical thruster
+will require one THRMOD (set to operate mode) at the thruster and one
+THRMOD (set to control mode) at each helm location where thruster
+control is required.
+
+A hydraulic installation may require an additional THRMOD (set to
+operate and common modes) to operate a hydraulic system load-sense
+valve.
 
 __THRMOD__ connects to a host NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
@@ -35,10 +44,6 @@ of an NMEA thruster ID.
 In operating mode this serves as a thruster identifier and in control
 mode this specifies the ID of the thruster to be operated.
 
-Multiple __THRMOD__ modules can be installed on a single NMEA bus and
-operation of a single thruster will require two modules (three if
-load-sense support is required).
-
 ## About the module
 
 ![Fig 1: module schematic](thrmod.png.svg)
@@ -46,8 +51,8 @@ load-sense support is required).
 Figure 1 illustrates the appearance of the module with the cover in
 place and with the cover removed.
 
-The top cover includes the NMEA bus connector (1) and PWR and LOCK
-status LEDs (2).
+The top cover includes the NMEA bus connector (1) and the PWR status
+LED (2).
 The cover is penetrated by two cable glands (3) which allow passage
 switch or relay connector cables.
 

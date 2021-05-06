@@ -1,6 +1,6 @@
 /**********************************************************************
  * GroupFunctionHandlers.cpp
- * Copytight (c) 2021 Paul Reeve <preeve@pdjr.eu>
+ * Copyright (c) 2021 Paul Reeve <preeve@pdjr.eu>
  * 
  * This file implements a number of classes providing group function
  * support for PGNs 128006, 128007 and 128008.
@@ -11,7 +11,7 @@
  * GroupFunctionHandlerForPGN128007 implements a Request function
  * handler which allows a remote to request transmission of the
  * eponymous PGN. Note that requests for individual field values are
- * not honoured - any request results in transmission of c complete
+ * not honoured - any request results in transmission of a complete
  * PGN
  */ 
 
@@ -34,7 +34,7 @@ bool GroupFunctionHandlerForPGN128006::HandleCommand(const tN2kMsg &N2kMsg, uint
   tN2kGroupFunctionParameterErrorCode PARec;
   tN2kMsg N2kRMsg;
   int canUpdate = true;
-  PGN128006_Field fields[] = { {false, 0},{false, 0},{false, 0},{false, 0},{false, 0},{false, 0},{false, 0},{false, 0},{false, 0},{false, 0} };
+  PGN128006_UpdateField fields[] = { {false,0},{false,0},{false,0},{false,0},{false,0},{false,0},{false,0},{false,0},{false,0},{false,0} };
 
  	if (PrioritySetting != 0x08 || PrioritySetting != 0x0f || PrioritySetting != 0x09) pec = N2kgfTPec_TransmitIntervalOrPriorityNotSupported;
 
@@ -54,45 +54,45 @@ bool GroupFunctionHandlerForPGN128006::HandleCommand(const tN2kMsg &N2kMsg, uint
     switch (field) {
       case PGN128006_ThrusterIdentifier_FieldIndex:
         fields[field].modified = true;
-        fields[field].F02 = N2kMsg.GetByte(Index);
+        fields[field].value.F02 = N2kMsg.GetByte(Index);
         break;
       case PGN128006_ThrusterDirectionControl_FieldIndex:
         switch(N2kMsg.GetByte(Index) & 0x0f) {
-          case 0: fields[field].modified = true; fields[field].F03 = N2kDD473_OFF; break;
-          case 1: fields[field].modified = true; fields[field].F03 = N2kDD473_ThrusterReady; break;
-          case 2: fields[field].modified = true; fields[field].F03 = N2kDD473_ThrusterToPORT; break;
-          case 3: fields[field].modified = true; fields[field].F03 = N2kDD473_ThrusterToSTARBOARD; break;
+          case 0: fields[field].modified = true; fields[field].value.F03 = N2kDD473_OFF; break;
+          case 1: fields[field].modified = true; fields[field].value.F03 = N2kDD473_ThrusterReady; break;
+          case 2: fields[field].modified = true; fields[field].value.F03 = N2kDD473_ThrusterToPORT; break;
+          case 3: fields[field].modified = true; fields[field].value.F03 = N2kDD473_ThrusterToSTARBOARD; break;
           default: PARec = N2kgfpec_RequestOrCommandParameterOutOfRange; canUpdate = false; break;
         }
         break;
       case PGN128006_PowerEnable_FieldIndex:
         switch(N2kMsg.GetByte(Index) & 0x03) {
-          case 0: fields[field].modified = true; fields[field].F04 = N2kDD002_Off; break;
-          case 1: fields[field].modified = true; fields[field].F04 = N2kDD002_On; break;
-          case 2: fields[field].modified = true; fields[field].F04 = N2kDD002_Error; break;
-          case 3: fields[field].modified = true; fields[field].F04 = N2kDD002_Unavailable; break;
+          case 0: fields[field].modified = true; fields[field].value.F04 = N2kDD002_Off; break;
+          case 1: fields[field].modified = true; fields[field].value.F04 = N2kDD002_On; break;
+          case 2: fields[field].modified = true; fields[field].value.F04 = N2kDD002_Error; break;
+          case 3: fields[field].modified = true; fields[field].value.F04 = N2kDD002_Unavailable; break;
           default: PARec = N2kgfpec_RequestOrCommandParameterOutOfRange; canUpdate = false; break;
         }
         break;
       case PGN128006_ThrusterRetractControl_FieldIndex:
         switch(N2kMsg.GetByte(Index) & 0x03) {
-          case 0: fields[field].modified = true; fields[field].F05 = N2kDD474_OFF; break;
-          case 1: fields[field].modified = true; fields[field].F05 = N2kDD474_Extend; break;
-          case 2: fields[field].modified = true; fields[field].F05 = N2kDD474_Retract; break;
+          case 0: fields[field].modified = true; fields[field].value.F05 = N2kDD474_OFF; break;
+          case 1: fields[field].modified = true; fields[field].value.F05 = N2kDD474_Extend; break;
+          case 2: fields[field].modified = true; fields[field].value.F05 = N2kDD474_Retract; break;
           default: PARec = N2kgfpec_RequestOrCommandParameterOutOfRange; canUpdate = false; break;
         }
         break;
       case PGN128006_SpeedControl_FieldIndex:
-        fields[field].modified = true; fields[field].F06 = N2kMsg.GetByte(Index);
+        fields[field].modified = true; fields[field].value.F06 = N2kMsg.GetByte(Index);
         break;
       case PGN128006_ThrusterControlEvents_FieldIndex:
-        fields[field].modified = true; fields[field].F07.SetEvents(N2kMsg.GetByte(Index));
+        fields[field].modified = true; fields[field].value.F07.SetEvents(N2kMsg.GetByte(Index));
         break;
       case PGN128006_CommandTimeout_FieldIndex:
-        fields[field].modified = true; fields[field].F08 = N2kMsg.Get1ByteUDouble(0.005, Index);
+        fields[field].modified = true; fields[field].value.F08 = N2kMsg.Get1ByteUDouble(0.005, Index);
         break;      
       case PGN128006_AzimuthControl_FieldIndex:
-        fields[field].modified = true; fields[field].F09 = N2kMsg.Get2ByteDouble(0.0001, Index);
+        fields[field].modified = true; fields[field].value.F09 = N2kMsg.Get2ByteDouble(0.0001, Index);
         break;
       default:
         PARec = N2kgfpec_InvalidRequestOrCommandParameterField;
@@ -105,7 +105,6 @@ bool GroupFunctionHandlerForPGN128006::HandleCommand(const tN2kMsg &N2kMsg, uint
 
   return true;
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 // END OF HANDLERS FOR PGN128006
