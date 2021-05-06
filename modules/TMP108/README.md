@@ -1,12 +1,12 @@
-# TSENSE - NMEA 2000 temperature sensor module
+# TMP108 - NMEA 2000 temperature sensor module
 
-__TSENSE__ is an NMEA 2000 module which allows the connection of up to
+__TMP108__ is an NMEA 2000 module which allows the connection of up to
 eight LM335Z temperature sensors.
 The module transmits temperature readings from the connected sensors
 over NMEA 2000 using [PGN 130316 Temperature, Extended Range](
 https://www.nmea.org/Assets/nmea%202000%20pgn%20130316%20corrigenda%20nmd%20version%202.100%20feb%202015.pdf).
 
-__TSENSE__ connects to a host NMEA bus by a standard M12 5-pin circular
+__TMP108__ connects to a host NMEA bus by a standard M12 5-pin circular
 connector and is powered directly from the NMEA bus.
 The module has an NMEA LEN of 1.
 
@@ -16,7 +16,7 @@ The module is configured by a PCB mounted DIP switch which allows entry
 of NMEA instance address, temperature source and set temperature for
 each connected sensor.
 
-Multiple __TSENSE__ modules can be installed on a single NMEA bus.
+Multiple __TMP108__ modules can be installed on a single NMEA bus.
 
 ## About the module
 
@@ -101,10 +101,10 @@ ground plane.
 
 ## Temperature sensors
 
-The TSENSE module supports a maximum of eight LM335Z or equivalent
+The TMP108 module supports a maximum of eight LM335Z or equivalent
 temperature sensor IC.
 Other types of temperature sensor cannot be used and connecting them
-to a TSENSE module will almost certainly damage the module beyond
+to a TMP108 module will almost certainly damage the module beyond
 repair.
 
 LM335Z-based temperature sensors are commercially available (for
@@ -113,7 +113,7 @@ example Victron ) or you can easily make your own sensor.
 The LM335Z sensor IC is packaged in a TO-92 housing and has the
 following pin layout.
 
-Pin 1 - calibrate (not used by TSENSE)
+Pin 1 - calibrate (not used by TMP108)
 Pin 2 - ground (G)
 Pin 3 - supply (P)
 

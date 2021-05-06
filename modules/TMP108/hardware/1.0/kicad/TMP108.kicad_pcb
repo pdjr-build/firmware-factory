@@ -1,4 +1,4 @@
-(kicad_pcb (version 20171130) (host pcbnew 5.1.9-73d0e3b20d~88~ubuntu20.04.1)
+(kicad_pcb (version 20171130) (host pcbnew 5.1.5-1.fc31)
 
   (general
     (thickness 1.6)
@@ -11,7 +11,7 @@
 
   (page A4)
   (title_block
-    (title "WININT - windlass interface module")
+    (title "TMP108 Temperature Module")
     (date 2020-09-16)
     (rev 1.0)
     (company "PDJR <preeve@pdjr.eu>")
