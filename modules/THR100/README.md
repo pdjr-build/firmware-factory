@@ -37,7 +37,7 @@ at the thruster and set to operate mode and another installed at the
 helm and set to control mode.
 
 A hydraulic installation may require an additional __THR100__ (set
-to operate mode with common enabled) to operate a hydraulic systems
+to operate mode with common enabled) to operate a hydraulic system's
 load-sense valve.
 
 __THR100__ connects to a host NMEA bus by a standard M12 5-pin circular
