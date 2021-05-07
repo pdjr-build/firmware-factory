@@ -2,12 +2,12 @@
 
 The __THR100 Thruster Module__ is an NMEA 2000 module which can act
 as either a thruster control interface or a thruster operating
-interface depending upon the position of an installer settable PCB
-configuration switch.
+interface dependant upon the state of a PCB configuration switch.
 
 __THR100__ modules communicate using the NMEA Thruster Network Messages
 protocol described in this
 [Technical Bulletin](https://www.nmea.org/Assets/20190613%20thruster%20amendment%20128006,%20128007,%20128008.pdf).
+
 
 In control mode a __THR100__ module supports the connection of two
 SPST switches and responds to operation of these inputs by

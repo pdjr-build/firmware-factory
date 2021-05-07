@@ -6,7 +6,6 @@
 #define _PGN128006_H_
 
 #define PGN128006_FieldCount 9
-
 #define PGN128006_ThrusterIdentifier_FieldIndex 2
 #define PGN128006_ThrusterDirectionControl_FieldIndex 3
 #define PGN128006_PowerEnable_FieldIndex 4
@@ -16,7 +15,7 @@
 #define PGN128006_CommandTimeout_FieldIndex 8
 #define PGN128006_AzimuthControl_FieldIndex 9
 
-#define PGN128006_StaticUpdateInterval 5000
+#define PGN128006_StaticUpdateInterval 5000 
 #define PGN128006_DynamicUpdateInterval 500
 
 struct PGN128006_Properties {

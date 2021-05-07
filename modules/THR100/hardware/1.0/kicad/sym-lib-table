@@ -4,4 +4,5 @@
   (lib (name temp)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/winint-1.0-cache.lib)(options "")(descr ""))
   (lib (name temp2)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/libraries/pdjr.lib)(options "")(descr ""))
   (lib (name temp3)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/winint/hardware/1.0/kicad/libraries/pdjr.lib)(options "")(descr ""))
+  (lib (name THR100-rescue)(type Legacy)(uri ${KIPRJMOD}/THR100-rescue.lib)(options "")(descr ""))
 )
