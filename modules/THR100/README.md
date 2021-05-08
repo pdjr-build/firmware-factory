@@ -9,14 +9,10 @@ protocol described in this
 [Technical Bulletin](https://www.nmea.org/Assets/20190613%20thruster%20amendment%20128006,%20128007,%20128008.pdf).
 
 
-In control mode a __THR100__ module supports the connection of SPST
-switches and responds to operation of these inputs by transmitting a
-stream of thruster control messages over the NMEA 2000 bus to operate
-a remote thruster.
-The module also allows the connection of potentiometric input allowing
-use with variable speed thrusters.
-Typically, the connected switches will be momentary devices like
-those operated by a joystick.
+In control mode a __THR100__ module supports the connection of both
+SPST switches and a potentiometric input making the module suitable
+for binary (i.e. ON/OFF) and proportional thruster control, typically
+through connection of an appropriate joystick device.
 The address of the remote thruster is configured by a DIP switch
 on the module PCB.
 
