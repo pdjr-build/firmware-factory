@@ -22,6 +22,8 @@ STARBOARD relays dependent upon received commands.
 For continuous operation of a relay a continuous stream of control
 messages must be received: if the control stream dries up, then
 relay ouputs are switched off.
+At the present time the __THR100__ does not provide a proportional
+control output.
 
 To cater for the needs of some hydraulic systems which require
 operation of a load-sense valve when there is a call for any
@@ -69,23 +71,22 @@ ground.
 
 The module uses an M12, circular, female, 5-pin industrial connector
 for NMEA connection.
-Any N2K standard-compliant drop cable will allow the module to be
+An N2K standard-compliant drop cable will allow the module to be
 connected to a host NMEA bus through a T-connector.
 
 ### (2) PWR status LED
 
 The PWR status LED is modulated to indicate operating status.
 
-| LED    | Illumination state                | Meaning |
-|:------:|:----------------------------------|:--------|
-| PWR    | Steady                            | CONTROL mode: the module is locked to its thruster.|
-|        |                                   | OPERATING mode: the module is powered.|
-|        | Continuous rapid occulting        | CONTROL mode: the module is attempting to establish a control lock.|
-|        | Occasional occult                 | CONTROL mode: the module is transmitting thruster commands.|
-|        |                                   | OPERATING mode: the module is transmitting status reports.|
-
-### (3) LOCK status LED
-
+| Module mode | LED   | Illumination state        | Meaning |
+|:------------|:------|:--------------------------|:--------|
+| CONTROL     | PWR   | Continuous rapid flashing | The module is attempting to establish a connection with the configured thruster. |
+|             |       | Steady                    | The module is connected to the configured thruster. |
+|             |       | Occasional occult         | The module is transmitting thruster commands. |
+| OPERATING   |       | Continuous                | The module is powered. |
+|             |       | Occasional occult         | The module is transmitting status reports. |
+|             | PSRLY | Steady                    | The PS relay is ON. |
+|             | SBRLY | Steady                    | The SB relay is ON. |
 
 ### (3) Cable glands
 
