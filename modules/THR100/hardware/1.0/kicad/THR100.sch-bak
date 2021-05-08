@@ -1274,12 +1274,4 @@ Wire Wire Line
 	7900 2500 8250 2500
 Wire Wire Line
 	7900 2600 8250 2600
-Wire Wire Line
-	1250 1600 1250 1500
-Connection ~ 1250 1600
-Connection ~ 1250 1500
-Wire Wire Line
-	1250 1100 1250 1000
-Connection ~ 1250 1100
-Connection ~ 1250 1000
 $EndSCHEMATC
