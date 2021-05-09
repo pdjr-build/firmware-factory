@@ -1,4 +1,4 @@
-# firmware-factory - build environment for Arduino style projects.
+# firmware-factory - build environment for PlatformIO projects.
 
 firmware-factory provides a PlatformIO project folder ```sketch/```
 (which can be configured to meet local needs) and a small collection
