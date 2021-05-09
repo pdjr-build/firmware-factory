@@ -1,5 +1,0 @@
-(sym_lib_table
-  (lib (name tsense-1.0-rescue)(type Legacy)(uri ${KIPRJMOD}/tsense-1.0-rescue.lib)(options "")(descr ""))
-  (lib (name pdjr)(type Legacy)(uri /home/preeve/Projects/git/ankreo/modules/pdjr-libraries/pdjr.lib)(options "")(descr ""))
-  (lib (name TMP108-rescue)(type Legacy)(uri ${KIPRJMOD}/TMP108-rescue.lib)(options "")(descr ""))
-)
