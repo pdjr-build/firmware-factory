@@ -9,10 +9,11 @@ protocol described in this
 [Technical Bulletin](https://www.nmea.org/Assets/20190613%20thruster%20amendment%20128006,%20128007,%20128008.pdf).
 
 
-In control mode a __THR100__ module supports the connection of both
-SPST switches and a potentiometric input making the module suitable
-for binary (i.e. ON/OFF) and proportional thruster control, typically
-through connection of an appropriate joystick device.
+In control mode a __THR100__ module supports the connection of SPST
+switches and an optional potentiometric inputs making the module
+suitable for both binary (i.e. ON/OFF) and proportional thruster
+control, typically through connection of an appropriate joystick
+device.
 The address of the remote thruster is configured by a DIP switch
 on the module PCB.
 
@@ -27,9 +28,10 @@ control output.
 
 To cater for the needs of some hydraulic systems which require
 operation of a load-sense valve when there is a call for any
-thruster operation, a __THR100__ in operating mode can be further
-configured to operate both its output relays whenever it receives
-an operating command of any sort.
+thruster operation, a __THR100__ in operating mode can be set to
+operate both its output relays whenever it receives an operating
+command of any sort allowing eithr the PORT or STARBOARD relay to
+be used to operate load-sense.
 
 A simple installation controlling a single electrical thruster from
 one helm location will require two __THR100__ modules: one installed
@@ -78,15 +80,15 @@ connected to a host NMEA bus through a T-connector.
 
 The PWR status LED is modulated to indicate operating status.
 
-| Module mode | LED   | Illumination state        | Meaning |
-|:------------|:------|:--------------------------|:--------|
-| CONTROL     | PWR   | Continuous rapid flashing | The module is attempting to establish a connection with the configured thruster. |
-|             |       | Steady                    | The module is connected to the configured thruster. |
-|             |       | Occasional occult         | The module is transmitting thruster commands. |
-| OPERATING   |       | Continuous                | The module is powered. |
-|             |       | Occasional occult         | The module is transmitting status reports. |
-|             | PSRLY | Steady                    | The PS relay is ON. |
-|             | SBRLY | Steady                    | The SB relay is ON. |
+| Module mode | LED   | Illumination state         | Meaning |
+|:------------|:------|:---------------------------|:--------|
+| CONTROL     | PWR   | Continuous slow flashing   | The module is attempting to establish a connection with the configured thruster. |
+|             | " "   | Steady                     | The module is connected to the configured thruster. |
+|             | " "   | Continuous rapid occulting | The module is transmitting thruster commands. |
+| OPERATING   | PWR   | Continuous                 | The module is powered. |
+|             | " "   | Occasional occult          | The module is transmitting status reports. |
+|             | PSRLY | Steady                     | The PS relay is ON. |
+|             | SBRLY | Steady                     | The SB relay is ON. |
 
 ### (3) Cable glands
 
