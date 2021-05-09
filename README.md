@@ -17,21 +17,27 @@ sketch> mkdir ~/mymodule src
 
 The build environment includes an extension to the PlatformIO build
 process that attempts to construct a file ```build.h``` from text
-*definition files* harvested by climbing directories in file system
-from ```src/``` until the root folder of firmware-factory.
+*definition files* harvested by climbing directories in the file
+system from some starting point until either the root of the filesystem
+is reached or a folder containing the file ```STOP``` is encountered.
 
-In addition to the obvious assets you will notice that the file system
-contains a number of _DEFINITION\_FILES_ with capitalised, underscore-delimited
-names. The names correspond to configuration variable and constant names used
-in program code and their placement in the filesystem indicates the children
-to which these configuration values apply.
+A *definition file* is simply a text file with a name which will be
+interpreted as the name of a #define token and with content which will
+be interpreted as the value of the #define token.
+A definition file name must be capitalised and include at least one
+underscore character.
 
 Definition files are assumed to contain a string value unless their name
 ends in '_NUMBER' in which case they are taken to contain a numeric value
 (the '_NUMBER' suffix is not considered to be part of the value name). For
 example DEVICE\_MANUFACTURER\_NUMBER file will be assumed to contain a
-numeric value for a variable called 'DEVICE_MANUFACTURER'.
+numeric value for a #define token called 'DEVICE_MANUFACTURER'.
 
 The content of a definition file should be the value to be used for the
 named variable: quotes are not required on strings and numbers can be
 expressed in whatever way the host application demands.
+
+The ```src/``` folder is always a starting point and other folders
+with names of the form "\*-cfg" will also be used and start points.
+The root directory of "firmware-factory" contains a ```STOP``` file.
+
