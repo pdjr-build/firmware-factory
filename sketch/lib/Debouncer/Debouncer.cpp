@@ -41,19 +41,6 @@ bool Debouncer::channelState(int gpio) {
     if (this->gpios[i] == gpio) { index = i; break; }
   }
   return((index >= 0)?((this->switches.states >> index) & 0x01):0);
-  /*
-  switch (index) {
-    case 0: return((bool) this->switches.state.channel0); break;
-    case 1: return((bool) this->switches.state.channel1); break;
-    case 2: return((bool) this->switches.state.channel2); break;
-    case 3: return((bool) this->switches.state.channel3); break;
-    case 4: return((bool) this->switches.state.channel4); break;
-    case 5: return((bool) this->switches.state.channel5); break;
-    case 6: return((bool) this->switches.state.channel6); break;
-    case 7: return((bool) this->switches.state.channel7); break;
-    default: return(false); break;
-  }
-  */
 }
 
 void Debouncer::dumpConfiguration() {
