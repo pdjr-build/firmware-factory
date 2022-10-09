@@ -28,7 +28,7 @@
 #   incremented after being processed by appending "++" to the file name.
 #   This allows a simple mechanism for maintaining serial numbers and so
 #   on.
-
+exit
 declare -a OUTPUT
 OUTPUT=()
 declare -A ASSARRAY

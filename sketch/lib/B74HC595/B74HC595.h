@@ -1,5 +1,5 @@
 /**********************************************************************
- * 74HC595 - operate a 74HC595 serial-parallel buffer.
+ * B74HC595 - operate a 74HC595 serial-parallel buffer.
  * 2022 (c) Paul Reeve.
  * 
  * An ADT to simplify operating a 74HC595 serial-parallel buffer with
