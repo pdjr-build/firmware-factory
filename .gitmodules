@@ -13,3 +13,6 @@
 [submodule "sketch/lib/IC74HC595"]
 	path = sketch/lib/IC74HC595
 	url = https://github.com/preeve9534/IC74HC595
+[submodule "sketch/lib/IC74HC165"]
+	path = sketch/lib/IC74HC165
+	url = https://github.com/preeve9534/IC74HC165
