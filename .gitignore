@@ -1,3 +1,4 @@
+# Ignore changes to the src symbolic link
 ./sketch/src
 
 ./modules
