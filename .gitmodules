@@ -16,3 +16,6 @@
 [submodule "sketch/lib/StateMachine"]
 	path = sketch/lib/StateMachine
 	url = https://github.com/pdjr-modules/StateMachine
+[submodule "sketch/lib/ModuleConfiguration"]
+	path = sketch/lib/ModuleConfiguration
+	url = https://github.com/pdjr-modules/ModuleConfiguration
