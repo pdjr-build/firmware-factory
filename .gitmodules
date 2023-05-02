@@ -10,3 +10,6 @@
 [submodule "sketch/lib/IC74HC595"]
 	path = sketch/lib/IC74HC595
 	url = https://github.com/pdjr-modules/IC74HC595
+[submodule "sketch/lib/ProcessQueue"]
+	path = sketch/lib/ProcessQueue
+	url = https://github.com/pdjr-modules/ProcessQueue
