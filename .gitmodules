@@ -19,3 +19,6 @@
 [submodule "sketch/lib/ModuleConfiguration"]
 	path = sketch/lib/ModuleConfiguration
 	url = https://github.com/pdjr-modules/ModuleConfiguration
+[submodule "sketch/lib/NMEA2000"]
+	path = sketch/lib/NMEA2000
+	url = https://github.com/pdjr-modules/NMEA2000
