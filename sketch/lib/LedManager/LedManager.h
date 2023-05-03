@@ -34,21 +34,14 @@
 
 class LedManager {
   public:
-    LedManager(unsigned long heartbeat = 200, unsigned int interval = 5);
-    void operate(unsigned int gpio, unsigned int state, int flashes = 0);
-    void loop();
+    enum Pattern { OFF, ONCE, OFF_ONCE_NEXT, TWICE, OFF_TWICE_NEXT THRICE };
+
+    LedManager(unsigned long interval, void (*callback)(unsigned char status));
+    void setLedState(unsigned int led, LedManager::Pattern pattern);
+    void update();
   private:
-    struct Led {
-      unsigned int gpio;
-      unsigned int state;
-      int flashes;
-      int current;
-      Led *next;
-    };
-    unsigned long heartbeat;
+    LedManager::Pattern ledStates[8];
     unsigned int interval;
-    unsigned long timeout;
-    Led *leds;
 };
 
 #endif
