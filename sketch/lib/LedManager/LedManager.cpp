@@ -15,54 +15,36 @@
  * on and off phases whilst <interval> defines the quiescent period
  * between flash cycles.
  */
- 
-LedManager::LedManager(unsigned long heartbeat, unsigned int interval) {
-  this->heartbeat = heartbeat;
+LedManager::LedManager(void (*callback)(unsigned char status), unsigned long interval) {
+  this->callback = callback;
   this->interval = interval;
-  this->timeout = 0UL;
-  this->leds = NULL;
+
+  this>states = new int[LedManager::LED_COUNT];
+  for (int i = 0; i < LedManager::LED_COUNT; i++) this->states[i] = LedManager::OFF;
+  this->deadline = 0UL;
 }
 
-/**********************************************************************
- * Operate the LED on pin <gpio> and optionally automate its behaviour.
- *
- * @param gpio - the GPIO pin to which the LED is connected.
- * @param state - the state in which to leave the LED.
- * @param flashes - the required number of flashes (-1 says infinite)
- */
-  
-void LedManager::operate(unsigned int gpio, unsigned int state, int flashes) {
-  Led *led = NULL;
-  for (Led *l = this->leds; l != NULL; l = l->next) { if (l->gpio == gpio) led = l; }
-  if (led == NULL) { led = new Led; led->next = this->leds; this->leds = led; }
-  led->gpio = gpio;
-  led->state = state;
-  led->flashes = (flashes * 2);
-  led->current = abs(led->flashes);
-  if (led->flashes == 0) digitalWrite(gpio, led->state);
+void LedManager::setLedState(unsigned int led, LedManager::Pattern pattern) {
+  if (led < LedManager::LED_COUNT) this->states[led] = pattern;
 }
 
-/**********************************************************************
- * Operate the defined leds.  Simply call from loop().
- */
-
-void LedManager::loop() {
+void update() {
   unsigned long now = millis();
-  if (now > this->timeout) {
-    for (Led *led = this->leds; led != NULL; led = led->next) {
-      if (led->flashes != 0) {
-        if (led->current < 0) {
-          digitalWrite(led->gpio, led->state);
-          if ((led->flashes < 0) && (led->current <= (-1 * (int) this->interval))) led->current = abs(led->flashes);
-        } else {
-          if (led->current >= 0) {
-            digitalWrite(led->gpio, (led->current % 2)?HIGH:LOW);
-          }
-        }
-        led->current--;
-        //Serial.println(led->current);
+  unsigned int status = 0;
+
+  if (now > this->deadline) {
+    for (int i = 0; i < LedManager::LED_COUNT; i++) {
+      status << 1;
+      switch (this->status[i]) {
+        case LedManager::THRICE: status &= 1; this->status[i] = LedManager::OFF_TWICE_NEXT; break;
+        case LedManager::OFF_TWICE_NEXT: status &= 0; this->status[i] = LedManager::OFF_TWICE_NEXT; break;
+        case LedManager::TWICE: status &= 1; this->status[i] = LedManager::OFF_ONCE_NEXT; break;
+        case LedManager::OFF_ONCE_NEXT: status &= 0; this->status[i] = LedManager::OFF_ONCE_NEXT; break;
+        case LedManager::ONCE: status &= 1; this->status[i] = LedManager::OFF; break;
+        case LedManager::OFF: status &= 0; break;
       }
     }
-    this->timeout = (now + this->heartbeat);
+    this->update(status);
+    this->deadline = (now + this->interval);
   }
 }

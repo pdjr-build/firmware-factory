@@ -32,16 +32,40 @@
 #ifndef LEDMANAGER_H
 #define LEDMANAGER_H
 
+/**
+ * @brief 
+ * 
+ */
 class LedManager {
   public:
-    enum Pattern { OFF, ONCE, OFF_ONCE_NEXT, TWICE, OFF_TWICE_NEXT THRICE };
+    static const unsigned int LED_COUNT = 16;
+    /**
+     * @brief Led state options
+     */
+    enum Pattern { OFF, ONCE, OFF_ONCE_NEXT, TWICE, OFF_TWICE_NEXT, THRICE };
 
-    LedManager(unsigned long interval, void (*callback)(unsigned char status));
+    /**
+     * @brief Construct a new Led Manager object
+     * 
+     * @param interval - equiphase heartbeat interval in milliseconds.
+     * @param callback - function to operate the physical LED or whatever and set it to status.
+     */
+    LedManager(void (*callback)(unsigned char status), unsigned long interval = 200);
+
+    /**
+     * @brief Set the state of particular LED.
+     * 
+     * @param led - index of the LED to be updated.
+     * @param pattern - the state to be assigned.
+     */
     void setLedState(unsigned int led, LedManager::Pattern pattern);
+    
     void update();
   private:
-    LedManager::Pattern ledStates[8];
+    void (*callback)(unsigned char status);
     unsigned int interval;
+    LedManager::Pattern *states;
+    unsigned long deadline;
 };
 
 #endif
