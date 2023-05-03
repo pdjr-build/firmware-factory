@@ -28,3 +28,6 @@
 [submodule "sketch/lib/FunctionMapper"]
 	path = sketch/lib/FunctionMapper
 	url = https://github.com/pdjr-modules/FunctionMapper
+[submodule "sketch/lib/LedManager"]
+	path = sketch/lib/LedManager
+	url = https://github.com/pdjr-modules/LedManager
