@@ -1,9 +1,6 @@
 [submodule "sketch/lib/ADC"]
 	path = sketch/lib/ADC
 	url = https://github.com/pedvide/ADC.git
-[submodule "sketch/lib/IC74HC165"]
-	path = sketch/lib/IC74HC165
-	url = https://github.com/pdjr-modules/IC74HC165
 [submodule "sketch/lib/IC74HC595"]
 	path = sketch/lib/IC74HC595
 	url = https://github.com/pdjr-modules/IC74HC595
