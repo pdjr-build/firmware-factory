@@ -1,19 +1,15 @@
-# firmware-factory - build environment for PlatformIO projects.
+# firmware-factory
 
-firmware-factory provides a PlatformIO project folder ```sketch/```
-(which can be configured to meet local needs) and a small collection
-of tools which elaborate PlatformIO features.
+**firmware-factory** implements a build environment for PlatformIO
+projects.
+
+The build environment consists of a PlatformIO project folder called
+```sketch/``` and a small collection of tools which elaborate
+PlatformIO features.
 
 The actual source code that the factory will build is tied into
 the build environment using a symbolic link ```sketch/src``` which
 must be set before attempting a PlatformIO build.
-Simply switch to the ```sketch/``` folder and make a symbolic link
-to the folder which contains your firmware source code.
-For example:
-```
-firmware-factory> cd sketch
-sketch> mkdir ~/mymodule src
-```
 
 The build environment includes an extension to the PlatformIO build
 process that attempts to construct a file ```build.h``` from text
