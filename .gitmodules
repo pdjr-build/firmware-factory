@@ -1,6 +1,3 @@
-[submodule "sketch/lib/spudpole"]
-	path = sketch/lib/spudpole
-	url = http://github.com/preeve9534/spudpole
 [submodule "sketch/lib/ADC"]
 	path = sketch/lib/ADC
 	url = https://github.com/pedvide/ADC.git
