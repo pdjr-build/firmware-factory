@@ -1,27 +1,6 @@
 [submodule "sketch/lib/ADC"]
 	path = sketch/lib/ADC
 	url = https://github.com/pedvide/ADC.git
-[submodule "sketch/lib/IC74HC595"]
-	path = sketch/lib/IC74HC595
-	url = https://github.com/pdjr-modules/IC74HC595
-[submodule "sketch/lib/ProcessQueue"]
-	path = sketch/lib/ProcessQueue
-	url = https://github.com/pdjr-modules/ProcessQueue
-[submodule "sketch/lib/StateMachine"]
-	path = sketch/lib/StateMachine
-	url = https://github.com/pdjr-modules/StateMachine
-[submodule "sketch/lib/ModuleConfiguration"]
-	path = sketch/lib/ModuleConfiguration
-	url = https://github.com/pdjr-modules/ModuleConfiguration
 [submodule "sketch/lib/NMEA2000"]
 	path = sketch/lib/NMEA2000
 	url = https://github.com/pdjr-modules/NMEA2000
-[submodule "sketch/lib/ModuleOperatorInterface"]
-	path = sketch/lib/ModuleOperatorInterface
-	url = https://github.com/pdjr-modules/ModuleOperatorInterface
-[submodule "sketch/lib/FunctionMapper"]
-	path = sketch/lib/FunctionMapper
-	url = https://github.com/pdjr-modules/FunctionMapper
-[submodule "sketch/lib/LedManager"]
-	path = sketch/lib/LedManager
-	url = https://github.com/pdjr-modules/LedManager
