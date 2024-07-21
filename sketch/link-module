@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -d "src/modules/$1" ] ; then
+  pushd src
+  for n in defines.h definitions.h includes.h loop.h setup.h ; do
+    rm $n
+    ln -s modules/$1/$n $n
+  done
+  popd
+  echo "$1" > "CURRENT BUILD"
+fi
